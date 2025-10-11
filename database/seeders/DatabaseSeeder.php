@@ -13,6 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            RolePermissionSeeder::class,
+            CabangSeeder::class,
+            PekerjaanSeeder::class,
+            TipeLayananSeeder::class,
+            JenisDaftarSeeder::class,
+            TipePendaftaranSeeder::class,
+            PajakSeeder::class,
+            KecamatanSeeder::class,
+            KelurahanSeeder::class,
+        ]);
+
         // User::factory(10)->create();
 
         User::factory()->create([

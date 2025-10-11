@@ -1,0 +1,25 @@
+/* Fix untuk Leaflet marker shadow yang hilang */
+.leaflet-marker-icon {
+    margin-left: -12px;
+    margin-top: -41px;
+}
+
+.leaflet-marker-shadow {
+    display: none !important;
+}
+
+/* Alternative: Gunakan marker tanpa shadow */
+.leaflet-div-icon {
+    background: transparent;
+    border: none;
+}
+
+/* Custom marker styling jika diperlukan */
+.leaflet-marker-icon.custom-div-icon {
+    background-color: #3b82f6;
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}

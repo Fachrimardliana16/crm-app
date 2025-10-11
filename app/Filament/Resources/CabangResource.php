@@ -1,0 +1,185 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\CabangResource\Pages;
+use App\Models\Cabang;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\SelectFilter;
+
+class CabangResource extends Resource
+{
+    protected static ?string $model = Cabang::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+
+    protected static ?string $navigationLabel = 'Cabang/Unit';
+
+    protected static ?string $modelLabel = 'Cabang/Unit';
+
+    protected static ?string $pluralModelLabel = 'Cabang/Unit';
+
+    protected static ?string $navigationGroup = 'Master Data';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make('Informasi Cabang/Unit')
+                    ->description('Data cabang atau unit pelayanan')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('kode_cabang')
+                                    ->label('Kode Cabang')
+                                    ->required()
+                                    ->maxLength(10)
+                                    ->placeholder('Contoh: CKB, UKM')
+                                    ->unique(ignoreRecord: true),
+
+                                Forms\Components\TextInput::make('nama_cabang')
+                                    ->label('Nama Cabang')
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+
+                        Forms\Components\TextInput::make('wilayah_pelayanan')
+                            ->label('Wilayah Pelayanan')
+                            ->maxLength(255)
+                            ->placeholder('Contoh: Purbalingga Timur, Purbalingga Barat'),
+
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('telepon')
+                                    ->label('Telepon')
+                                    ->tel()
+                                    ->maxLength(20),
+
+                                Forms\Components\TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
+                                    ->maxLength(255),
+                            ]),
+
+                        Forms\Components\Textarea::make('alamat')
+                            ->label('Alamat')
+                            ->required()
+                            ->rows(3),
+
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('kepala_cabang')
+                                    ->label('Kepala Cabang')
+                                    ->maxLength(255)
+                                    ->placeholder('Nama kepala cabang/unit'),
+
+                                Forms\Components\Toggle::make('status_aktif')
+                                    ->label('Status Aktif')
+                                    ->default(true),
+                            ]),
+
+                        Forms\Components\Textarea::make('keterangan')
+                            ->label('Keterangan')
+                            ->rows(2),
+                    ]),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('kode_cabang')
+                    ->label('Kode')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('nama_cabang')
+                    ->label('Nama Cabang')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('wilayah_pelayanan')
+                    ->label('Wilayah Pelayanan')
+                    ->searchable()
+                    ->placeholder('Tidak diisi'),
+
+                Tables\Columns\TextColumn::make('alamat')
+                    ->label('Alamat')
+                    ->limit(50)
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= 50) {
+                            return null;
+                        }
+                        return $state;
+                    }),
+
+                Tables\Columns\TextColumn::make('telepon')
+                    ->label('Telepon')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('kepala_cabang')
+                    ->label('Kepala Cabang')
+                    ->searchable()
+                    ->placeholder('Belum diisi'),
+
+                Tables\Columns\IconColumn::make('status_aktif')
+                    ->label('Status')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                SelectFilter::make('status_aktif')
+                    ->label('Status')
+                    ->options([
+                        1 => 'Aktif',
+                        0 => 'Tidak Aktif',
+                    ]),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultSort('kode_cabang', 'asc');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListCabangs::route('/'),
+            'create' => Pages\CreateCabang::route('/create'),
+            'edit' => Pages\EditCabang::route('/{record}/edit'),
+        ];
+    }
+}
