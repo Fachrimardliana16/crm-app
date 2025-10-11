@@ -1,210 +1,287 @@
-# StarterKit App
+# PDAM CRM System
 
-Sebuah aplikasi starter kit yang dibangun dengan Laravel dan Filament untuk mempercepat pengembangan aplikasi web modern dengan fitur admin panel yang lengkap.
+Sistem Customer Relationship Management (CRM) khusus untuk Perusahaan Daerah Air Minum (PDAM) yang dibangun dengan Laravel dan Filament untuk mengelola pendaftaran pelanggan, pembayaran, dan operasional harian PDAM.
 
 ## 🚀 Fitur Utama
 
-- **Admin Panel** - Menggunakan Filament v3 untuk interface admin yang modern dan responsif
-- **Authentication** - Sistem autentikasi lengkap dengan Filament Breezy
-- **Authorization** - Role dan permission management dengan Filament Shield
-- **Activity Logging** - Pencatatan aktivitas pengguna secara otomatis
-- **Health Check** - Monitoring kesehatan aplikasi
-- **GeoIP** - Deteksi lokasi berdasarkan IP address
-- **Modern Frontend** - Menggunakan Vite dan TailwindCSS v4
+### 📋 Manajemen Pelanggan
+- **Registrasi Pelanggan** - Pendaftaran pelanggan baru dengan workflow lengkap
+- **Data Pelanggan** - Pengelolaan informasi pelanggan dan riwayat layanan
+- **Survei & Instalasi** - Manajemen proses survei dan pemasangan sambungan
+- **Status Tracking** - Pelacakan status pendaftaran real-time
+
+### 💰 Sistem Pembayaran  
+- **Faktur Digital** - Generate faktur pembayaran otomatis
+- **Print Dot Matrix** - Faktur optimized untuk printer dot matrix
+- **Riwayat Pembayaran** - Tracking pembayaran dan tagihan bulanan
+- **RAB & Angsuran** - Manajemen Rencana Anggaran Biaya dan cicilan
+
+### 🏢 Manajemen Operasional
+- **Master Data** - Cabang, area, kecamatan, kelurahan, dan wilayah layanan
+- **Bacaan Meter** - Input dan monitoring penggunaan air pelanggan
+- **Pengaduan** - Sistem ticketing untuk keluhan pelanggan
+- **Reporting** - Dashboard dan laporan operasional
+
+### 🔐 Sistem Administrasi
+- **Multi-Role Access** - Admin, operator, dan supervisor dengan hak akses berbeda
+- **Activity Logging** - Pencatatan semua aktivitas pengguna
+- **Authentication** - Sistem login yang aman dengan session management
+- **Modal Notifications** - Popup notifications untuk user experience yang lebih baik
 
 ## 🛠️ Tech Stack
 
 ### Backend
 - **Laravel v12** - PHP Framework
 - **PHP ^8.2** - Programming Language
-- **SQLite** - Database (default)
+- **SQLite/MySQL** - Database
 - **Laravel Sanctum** - API Authentication
 
-### Frontend
-- **Vite v7** - Build Tool
-- **TailwindCSS v4** - CSS Framework
-- **Axios** - HTTP Client
-
-### Admin Panel & UI
+### Frontend & UI
 - **Filament v3.3** - Admin Panel Framework
-- **Filament Breezy v2.6** - Authentication UI
-- **Filament Shield v3.9** - Role & Permission Management
-- **Filament Activity Log v1.1** - Activity Logging Interface
-- **Filament Spatie Health v2.3** - Health Check Dashboard
+- **TailwindCSS** - CSS Framework
+- **Alpine.js** - JavaScript Framework
+- **Vite** - Build Tool
+
+### PDAM CRM Modules
+- **Filament Resources** - Customer, Registration, Payment, Billing
+- **Filament Shield** - Role & Permission Management  
+- **Activity Log** - User activity tracking
+- **Dot Matrix Printing** - Optimized faktur for dot matrix printers
+- **Modal System** - Enhanced user notifications
 
 ### Additional Libraries
-- **Laravel Authentication Log v5.0** - Login activity tracking
-- **TorannGeoIP v3.0** - IP geolocation service
+- **Laravel Authentication Log** - Login activity tracking
+- **Spatie Activity Log** - Comprehensive activity logging
+- **Filament Breezy** - Enhanced authentication UI
 
 ## 📋 Requirements
 
 - PHP >= 8.2
 - Composer
 - Node.js & NPM
-- SQLite (atau database lain sesuai konfigurasi)
+- MySQL/SQLite Database
+- Web Server (Apache/Nginx/Built-in PHP Server)
 
 ## ⚡ Quick Start
 
 ### 1. Clone Repository
 ```bash
-git clone <repository-url>
-cd starterkit-app
+git clone https://github.com/Fachrimardliana16/crm-tp.git
+cd crm-tp
 ```
 
-### 2. Setup Aplikasi
-```bash
-composer setup
-```
-
-Script `composer setup` akan otomatis:
-- Install dependencies PHP
-- Copy file `.env.example` ke `.env`
-- Generate application key
-- Menjalankan migrasi database
-- Install dependencies Node.js
-- Build assets
-
-### 3. Jalankan Development Server
-```bash
-composer dev
-```
-
-Script `composer dev` akan menjalankan:
-- Laravel development server (http://localhost:8000)
-- Queue worker
-- Log viewer (Pail)
-- Vite development server
-
-## 🔧 Manual Setup
-
-Jika ingin setup secara manual:
-
-### 1. Install Dependencies
+### 2. Install Dependencies
 ```bash
 composer install
 npm install
 ```
 
-### 2. Environment Setup
+### 3. Environment Setup
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 3. Database Setup
+### 4. Database Setup
 ```bash
+# Edit .env file untuk konfigurasi database
 php artisan migrate
+php artisan db:seed
 ```
 
-### 4. Build Assets
+### 5. Build Assets & Run
 ```bash
 npm run build
-# atau untuk development
-npm run dev
-```
-
-### 5. Run Application
-```bash
 php artisan serve
 ```
+
+Aplikasi akan berjalan di http://localhost:8000
+
+## 🔐 Default Access
+
+Setelah menjalankan seeder, gunakan akun berikut:
+
+**Admin Access:**
+- URL: http://localhost:8000/admin
+- Email: admin@pdam.com
+- Password: password
 
 ## 🧪 Testing
 
 Menjalankan test suite:
 ```bash
-composer test
+php artisan test
 ```
 
-## 📁 Struktur Project
+## 📁 Struktur Aplikasi PDAM CRM
 
 ```
 ├── app/
-│   ├── Filament/           # Filament resources & pages
-│   ├── Http/Controllers/   # HTTP controllers
-│   ├── Models/            # Eloquent models
-│   ├── Policies/          # Authorization policies
-│   └── Providers/         # Service providers
-├── config/                # Configuration files
+│   ├── Filament/
+│   │   ├── Resources/          # PDAM CRM Resources
+│   │   │   ├── PelangganResource.php      # Manajemen Pelanggan
+│   │   │   ├── PendaftaranResource.php    # Registrasi Pelanggan  
+│   │   │   ├── PembayaranResource.php     # Sistem Pembayaran
+│   │   │   ├── TagihanBulananResource.php # Tagihan Bulanan
+│   │   │   ├── BacaanMeterResource.php    # Bacaan Meter Air
+│   │   │   ├── PengaduanResource.php      # Keluhan Pelanggan
+│   │   │   └── Master Data/               # Area, Cabang, dll
+│   │   └── Pages/              # Custom pages & dashboard
+│   ├── Http/Controllers/
+│   │   └── FakturController.php     # Controller print faktur
+│   ├── Models/                 # Eloquent models PDAM
+│   │   ├── Pelanggan.php       # Model Pelanggan
+│   │   ├── Pendaftaran.php     # Model Pendaftaran
+│   │   ├── Pembayaran.php      # Model Pembayaran
+│   │   └── ...                 # Models lainnya
+│   └── Providers/
+│       └── AdminPanelProvider.php   # Filament panel config
 ├── database/
-│   ├── migrations/        # Database migrations
-│   ├── seeders/          # Database seeders
-│   └── factories/        # Model factories
+│   ├── migrations/             # Database schema PDAM CRM
+│   └── seeders/               # Data master PDAM (Cabang, Kecamatan, dll)
 ├── resources/
-│   ├── css/              # Stylesheets
-│   ├── js/               # JavaScript files
-│   └── views/            # Blade templates
-├── routes/               # Application routes
-├── storage/              # Storage files
-└── tests/                # Test files
+│   └── views/
+│       └── faktur/            # Template faktur pembayaran
+│           ├── pembayaran.blade.php    # Faktur dot matrix optimized
+│           └── multiple.blade.php      # Multiple faktur printing
+└── routes/
+    └── web.php                # Routes untuk faktur dan API
 ```
 
-## 🔐 Default Access
+## 🔧 Fitur Khusus PDAM
 
-Setelah setup, Anda dapat mengakses:
-- **Website**: http://localhost:8000
-- **Admin Panel**: http://localhost:8000/admin
+### 📄 Sistem Faktur Dot Matrix
+- **Compact Design**: Faktur dioptimalkan untuk kertas setengah A4/F4
+- **Dot Matrix Friendly**: Menggunakan font Courier New dan border dotted
+- **Print Multiple**: Bisa print beberapa faktur sekaligus dengan page break
+- **Modal Integration**: Popup modal untuk akses cepat print dan view faktur
 
-> **Note**: Pastikan untuk membuat user admin pertama melalui seeder atau command artisan.
+### 📊 Master Data PDAM
+- **Cabang & Area Layanan**: Manajemen wilayah operasional PDAM
+- **Kecamatan & Kelurahan**: Data administrasi lengkap Purbalingga  
+- **Jenis Layanan**: Tipe pendaftaran dan golongan pelanggan
+- **Tarif & Pajak**: Sistem perhitungan biaya yang fleksibel
+
+### � Workflow Pendaftaran
+1. **Pendaftaran Awal**: Input data calon pelanggan
+2. **Survei Lapangan**: Penjadwalan dan hasil survei lokasi
+3. **RAB & Persetujuan**: Rencana Anggaran Biaya pemasangan
+4. **Instalasi**: Proses pemasangan sambungan air
+5. **Pembayaran & Aktivasi**: Pembayaran dan aktivasi layanan
+
+### 🏷️ Modal Notifications
+- **Success Modal**: Popup sukses dengan tombol aksi (Lihat/Print)
+- **Enhanced UX**: Menggantikan notification biasa dengan modal interaktif
+- **Quick Actions**: Akses langsung ke faktur dan detail pendaftaran
 
 ## 📝 Development Commands
 
-- `composer setup` - Setup aplikasi lengkap
-- `composer dev` - Jalankan development server dengan semua services
-- `composer test` - Jalankan test suite
+### Laravel Commands
 - `php artisan migrate` - Jalankan database migration
-- `php artisan filament:make-user` - Buat user admin
+- `php artisan db:seed` - Jalankan database seeders
+- `php artisan serve` - Jalankan development server
+- `php artisan optimize` - Optimize aplikasi (cache routes, config, dll)
+- `php artisan optimize:clear` - Clear semua cache
+
+### Filament Commands  
+- `php artisan filament:make-user` - Buat user admin baru
+- `php artisan shield:generate` - Generate permissions untuk resources
+- `php artisan shield:super-admin` - Assign super admin role
+
+### Asset Commands
 - `npm run dev` - Development mode untuk frontend assets
 - `npm run build` - Build production assets
+- `npm run watch` - Watch perubahan file dan rebuild otomatis
+
+### Faktur & Printing
+- Route: `/faktur/pembayaran/{id}` - View single faktur
+- Route: `/faktur/multiple` - Print multiple faktur
+- Modal popup terintegrasi dengan create pendaftaran
+
+## 🎯 Penggunaan Aplikasi
+
+### 1. Setup Data Master
+- Login ke admin panel `/admin`
+- Setup data Cabang, Kecamatan, Kelurahan
+- Konfigurasi Jenis Layanan dan Tarif
+- Setup roles dan permissions user
+
+### 2. Workflow Pendaftaran Pelanggan
+- Buat pendaftaran baru di menu "Pendaftaran"
+- Modal popup akan muncul setelah sukses create
+- Gunakan tombol "Print Faktur" untuk cetak dot matrix
+- Track status pendaftaran melalui dashboard
+
+### 3. Manajemen Pembayaran
+- Input pembayaran melalui menu "Pembayaran"
+- Generate faktur otomatis setelah pembayaran
+- Print faktur dengan format compact untuk dot matrix
+- Monitor tagihan bulanan dan tunggakan
+
+### 4. Monitoring & Reporting
+- Dashboard overview untuk semua aktivitas
+- Activity log untuk tracking user actions
+- Reports pembayaran dan pendaftaran per periode
+- Monitoring bacaan meter dan penggunaan air
 
 ## 📖 Documentation
 
-- [Laravel Documentation](https://laravel.com/docs)
-- [Filament Documentation](https://filamentphp.com/docs)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+### Framework Documentation  
+- [Laravel Documentation](https://laravel.com/docs) - Laravel framework
+- [Filament Documentation](https://filamentphp.com/docs) - Admin panel framework
+- [TailwindCSS Documentation](https://tailwindcss.com/docs) - CSS framework
+
+### PDAM CRM Guides
+- `ANALISIS_GAP_WORKFLOW.md` - Analisis gap dan workflow bisnis PDAM
+- `FAKTUR_DOT_MATRIX_GUIDE.md` - Guide design faktur untuk printer dot matrix
+- Database schema di folder `database/migrations/`
+- Seeders data master di folder `database/seeders/`
 
 ## 🤝 Contributing
 
-1. Fork repository
-2. Buat feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit perubahan (`git commit -m 'Add some amazing feature'`)
-4. Push ke branch (`git push origin feature/amazing-feature`)
+1. Fork repository ini
+2. Buat feature branch (`git checkout -b feature/fitur-baru`)
+3. Commit perubahan (`git commit -m 'Tambah fitur baru'`)
+4. Push ke branch (`git push origin feature/fitur-baru`)
 5. Buat Pull Request
 
 ## 📄 License
 
 Project ini menggunakan [MIT License](LICENSE).
 
+## 🏢 About PDAM CRM
+
+Sistem CRM ini dirancang khusus untuk kebutuhan Perusahaan Daerah Air Minum (PDAM) dengan fitur-fitur yang disesuaikan dengan workflow operasional PDAM, mulai dari pendaftaran pelanggan baru, manajemen pembayaran, hingga monitoring operasional harian.
+
+**Key Features:**
+- ✅ Modal popup notifications untuk UX yang lebih baik
+- ✅ Faktur dot matrix optimized untuk printer thermal/dot matrix
+- ✅ Compact design faktur untuk efisiensi kertas (setengah A4/F4)
+- ✅ Comprehensive workflow management dari pendaftaran hingga pembayaran
+- ✅ Multi-role access control untuk berbagai level user
+- ✅ Real-time activity logging dan monitoring
+
 ## ⚙️ Configuration
 
-### Environment Variables
+### Environment Variables Penting
+```env
+APP_NAME="PDAM CRM System"
+APP_ENV=local
+APP_DEBUG=true
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306  
+DB_DATABASE=pdam_crm
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
 
-File `.env` berisi konfigurasi penting:
-- `APP_NAME` - Nama aplikasi
-- `APP_ENV` - Environment (local, production)
-- `APP_DEBUG` - Debug mode
-- `DB_CONNECTION` - Database connection
-- Dan lainnya sesuai kebutuhan
-
-### Admin Panel
-
-Filament admin panel dapat dikustomisasi melalui:
-- `config/filament.php` - Konfigurasi utama Filament
-- `config/filament-shield.php` - Konfigurasi role & permission
-- `app/Filament/` - Resources, pages, dan widgets custom
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-1. **Permission Error**: Pastikan folder `storage` dan `bootstrap/cache` writable
-2. **Database Error**: Periksa konfigurasi database di `.env`
-3. **Asset Error**: Jalankan `npm install` dan `npm run build`
-
-### Logs
-
-- Application logs: `storage/logs/laravel.log`
-- Real-time logs: `php artisan pail`
+### Printer Configuration
+Untuk optimal printing di dot matrix printer:
+- Gunakan kertas continuous form atau A4 dipotong setengah
+- Set printer ke mode draft untuk kecepatan tinggi
+- Font Courier New sudah dioptimalkan untuk dot matrix
 
 ---
 
-**Happy Coding! 🎉**
+**Developed with ❤️ for PDAM Operations**
