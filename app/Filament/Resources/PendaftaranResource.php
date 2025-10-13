@@ -373,6 +373,7 @@ class PendaftaranResource extends Resource
                                             $tipeLayanan = \App\Models\TipeLayanan::find($state);
                                             if ($tipeLayanan) {
                                                 $set('biaya_tipe_layanan', $tipeLayanan->biaya_standar ?? 0);
+                                                $set('tipe_layanan', $tipeLayanan->nama_tipe_layanan);
                                                 self::calculateTotalBiaya($get, $set);
                                             }
                                         }
@@ -510,6 +511,8 @@ class PendaftaranResource extends Resource
                                 Forms\Components\Hidden::make('biaya_tambahan')->default(0),
                                 Forms\Components\Hidden::make('subtotal_biaya'),
                                 Forms\Components\Hidden::make('nilai_pajak'),
+                                Forms\Components\Hidden::make('status_pendaftaran')->default('draft'),
+                                Forms\Components\Hidden::make('tipe_layanan'),
 
                                 // Audit fields
                                 Forms\Components\Hidden::make('dibuat_oleh')
@@ -526,7 +529,7 @@ class PendaftaranResource extends Resource
                         Grid::make(3)
                             ->schema([
                                 Forms\Components\TextInput::make('jumlah_pemakai')
-                                    ->label('Jumlah Pemakian SR')
+                                    ->label('Jumlah Pemakai SR')
                                     ->numeric()
                                     ->maxLength(2)
                                     ->rules(['min:0', 'max:99'])

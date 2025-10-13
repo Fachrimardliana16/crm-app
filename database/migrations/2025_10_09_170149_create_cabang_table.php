@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id_cabang')->primary();
             $table->string('kode_cabang', 10)->unique(); // CKB, CJB, etc
             $table->string('nama_cabang');
+            $table->string('wilayah_pelayanan')->nullable(); // Added from add migration
             $table->string('alamat');
             $table->string('telepon')->nullable();
             $table->string('email')->nullable();

@@ -144,6 +144,9 @@ class CreatePendaftaran extends CreateRecord
 
     protected function afterCreate(): void
     {
+        // Create survei record automatically after pendaftaran is created
+        $this->createSurveiRecord();
+
         // Inject JavaScript to show modal popup
         $recordId = $this->record->id_pendaftaran;
         $nomorRegistrasi = $this->record->nomor_registrasi;
@@ -170,7 +173,8 @@ class CreatePendaftaran extends CreateRecord
 
                             <!-- Message -->
                             <p class='text-gray-600 dark:text-gray-400 text-center mb-6'>
-                                Data pendaftaran telah berhasil disimpan dengan nomor registrasi: <strong>{$nomorRegistrasi}</strong>
+                                Data pendaftaran telah berhasil disimpan dengan nomor registrasi: <strong>{$nomorRegistrasi}</strong><br>
+                                <small class='text-green-600 dark:text-green-400'>✅ Data survei otomatis dibuat dan siap dijadwalkan</small>
                             </p>
 
                             <!-- Action buttons -->
@@ -221,5 +225,25 @@ class CreatePendaftaran extends CreateRecord
                 }
             });
         ");
+    }
+
+    /**
+     * Create survei record automatically after pendaftaran is created
+     */
+    private function createSurveiRecord(): void
+    {
+        try {
+            \App\Models\Survei::create([
+                'id_survei' => \Illuminate\Support\Str::uuid()->toString(),
+                'id_pendaftaran' => $this->record->id_pendaftaran,
+                'id_pelanggan' => $this->record->id_pelanggan,
+                'status_survei' => 'draft',
+                'dibuat_oleh' => auth()->id(),
+                'dibuat_pada' => now(),
+            ]);
+        } catch (Exception $e) {
+            // Log error but don't break the flow
+            \Illuminate\Support\Facades\Log::error('Failed to create survei record: ' . $e->getMessage());
+        }
     }
 }

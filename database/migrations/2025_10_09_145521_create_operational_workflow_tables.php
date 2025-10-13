@@ -14,17 +14,22 @@ return new class extends Migration
         // PENDAFTARAN - Customer registration workflow
         Schema::create('pendaftaran', function (Blueprint $table) {
             $table->uuid('id_pendaftaran')->primary();
-            $table->uuid('id_pelanggan');
-            $table->string('status_pendaftaran');
+            $table->string('nomor_registrasi')->unique(); // Added from update migration
+            $table->uuid('id_cabang'); // Added from update migration
+            $table->uuid('id_pelanggan')->nullable(); // Made nullable from update migration
+            $table->string('status_pendaftaran')->default('draft');
             $table->string('cabang_pendaftaran')->nullable();
-            $table->string('kelurahan_pemasangan');
-            $table->string('tipe_layanan');
+            $table->string('kelurahan_pemasangan')->nullable(); // Made nullable from make migration
+            $table->uuid('id_kelurahan')->nullable(); // Added from update migration
+            $table->string('tipe_layanan')->nullable();
+            $table->uuid('id_tipe_layanan')->nullable(); // Added from update migration
             $table->string('pekerjaan_pemohon')->nullable();
+            $table->uuid('id_pekerjaan')->nullable(); // Added from update migration
             $table->string('jenis_identitas')->nullable();
             $table->string('nomor_identitas')->nullable(); // Encrypted
             $table->date('tanggal_daftar');
-            $table->string('nik_pemohon')->nullable(); // Encrypted
             $table->string('nama_pemohon');
+            $table->string('no_hp_pemohon')->nullable(); // Added missing column
             $table->text('alamat_pemasangan');
 
             // Location Data
@@ -39,12 +44,35 @@ return new class extends Migration
 
             // Financial
             $table->decimal('dana_pengembalian', 15, 2)->default(0);
+            $table->text('data_pengembalian')->nullable(); // Added from missing columns migration
+            $table->decimal('biaya_tipe_layanan', 15, 2)->nullable(); // Added from biaya migration
+            $table->decimal('biaya_jenis_daftar', 15, 2)->nullable(); // Added from biaya migration
+            $table->decimal('biaya_tipe_pendaftaran', 15, 2)->nullable(); // Added from biaya migration
+            $table->decimal('biaya_tambahan', 15, 2)->nullable(); // Added from biaya migration
+            $table->decimal('subtotal_biaya', 15, 2)->nullable(); // Added missing column
+            $table->decimal('total_biaya_pendaftaran', 15, 2)->nullable(); // Added from biaya migration
+
+            // Pajak columns (Added from pajak migration)
+            $table->uuid('id_pajak')->nullable();
+            $table->decimal('nilai_pajak', 15, 2)->nullable();
+            $table->decimal('pajak_ppn', 15, 2)->nullable();
+            $table->decimal('total_pajak', 15, 2)->nullable();
+            $table->decimal('total_biaya_termasuk_pajak', 15, 2)->nullable();
 
             // Installation Details
             $table->enum('ada_toren', ['ya', 'tidak'])->default('tidak');
             $table->enum('ada_sumur', ['ya', 'tidak'])->default('tidak');
             $table->enum('jenis_daftar', ['standar', 'non_standar'])->default('standar');
+            $table->uuid('id_jenis_daftar')->nullable(); // Added from update migration
             $table->enum('tipe_daftar', ['standar', 'kilat'])->default('standar');
+            $table->uuid('id_tipe_pendaftaran')->nullable(); // Added from update migration
+
+            // Additional fields from missing columns migration
+            $table->string('jenis_air_baku')->nullable();
+            $table->string('sistem_distribusi')->nullable();
+            $table->text('catatan_khusus')->nullable();
+            $table->enum('status_pembayaran', ['belum_bayar', 'lunas', 'sebagian'])->default('belum_bayar');
+            $table->timestamp('tanggal_pembayaran')->nullable();
 
             $table->string('dibuat_oleh');
             $table->timestamp('dibuat_pada');
@@ -61,7 +89,7 @@ return new class extends Migration
             $table->uuid('id_survei')->primary();
             $table->uuid('id_pendaftaran');
             $table->uuid('id_pelanggan');
-            $table->uuid('id_spam');
+            $table->uuid('id_spam')->nullable();
             $table->string('nip_surveyor');
             $table->date('tanggal_survei');
             $table->enum('status_survei', ['draft', 'disetujui', 'ditolak'])->default('draft');
@@ -89,6 +117,28 @@ return new class extends Migration
             $table->string('foto_meteran_listrik')->nullable();
 
             $table->text('rekomendasi_teknis')->nullable();
+            
+            // Map data
+            $table->string('lokasi_map')->nullable();
+            
+            // Master data foreign keys (will be constrained later)
+            $table->unsignedBigInteger('master_luas_tanah_id')->nullable();
+            $table->unsignedBigInteger('master_luas_bangunan_id')->nullable();
+            $table->unsignedBigInteger('master_lokasi_bangunan_id')->nullable();
+            $table->unsignedBigInteger('master_dinding_bangunan_id')->nullable();
+            $table->unsignedBigInteger('master_lantai_bangunan_id')->nullable();
+            $table->unsignedBigInteger('master_atap_bangunan_id')->nullable();
+            $table->unsignedBigInteger('master_pagar_bangunan_id')->nullable();
+            $table->unsignedBigInteger('master_kondisi_jalan_id')->nullable();
+            $table->unsignedBigInteger('master_daya_listrik_id')->nullable();
+            $table->unsignedBigInteger('master_fungsi_rumah_id')->nullable();
+            $table->unsignedBigInteger('master_kepemilikan_kendaraan_id')->nullable();
+            
+            // Calculated and result columns
+            $table->integer('skor_total')->nullable();
+            $table->enum('hasil_survei', ['direkomendasikan', 'tidak_direkomendasikan', 'perlu_review'])->nullable();
+            $table->enum('kategori_golongan', ['A', 'B', 'C', 'D'])->nullable();
+            
             $table->string('dibuat_oleh');
             $table->timestamp('dibuat_pada');
             $table->string('diperbarui_oleh')->nullable();

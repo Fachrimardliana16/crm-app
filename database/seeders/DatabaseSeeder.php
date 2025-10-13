@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            AdminUserSeeder::class, // Added
             CabangSeeder::class,
             PekerjaanSeeder::class,
             TipeLayananSeeder::class,
@@ -23,6 +24,8 @@ class DatabaseSeeder extends Seeder
             PajakSeeder::class,
             KecamatanSeeder::class,
             KelurahanSeeder::class,
+            MasterParameterSurveiSeeder::class, // Added
+            GolonganPelangganSeeder::class, // Added
         ]);
 
         // User::factory(10)->create();

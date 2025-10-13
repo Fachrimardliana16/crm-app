@@ -42,115 +42,34 @@ class GolonganPelangganResource extends Resource
                                     ->label('Kode Golongan')
                                     ->required()
                                     ->unique(ignoreRecord: true)
+                                    ->placeholder('SOC, KOM, IND, dll')
                                     ->maxLength(10),
 
                                 Forms\Components\TextInput::make('nama_golongan')
                                     ->label('Nama Golongan')
                                     ->required()
+                                    ->placeholder('Sosial, Komersial, Industri, dll')
                                     ->maxLength(255),
                             ]),
 
-                        Forms\Components\Textarea::make('deskripsi_golongan')
-                            ->label('Deskripsi Golongan')
-                            ->rows(3),
+                        Forms\Components\Textarea::make('deskripsi')
+                            ->label('Deskripsi')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
 
-                        Forms\Components\Toggle::make('status_aktif')
-                            ->label('Status Aktif')
-                            ->default(true),
-                    ]),
-
-                Forms\Components\Section::make('Tarif Dasar')
-                    ->description('Pengaturan tarif dasar dan batas pemakaian')
-                    ->schema([
-                        Forms\Components\Grid::make(3)
-                            ->schema([
-                                Forms\Components\TextInput::make('tarif_dasar')
-                                    ->label('Tarif Dasar')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->required(),
-
-                                Forms\Components\TextInput::make('batas_minimum')
-                                    ->label('Batas Minimum (M³)')
-                                    ->numeric()
-                                    ->suffix('M³')
-                                    ->required(),
-
-                                Forms\Components\TextInput::make('batas_maksimum')
-                                    ->label('Batas Maksimum (M³)')
-                                    ->numeric()
-                                    ->suffix('M³'),
-                            ]),
-                    ]),
-
-                Forms\Components\Section::make('Tarif Progresif')
-                    ->description('Tarif progresif untuk pemakaian di atas batas minimum')
-                    ->schema([
-                        Forms\Components\Grid::make(3)
-                            ->schema([
-                                Forms\Components\TextInput::make('tarif_progresif_1')
-                                    ->label('Tarif Progresif 1')
-                                    ->numeric()
-                                    ->prefix('Rp'),
-
-                                Forms\Components\TextInput::make('tarif_progresif_2')
-                                    ->label('Tarif Progresif 2')
-                                    ->numeric()
-                                    ->prefix('Rp'),
-
-                                Forms\Components\TextInput::make('tarif_progresif_3')
-                                    ->label('Tarif Progresif 3')
-                                    ->numeric()
-                                    ->prefix('Rp'),
-                            ]),
-                    ]),
-
-                Forms\Components\Section::make('Biaya Tambahan')
-                    ->description('Biaya tetap dan administrasi')
-                    ->schema([
-                        Forms\Components\Grid::make(3)
-                            ->schema([
-                                Forms\Components\TextInput::make('biaya_beban_tetap')
-                                    ->label('Biaya Beban Tetap')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->default(0),
-
-                                Forms\Components\TextInput::make('biaya_administrasi')
-                                    ->label('Biaya Administrasi')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->default(0),
-
-                                Forms\Components\TextInput::make('biaya_pemeliharaan')
-                                    ->label('Biaya Pemeliharaan')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->default(0),
-                            ]),
-                    ]),
-
-                Forms\Components\Section::make('Periode Berlaku')
-                    ->description('Masa berlaku tarif')
-                    ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\DatePicker::make('berlaku_sejak')
-                                    ->label('Berlaku Sejak')
-                                    ->required()
-                                    ->default(now()),
+                                Forms\Components\Toggle::make('is_active')
+                                    ->label('Status Aktif')
+                                    ->default(true),
 
-                                Forms\Components\DatePicker::make('berlaku_hingga')
-                                    ->label('Berlaku Hingga')
-                                    ->after('berlaku_sejak'),
+                                Forms\Components\TextInput::make('urutan')
+                                    ->label('Urutan')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->helperText('Untuk mengurutkan tampilan golongan'),
                             ]),
-                    ]),
-
-                Forms\Components\Section::make('Keterangan')
-                    ->schema([
-                        Forms\Components\Textarea::make('keterangan')
-                            ->label('Keterangan Tambahan')
-                            ->rows(3),
                     ])
                     ->collapsible(),
             ]);
@@ -163,78 +82,54 @@ class GolonganPelangganResource extends Resource
                 Tables\Columns\TextColumn::make('kode_golongan')
                     ->label('Kode')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('nama_golongan')
                     ->label('Nama Golongan')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('tarif_dasar')
-                    ->label('Tarif Dasar')
-                    ->money('IDR')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('deskripsi')
+                    ->label('Deskripsi')
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('batas_minimum')
-                    ->label('Batas Min')
-                    ->suffix(' M³')
-                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Status')
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('danger'),
 
-                Tables\Columns\IconColumn::make('status_aktif')
-                    ->label('Aktif')
-                    ->boolean(),
+                Tables\Columns\TextColumn::make('urutan')
+                    ->label('Urutan')
+                    ->sortable()
+                    ->toggleable(),
 
-                Tables\Columns\TextColumn::make('berlaku_sejak')
-                    ->label('Berlaku Sejak')
-                    ->date()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('berlaku_hingga')
-                    ->label('Berlaku Hingga')
-                    ->date()
-                    ->placeholder('Tidak terbatas')
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('pelanggan_count')
-                    ->label('Jumlah Pelanggan')
-                    ->counts('pelanggan')
-                    ->badge(),
-
-                Tables\Columns\TextColumn::make('dibuat_pada')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('status_aktif')
-                    ->label('Status')
-                    ->placeholder('Semua')
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('Status Aktif')
+                    ->boolean()
                     ->trueLabel('Aktif')
-                    ->falseLabel('Non-Aktif'),
-
-                Tables\Filters\Filter::make('berlaku_sekarang')
-                    ->label('Berlaku Saat Ini')
-                    ->query(fn (Builder $query) => $query->berlaku()),
+                    ->falseLabel('Non-Aktif')
+                    ->native(false),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('lihat_tarif')
-                    ->label('Lihat Tarif')
-                    ->icon('heroicon-o-calculator')
-                    ->color('info')
-                    ->modalHeading('Struktur Tarif')
-                    ->modalContent(fn ($record) => view('filament.modals.tarif-structure', compact('record')))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Tutup'),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('nama_golongan');
+            ->defaultSort('urutan');
     }
 
     public static function getRelations(): array

@@ -51,21 +51,6 @@ class KecamatanResource extends Resource
                                     ->maxLength(255),
                             ]),
 
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\TextInput::make('kota')
-                                    ->label('Kota/Kabupaten')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->default('Kabupaten Purbalingga'),
-
-                                Forms\Components\TextInput::make('provinsi')
-                                    ->label('Provinsi')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->default('Jawa Tengah'),
-                            ]),
-
                         Forms\Components\Toggle::make('status_aktif')
                             ->label('Status Aktif')
                             ->default(true)
@@ -87,22 +72,6 @@ class KecamatanResource extends Resource
                     ->label('Nama Kecamatan')
                     ->searchable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('kota')
-                    ->label('Kota/Kabupaten')
-                    ->searchable()
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('provinsi')
-                    ->label('Provinsi')
-                    ->searchable()
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('kelurahans_count')
-                    ->label('Jumlah Kelurahan')
-                    ->counts('kelurahans')
-                    ->badge()
-                    ->color('success'),
 
                 Tables\Columns\IconColumn::make('status_aktif')
                     ->label('Status')

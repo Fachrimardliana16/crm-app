@@ -21,7 +21,7 @@ class Survei extends Model
 
     protected $fillable = [
         'id_pendaftaran',
-        'id_pelanggan',
+        'id_pelanggan', 
         'id_spam',
         'nip_surveyor',
         'tanggal_survei',
@@ -44,10 +44,21 @@ class Survei extends Model
         'foto_jalan',
         'foto_meteran_listrik',
         'rekomendasi_teknis',
-        'dibuat_oleh',
-        'dibuat_pada',
-        'diperbarui_oleh',
-        'diperbarui_pada',
+        'lokasi_map',
+        'master_luas_tanah_id',
+        'master_luas_bangunan_id',
+        'master_lokasi_bangunan_id',
+        'master_dinding_bangunan_id',
+        'master_lantai_bangunan_id',
+        'master_atap_bangunan_id',
+        'master_pagar_bangunan_id',
+        'master_kondisi_jalan_id',
+        'master_daya_listrik_id',
+        'master_fungsi_rumah_id',
+        'master_kepemilikan_kendaraan_id',
+        'skor_total',
+        'hasil_survei',
+        'kategori_golongan',
     ];
 
     protected $casts = [
@@ -57,6 +68,7 @@ class Survei extends Model
         'elevasi_terverifikasi_mdpl' => 'decimal:2',
         'jarak_pemasangan' => 'decimal:2',
         'nilai_survei' => 'integer',
+        'lokasi_map' => 'array',
         'dibuat_pada' => 'datetime',
         'diperbarui_pada' => 'datetime',
     ];
@@ -77,9 +89,65 @@ class Survei extends Model
     }
 
     // Relationships
-    public function pendaftaran(): BelongsTo
+    public function pendaftaran()
     {
-        return $this->belongsTo(Pendaftaran::class, 'id_pendaftaran', 'id_pendaftaran');
+        return $this->belongsTo(Pendaftaran::class);
+    }
+
+    // Master Data Relations
+    public function masterLuasTanah()
+    {
+        return $this->belongsTo(MasterLuasTanah::class);
+    }
+
+    public function masterLuasBangunan()
+    {
+        return $this->belongsTo(MasterLuasBangunan::class);
+    }
+
+    public function masterLokasiBangunan()
+    {
+        return $this->belongsTo(MasterLokasiBangunan::class);
+    }
+
+    public function masterDindingBangunan()
+    {
+        return $this->belongsTo(MasterDindingBangunan::class);
+    }
+
+    public function masterLantaiBangunan()
+    {
+        return $this->belongsTo(MasterLantaiBangunan::class);
+    }
+
+    public function masterAtapBangunan()
+    {
+        return $this->belongsTo(MasterAtapBangunan::class);
+    }
+
+    public function masterPagarBangunan()
+    {
+        return $this->belongsTo(MasterPagarBangunan::class);
+    }
+
+    public function masterKondisiJalan()
+    {
+        return $this->belongsTo(MasterKondisiJalan::class);
+    }
+
+    public function masterDayaListrik()
+    {
+        return $this->belongsTo(MasterDayaListrik::class);
+    }
+
+    public function masterFungsiRumah()
+    {
+        return $this->belongsTo(MasterFungsiRumah::class);
+    }
+
+    public function masterKepemilikanKendaraan()
+    {
+        return $this->belongsTo(MasterKepemilikanKendaraan::class);
     }
 
     public function pelanggan(): BelongsTo

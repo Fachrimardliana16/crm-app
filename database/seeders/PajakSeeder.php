@@ -22,42 +22,6 @@ class PajakSeeder extends Seeder
                 'jenis_pajak' => 'persentase',
                 'status_aktif' => true,
             ],
-            [
-                'kode_pajak' => 'PPH21',
-                'nama_pajak' => 'Pajak Penghasilan Pasal 21',
-                'deskripsi' => 'Pajak Penghasilan Pasal 21 untuk pegawai',
-                'persentase_pajak' => 5.00,
-                'nilai_tetap' => null,
-                'jenis_pajak' => 'persentase',
-                'status_aktif' => true,
-            ],
-            [
-                'kode_pajak' => 'PPH23',
-                'nama_pajak' => 'Pajak Penghasilan Pasal 23',
-                'deskripsi' => 'Pajak Penghasilan Pasal 23 untuk jasa',
-                'persentase_pajak' => 2.00,
-                'nilai_tetap' => null,
-                'jenis_pajak' => 'persentase',
-                'status_aktif' => true,
-            ],
-            [
-                'kode_pajak' => 'ADM',
-                'nama_pajak' => 'Biaya Administrasi',
-                'deskripsi' => 'Biaya administrasi tetap untuk setiap transaksi',
-                'persentase_pajak' => 0,
-                'nilai_tetap' => 10000,
-                'jenis_pajak' => 'nilai_tetap',
-                'status_aktif' => true,
-            ],
-            [
-                'kode_pajak' => 'MATERAI',
-                'nama_pajak' => 'Meterai',
-                'deskripsi' => 'Biaya meterai untuk dokumen resmi',
-                'persentase_pajak' => 0,
-                'nilai_tetap' => 10000,
-                'jenis_pajak' => 'nilai_tetap',
-                'status_aktif' => true,
-            ],
         ];
 
         foreach ($pajakData as $data) {

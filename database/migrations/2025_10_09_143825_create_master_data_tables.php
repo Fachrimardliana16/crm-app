@@ -42,23 +42,6 @@ return new class extends Migration
             $table->index(['status', 'kode_area']);
         });
 
-        // GOLONGAN_PELANGGAN
-        Schema::create('golongan_pelanggan', function (Blueprint $table) {
-            $table->uuid('id_golongan')->primary();
-            $table->string('kode_golongan')->unique();
-            $table->string('nama_golongan');
-            $table->text('deskripsi')->nullable();
-            $table->decimal('tarif_minimum', 15, 2)->default(0);
-            $table->decimal('tarif_per_m3', 15, 2)->default(0);
-            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
-            $table->string('dibuat_oleh');
-            $table->timestamp('dibuat_pada');
-            $table->string('diperbarui_oleh')->nullable();
-            $table->timestamp('diperbarui_pada')->nullable();
-
-            $table->index(['status', 'kode_golongan']);
-        });
-
         // STATUS TABLES - Dynamic creation
         $statusTables = [
             'status_pelanggan',

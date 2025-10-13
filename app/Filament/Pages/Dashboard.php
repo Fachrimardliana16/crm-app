@@ -5,30 +5,36 @@ namespace App\Filament\Pages;
 use Filament\Pages\Page;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Pages\Dashboard as BaseDashboard;
 use App\Models\Pendaftaran;
 use App\Models\Pelanggan;
 use App\Models\Pengaduan;
 use App\Models\TagihanBulanan;
 use Illuminate\Support\Facades\DB;
 
-class Dashboard extends Page
+class Dashboard extends BaseDashboard
 {
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
     protected static ?string $navigationLabel = 'Dashboard';
 
-    protected static ?string $title = 'Dashboard PDAM CRM';
+    protected static ?string $title = 'Dashboard Customer Relationship Management';
 
     protected static string $view = 'filament.pages.dashboard';
 
     protected static ?int $navigationSort = 0;
 
-    protected function getHeaderWidgets(): array
+    public function getWidgets(): array
     {
         return [
-            DashboardStatsWidget::class,
-            WorkflowStatsWidget::class,
+            \App\Filament\Widgets\DashboardStatsWidget::class,
+            \App\Filament\Widgets\WorkflowStatsWidget::class,
         ];
+    }
+
+    public function mount(): void
+    {
+        abort_unless(auth()->check(), 403);
     }
 }
 

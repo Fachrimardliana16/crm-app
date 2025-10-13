@@ -68,10 +68,6 @@ class KelurahanResource extends Resource
                                             ->label('Nama Kecamatan')
                                             ->required()
                                             ->maxLength(255),
-                                        Forms\Components\TextInput::make('kota')
-                                            ->label('Kota/Kabupaten')
-                                            ->required()
-                                            ->default('Kabupaten Purbalingga'),
                                         Forms\Components\TextInput::make('provinsi')
                                             ->label('Provinsi')
                                             ->required()
@@ -110,11 +106,6 @@ class KelurahanResource extends Resource
                     ->label('Kecamatan')
                     ->searchable()
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('kecamatan.kota')
-                    ->label('Kota/Kabupaten')
-                    ->searchable()
-                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('kode_pos')
                     ->label('Kode Pos')

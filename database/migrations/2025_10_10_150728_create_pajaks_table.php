@@ -22,6 +22,11 @@ return new class extends Migration
             $table->boolean('status_aktif')->default(true);
             $table->timestamps();
         });
+
+        // Add id_pajak foreign key constraint after pajak table is created
+        Schema::table('pendaftaran', function (Blueprint $table) {
+            $table->foreign('id_pajak')->references('id_pajak')->on('pajak')->onDelete('set null');
+        });
     }
 
     /**
@@ -29,6 +34,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop foreign key first
+        Schema::table('pendaftaran', function (Blueprint $table) {
+            $table->dropForeign(['id_pajak']);
+        });
+
         Schema::dropIfExists('pajak');
     }
 };
