@@ -20,63 +20,63 @@ class RayonSeeder extends Seeder
         $rayons = [
             [
                 'kode_rayon' => '01',
-                'nama_rayon' => 'Rayon Pusat Kota',
-                'deskripsi' => 'Rayon yang melayani area pusat kota dan sekitarnya',
-                'wilayah' => 'Kecamatan Klojen, Lowokwaru',
-                'koordinat_pusat_lat' => -7.9666,
-                'koordinat_pusat_lng' => 112.6326,
+                'nama_rayon' => 'Rayon Purbalingga Kota',
+                'deskripsi' => 'Rayon yang melayani area pusat kota Purbalingga',
+                'wilayah' => 'Kecamatan Purbalingga, Kalimanah',
+                'koordinat_pusat_lat' => -7.3881,
+                'koordinat_pusat_lng' => 109.3668,
                 'radius_coverage' => 5000,
                 'kapasitas_maksimal' => 2000,
                 'status_aktif' => 'aktif',
-                'keterangan' => 'Rayon utama yang melayani area komersial dan perkantoran'
+                'keterangan' => 'Rayon utama yang melayani area pusat kota dan perkantoran'
             ],
             [
                 'kode_rayon' => '02',
-                'nama_rayon' => 'Rayon Selatan',
-                'deskripsi' => 'Rayon yang melayani area selatan kota',
-                'wilayah' => 'Kecamatan Blimbing, Sukun',
-                'koordinat_pusat_lat' => -7.9797,
-                'koordinat_pusat_lng' => 112.6304,
-                'radius_coverage' => 6000,
+                'nama_rayon' => 'Rayon Utara',
+                'deskripsi' => 'Rayon yang melayani area utara Purbalingga',
+                'wilayah' => 'Kecamatan Kemangkon, Bukateja',
+                'koordinat_pusat_lat' => -7.3200,
+                'koordinat_pusat_lng' => 109.3500,
+                'radius_coverage' => 7000,
                 'kapasitas_maksimal' => 1500,
                 'status_aktif' => 'aktif',
-                'keterangan' => 'Rayon yang melayani area perumahan dan industri kecil'
+                'keterangan' => 'Rayon yang melayani area perkebunan dan pertanian utara'
             ],
             [
                 'kode_rayon' => '03',
-                'nama_rayon' => 'Rayon Utara',
-                'deskripsi' => 'Rayon yang melayani area utara kota',
-                'wilayah' => 'Kecamatan Kedungkandang',
-                'koordinat_pusat_lat' => -7.9553,
-                'koordinat_pusat_lng' => 112.6281,
-                'radius_coverage' => 7000,
+                'nama_rayon' => 'Rayon Selatan',
+                'deskripsi' => 'Rayon yang melayani area selatan Purbalingga',
+                'wilayah' => 'Kecamatan Kutasari, Mrebet',
+                'koordinat_pusat_lat' => -7.4500,
+                'koordinat_pusat_lng' => 109.3800,
+                'radius_coverage' => 8000,
                 'kapasitas_maksimal' => 1800,
                 'status_aktif' => 'aktif',
-                'keterangan' => 'Rayon yang melayani area perumahan dan pendidikan'
+                'keterangan' => 'Rayon yang melayani area peternakan dan perkebunan'
             ],
             [
                 'kode_rayon' => '04',
                 'nama_rayon' => 'Rayon Timur',
-                'deskripsi' => 'Rayon yang melayani area timur kota',
-                'wilayah' => 'Kecamatan Pakis, Tumpang',
-                'koordinat_pusat_lat' => -7.9344,
-                'koordinat_pusat_lng' => 112.6544,
-                'radius_coverage' => 8000,
+                'deskripsi' => 'Rayon yang melayani area timur Purbalingga',
+                'wilayah' => 'Kecamatan Bobotsari, Karangreja',
+                'koordinat_pusat_lat' => -7.3700,
+                'koordinat_pusat_lng' => 109.4200,
+                'radius_coverage' => 6000,
                 'kapasitas_maksimal' => 1200,
                 'status_aktif' => 'aktif',
-                'keterangan' => 'Rayon yang melayani area pegunungan dan wisata'
+                'keterangan' => 'Rayon yang melayani area industri dan perdagangan timur'
             ],
             [
                 'kode_rayon' => '05',
                 'nama_rayon' => 'Rayon Barat',
-                'deskripsi' => 'Rayon yang melayani area barat kota',
-                'wilayah' => 'Kecamatan Karangploso, Dau',
-                'koordinat_pusat_lat' => -7.9389,
-                'koordinat_pusat_lng' => 112.5906,
+                'deskripsi' => 'Rayon yang melayani area barat Purbalingga',
+                'wilayah' => 'Kecamatan Pengadegan, Rembang',
+                'koordinat_pusat_lat' => -7.4000,
+                'koordinat_pusat_lng' => 109.3000,
                 'radius_coverage' => 9000,
                 'kapasitas_maksimal' => 1000,
                 'status_aktif' => 'aktif',
-                'keterangan' => 'Rayon yang melayani area pertanian dan perkebunan'
+                'keterangan' => 'Rayon yang melayani area pegunungan dan wisata alam'
             ]
         ];
 
