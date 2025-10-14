@@ -2,13 +2,11 @@
 
 return [
     'shield_resource' => [
-        'should_register_navigation' => false, // Disable Shield's default role resource
+        'should_register_navigation' => true,
         'slug' => 'shield/roles',
-        'navigation_sort' => 30, // After Users (20)
+        'navigation_sort' => -1,
         'navigation_badge' => true,
-        'navigation_group' => 'User Management',
-        'navigation_icon' => 'heroicon-o-shield-check',
-        'navigation_label' => 'Roles',
+        'navigation_group' => true,
         'sub_navigation_position' => null,
         'is_globally_searchable' => false,
         'show_model_path' => true,

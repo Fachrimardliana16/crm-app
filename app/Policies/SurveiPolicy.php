@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
+use App\Models\Survei;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class RolePolicy
+class SurveiPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_role');
+        return $user->can('view_any_survei');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Role $role): bool
+    public function view(User $user, Survei $survei): bool
     {
-        return $user->can('view_role');
+        return $user->can('view_survei');
     }
 
     /**
@@ -31,23 +31,23 @@ class RolePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_role');
+        return $user->can('create_survei');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Role $role): bool
+    public function update(User $user, Survei $survei): bool
     {
-        return $user->can('update_role');
+        return $user->can('update_survei');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Role $role): bool
+    public function delete(User $user, Survei $survei): bool
     {
-        return $user->can('delete_role');
+        return $user->can('delete_survei');
     }
 
     /**
@@ -55,15 +55,15 @@ class RolePolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_role');
+        return $user->can('delete_any_survei');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Role $role): bool
+    public function forceDelete(User $user, Survei $survei): bool
     {
-        return $user->can('force_delete_role');
+        return $user->can('force_delete_survei');
     }
 
     /**
@@ -71,15 +71,15 @@ class RolePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_role');
+        return $user->can('force_delete_any_survei');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Role $role): bool
+    public function restore(User $user, Survei $survei): bool
     {
-        return $user->can('restore_role');
+        return $user->can('restore_survei');
     }
 
     /**
@@ -87,15 +87,15 @@ class RolePolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_role');
+        return $user->can('restore_any_survei');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Role $role): bool
+    public function replicate(User $user, Survei $survei): bool
     {
-        return $user->can('replicate_role');
+        return $user->can('replicate_survei');
     }
 
     /**
@@ -103,6 +103,6 @@ class RolePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_role');
+        return $user->can('reorder_survei');
     }
 }
