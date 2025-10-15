@@ -7,7 +7,7 @@ return [
      * Your API path. By default, all routes starting with this path will be added to the docs.
      * If you need to change this behavior, you can add your custom routes resolver using `Scramble::routes()`.
      */
-    'api_path' => 'api/v1',
+    'api_path' => 'api',
 
     /*
      * Your API domain. By default, app domain is used. This is also a part of the default API routes
@@ -90,8 +90,8 @@ return [
      * ```
      */
     'servers' => [
-        'Development' => 'api/v1',
-        'Production' => env('APP_URL', 'http://localhost') . '/api/v1',
+        'Development' => 'api',
+        'Production' => env('APP_URL', 'http://localhost') . '/api',
     ],
 
     /**

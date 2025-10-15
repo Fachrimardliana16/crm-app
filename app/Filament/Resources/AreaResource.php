@@ -234,6 +234,11 @@ class AreaResource extends Resource
         ];
     }
 
+    public static function getApiTransformer()
+    {
+        return \App\Filament\Resources\AreaResource\Api\Transformers\AreaTransformer::class;
+    }
+
     public static function getPages(): array
     {
         return [

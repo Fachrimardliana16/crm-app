@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Rupadana\ApiService\Contracts\HasAllowedFields;
+use Rupadana\ApiService\Contracts\HasAllowedFilters;
+use Rupadana\ApiService\Contracts\HasAllowedSorts;
 // use Spatie\Activitylog\Traits\LogsActivity;
 // use Spatie\Activitylog\LogOptions;
 
-class SubGolonganPelanggan extends Model
+class SubGolonganPelanggan extends Model implements HasAllowedFields, HasAllowedFilters, HasAllowedSorts
 {
     use HasFactory, HasUuids;
 
@@ -217,6 +220,51 @@ class SubGolonganPelanggan extends Model
             'blok_2' => 'Rp ' . number_format((float) $this->tarif_blok_2, 0, ',', '.') . ' (11-20 m³)',
             'blok_3' => 'Rp ' . number_format((float) $this->tarif_blok_3, 0, ',', '.') . ' (21-30 m³)',
             'blok_4' => 'Rp ' . number_format((float) $this->tarif_blok_4, 0, ',', '.') . ' (>30 m³)',
+        ];
+    }
+
+    // API Service Contracts Implementation
+    public static function getAllowedFields(): array
+    {
+        return [
+            'id_sub_golongan_pelanggan',
+            'id_golongan_pelanggan',
+            'kode_sub_golongan',
+            'nama_sub_golongan',
+            'deskripsi',
+            'tarif_dasar',
+            'tarif_blok_1',
+            'tarif_blok_2',
+            'tarif_blok_3',
+            'tarif_blok_4',
+            'beban_tetap',
+            'is_active',
+            'urutan',
+            'created_at',
+            'updated_at',
+        ];
+    }
+
+    public static function getAllowedFilters(): array
+    {
+        return [
+            'id_golongan_pelanggan',
+            'kode_sub_golongan',
+            'nama_sub_golongan',
+            'is_active',
+            'urutan',
+        ];
+    }
+
+    public static function getAllowedSorts(): array
+    {
+        return [
+            'kode_sub_golongan',
+            'nama_sub_golongan',
+            'tarif_dasar',
+            'urutan',
+            'created_at',
+            'updated_at',
         ];
     }
 }

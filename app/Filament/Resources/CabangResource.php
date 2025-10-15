@@ -174,6 +174,11 @@ class CabangResource extends Resource
         ];
     }
 
+    public static function getApiTransformer()
+    {
+        return \App\Filament\Resources\CabangResource\Api\Transformers\CabangTransformer::class;
+    }
+
     public static function getPages(): array
     {
         return [

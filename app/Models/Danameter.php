@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use Rupadana\ApiService\Contracts\HasAllowedFields;
+use Rupadana\ApiService\Contracts\HasAllowedFilters;
+use Rupadana\ApiService\Contracts\HasAllowedSorts;
 
-class Danameter extends Model
+class Danameter extends Model implements HasAllowedFields, HasAllowedFilters, HasAllowedSorts
 {
     use HasFactory;
 
@@ -65,5 +68,43 @@ class Danameter extends Model
     public function getDisplayNameAttribute()
     {
         return $this->diameter_pipa . ' (' . $this->kode_danameter . ')';
+    }
+
+    // API Service Contracts Implementation
+    public static function getAllowedFields(): array
+    {
+        return [
+            'id_danameter',
+            'kode_danameter',
+            'diameter_pipa',
+            'tarif_danameter',
+            'deskripsi',
+            'is_active',
+            'urutan',
+            'created_at',
+            'updated_at',
+        ];
+    }
+
+    public static function getAllowedFilters(): array
+    {
+        return [
+            'kode_danameter',
+            'diameter_pipa',
+            'is_active',
+            'urutan',
+        ];
+    }
+
+    public static function getAllowedSorts(): array
+    {
+        return [
+            'kode_danameter',
+            'diameter_pipa',
+            'tarif_danameter',
+            'urutan',
+            'created_at',
+            'updated_at',
+        ];
     }
 }
