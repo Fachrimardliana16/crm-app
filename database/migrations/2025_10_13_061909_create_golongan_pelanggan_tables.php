@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Create sub_golongan_pelanggan table (sub categories)
+                // Create sub_golongan_pelanggan table (sub categories)
         Schema::create('sub_golongan_pelanggan', function (Blueprint $table) {
             $table->uuid('id_sub_golongan_pelanggan')->primary();
             $table->uuid('id_golongan_pelanggan'); // FK to golongan_pelanggan
@@ -30,30 +30,16 @@ return new class extends Migration
             $table->string('nama_sub_golongan'); // Sosial Umum, Sosial Khusus, etc.
             $table->text('deskripsi')->nullable();
             
-            // Tarif struktur
-            $table->decimal('tarif_dasar', 15, 2)->nullable(); // base tariff
-            $table->decimal('tarif_per_m3', 15, 2)->nullable(); // rate per cubic meter
-            $table->integer('batas_minimum_m3')->default(0); // minimum usage
-            
-            // Tarif progresif
-            $table->decimal('tarif_progresif_1', 15, 2)->nullable(); // blok kedua
-            $table->decimal('tarif_progresif_2', 15, 2)->nullable(); // blok ketiga
-            $table->decimal('tarif_progresif_3', 15, 2)->nullable(); // blok keempat
-            
-            // Biaya tetap
-            $table->decimal('biaya_beban_tetap', 15, 2)->default(0); // monthly fixed cost
-            $table->decimal('biaya_administrasi', 15, 2)->default(0); // admin fee
-            $table->decimal('biaya_pemeliharaan', 15, 2)->default(0); // maintenance fee
+            // Struktur tarif PDAM Purbalingga (sistem blok per 10 m³)
+            $table->decimal('biaya_tetap_subgolongan', 15, 2)->default(0)->comment('Biaya tetap bulanan berdasarkan sub golongan');
+            $table->decimal('tarif_blok_1', 15, 2)->default(0)->comment('Tarif untuk pemakaian 0-10 m³');
+            $table->decimal('tarif_blok_2', 15, 2)->default(0)->comment('Tarif untuk pemakaian 11-20 m³');
+            $table->decimal('tarif_blok_3', 15, 2)->default(0)->comment('Tarif untuk pemakaian 21-30 m³');
+            $table->decimal('tarif_blok_4', 15, 2)->default(0)->comment('Tarif untuk pemakaian >30 m³');
             
             $table->boolean('is_active')->default(true);
             $table->integer('urutan')->default(0); // untuk sorting
             $table->timestamps();
-
-            // Foreign key constraint
-            $table->foreign('id_golongan_pelanggan')
-                  ->references('id_golongan_pelanggan')
-                  ->on('golongan_pelanggan')
-                  ->onDelete('cascade');
         });
 
         // Add indexes for performance
@@ -63,6 +49,7 @@ return new class extends Migration
         });
 
         Schema::table('sub_golongan_pelanggan', function (Blueprint $table) {
+            $table->foreign('id_golongan_pelanggan')->references('id_golongan_pelanggan')->on('golongan_pelanggan')->onDelete('cascade');
             $table->index(['id_golongan_pelanggan', 'is_active', 'urutan']);
             $table->index('kode_sub_golongan');
         });

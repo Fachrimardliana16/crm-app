@@ -79,81 +79,61 @@ class SubGolonganPelangganResource extends Resource
                     ])
                     ->collapsible(),
 
-                Forms\Components\Section::make('Tarif')
-                    ->description('Pengaturan tarif untuk sub golongan')
+                Forms\Components\Section::make('Tarif PDAM Purbalingga')
+                    ->description('Pengaturan tarif progresif per 10 m³ dan biaya tetap sub golongan')
                     ->schema([
-                        Forms\Components\Grid::make(3)
+                        Forms\Components\Fieldset::make('Biaya Tetap Sub Golongan')
                             ->schema([
-                                Forms\Components\TextInput::make('tarif_dasar')
-                                    ->label('Tarif Dasar (Bulanan)')
+                                Forms\Components\TextInput::make('biaya_tetap_subgolongan')
+                                    ->label('Biaya Tetap Sub Golongan')
+                                    ->required()
                                     ->numeric()
                                     ->prefix('Rp')
-                                    ->helperText('Tarif tetap per bulan'),
-
-                                Forms\Components\TextInput::make('tarif_per_m3')
-                                    ->label('Tarif Per M³')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->helperText('Tarif per meter kubik'),
-
-                                Forms\Components\TextInput::make('batas_minimum_m3')
-                                    ->label('Batas Minimum (M³)')
-                                    ->numeric()
-                                    ->suffix('M³')
-                                    ->default(0)
-                                    ->helperText('Pemakaian minimum'),
+                                    ->helperText('Biaya tetap bulanan berdasarkan sub golongan pelanggan')
+                                    ->columnSpanFull(),
                             ]),
 
-                        Forms\Components\Fieldset::make('Tarif Progresif')
+                        Forms\Components\Fieldset::make('Tarif Progresif per 10 M³')
                             ->schema([
-                                Forms\Components\Grid::make(3)
+                                Forms\Components\Grid::make(2)
                                     ->schema([
-                                        Forms\Components\TextInput::make('tarif_progresif_1')
-                                            ->label('Blok 2 (Per M³)')
+                                        Forms\Components\TextInput::make('tarif_blok_1')
+                                            ->label('Blok 1 (0-10 m³)')
+                                            ->required()
                                             ->numeric()
                                             ->prefix('Rp')
-                                            ->helperText('Tarif blok kedua'),
+                                            ->helperText('Tarif untuk pemakaian 0 sampai 10 m³'),
 
-                                        Forms\Components\TextInput::make('tarif_progresif_2')
-                                            ->label('Blok 3 (Per M³)')
+                                        Forms\Components\TextInput::make('tarif_blok_2')
+                                            ->label('Blok 2 (11-20 m³)')
+                                            ->required()
                                             ->numeric()
                                             ->prefix('Rp')
-                                            ->helperText('Tarif blok ketiga'),
+                                            ->helperText('Tarif untuk pemakaian 11 sampai 20 m³'),
+                                    ]),
 
-                                        Forms\Components\TextInput::make('tarif_progresif_3')
-                                            ->label('Blok 4+ (Per M³)')
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('tarif_blok_3')
+                                            ->label('Blok 3 (21-30 m³)')
+                                            ->required()
                                             ->numeric()
                                             ->prefix('Rp')
-                                            ->helperText('Tarif blok keempat dan seterusnya'),
+                                            ->helperText('Tarif untuk pemakaian 21 sampai 30 m³'),
+
+                                        Forms\Components\TextInput::make('tarif_blok_4')
+                                            ->label('Blok 4 (>30 m³)')
+                                            ->required()
+                                            ->numeric()
+                                            ->prefix('Rp')
+                                            ->helperText('Tarif untuk pemakaian di atas 30 m³'),
                                     ]),
                             ]),
 
-                        Forms\Components\Fieldset::make('Biaya Tetap')
-                            ->schema([
-                                Forms\Components\Grid::make(3)
-                                    ->schema([
-                                        Forms\Components\TextInput::make('biaya_beban_tetap')
-                                            ->label('Biaya Beban Tetap')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->default(0)
-                                            ->helperText('Biaya tetap bulanan'),
-
-                                        Forms\Components\TextInput::make('biaya_administrasi')
-                                            ->label('Biaya Administrasi')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->default(0)
-                                            ->helperText('Biaya admin'),
-
-                                        Forms\Components\TextInput::make('biaya_pemeliharaan')
-                                            ->label('Biaya Pemeliharaan')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->default(0)
-                                            ->helperText('Biaya maintenance'),
-                                    ]),
-                            ]),
+                        Forms\Components\Placeholder::make('info_tarif')
+                            ->label('Informasi Perhitungan')
+                            ->content('Tarif total = Biaya Tetap Sub Golongan + Tarif Danameter + Tarif Progresif berdasarkan volume pemakaian')
+                            ->columnSpanFull(),
                     ])
                     ->collapsible(),
 
@@ -198,22 +178,35 @@ class SubGolonganPelangganResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('tarif_dasar')
-                    ->label('Tarif Dasar')
+                Tables\Columns\TextColumn::make('biaya_tetap_subgolongan')
+                    ->label('Biaya Tetap')
                     ->money('IDR')
                     ->sortable()
                     ->placeholder('Tidak ada'),
 
-                Tables\Columns\TextColumn::make('tarif_per_m3')
-                    ->label('Tarif/M³')
+                Tables\Columns\TextColumn::make('tarif_blok_1')
+                    ->label('Blok 1 (0-10m³)')
                     ->money('IDR')
                     ->sortable()
-                    ->placeholder('Tidak ada'),
+                    ->toggleable(),
 
-                Tables\Columns\TextColumn::make('batas_minimum_m3')
-                    ->label('Min M³')
-                    ->suffix(' M³')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('tarif_blok_2')
+                    ->label('Blok 2 (11-20m³)')
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('tarif_blok_3')
+                    ->label('Blok 3 (21-30m³)')
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('tarif_blok_4')
+                    ->label('Blok 4 (>30m³)')
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Status')
