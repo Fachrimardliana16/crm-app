@@ -42,6 +42,8 @@ class Pelanggan extends Model
         'tipe_pelanggan',
         'segment',
         'id_area',
+        'id_rayon',
+        'id_sub_rayon',
         'id_spam',
         'latitude',
         'longitude',
@@ -128,6 +130,16 @@ class Pelanggan extends Model
         return $this->belongsTo(Area::class, 'id_area', 'id_area');
     }
 
+    public function rayon()
+    {
+        return $this->belongsTo(Rayon::class, 'id_rayon', 'id_rayon');
+    }
+
+    public function subRayon()
+    {
+        return $this->belongsTo(SubRayon::class, 'id_sub_rayon', 'id_sub_rayon');
+    }
+
     public function spam()
     {
         return $this->belongsTo(Spam::class, 'id_spam', 'id_spam');
@@ -151,5 +163,73 @@ class Pelanggan extends Model
     public function pengaduan()
     {
         return $this->hasMany(Pengaduan::class, 'id_pelanggan', 'id_pelanggan');
+    }
+
+    /**
+     * Generate nomor pelanggan otomatis
+     * Format: {kode_rayon}{last_2_digit_sub_rayon}{nomor_urut}
+     * Example: 01020003 (rayon 01, sub rayon 02, urut 0003)
+     */
+    public static function generateNomorPelanggan($subRayonId): string
+    {
+        $subRayon = SubRayon::with('rayon')->find($subRayonId);
+        
+        if (!$subRayon) {
+            throw new \Exception('Sub Rayon tidak ditemukan');
+        }
+        
+        return $subRayon->getNextNomorPelanggan();
+    }
+
+    /**
+     * Get formatted nomor pelanggan dengan pemisah
+     */
+    public function getFormattedNomorPelangganAttribute(): string
+    {
+        if (!$this->nomor_pelanggan || strlen($this->nomor_pelanggan) !== 8) {
+            return $this->nomor_pelanggan;
+        }
+        
+        $rayon = substr($this->nomor_pelanggan, 0, 2);
+        $subRayon = substr($this->nomor_pelanggan, 2, 2);
+        $urut = substr($this->nomor_pelanggan, 4, 4);
+        
+        return "{$rayon}-{$subRayon}-{$urut}";
+    }
+
+    /**
+     * Get breakdown nomor pelanggan
+     */
+    public function getNomorPelangganBreakdownAttribute(): array
+    {
+        if (!$this->nomor_pelanggan || strlen($this->nomor_pelanggan) !== 8) {
+            return [
+                'rayon' => null,
+                'sub_rayon' => null,
+                'urut' => null,
+            ];
+        }
+        
+        return [
+            'rayon' => substr($this->nomor_pelanggan, 0, 2),
+            'sub_rayon' => substr($this->nomor_pelanggan, 2, 2),
+            'urut' => substr($this->nomor_pelanggan, 4, 4),
+        ];
+    }
+
+    /**
+     * Scope: Filter by rayon
+     */
+    public function scopeByRayon($query, $rayonId)
+    {
+        return $query->where('id_rayon', $rayonId);
+    }
+
+    /**
+     * Scope: Filter by sub rayon
+     */
+    public function scopeBySubRayon($query, $subRayonId)
+    {
+        return $query->where('id_sub_rayon', $subRayonId);
     }
 }
