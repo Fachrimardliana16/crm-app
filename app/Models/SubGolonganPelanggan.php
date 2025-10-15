@@ -101,19 +101,32 @@ class SubGolonganPelanggan extends Model
     public function hitungTarifVolume($volume)
     {
         $totalTarif = 0;
+        $remainingVolume = $volume;
         
-        if ($volume <= 10) {
-            // Blok 1: 0-10 m³
-            $totalTarif = $this->tarif_blok_1;
-        } elseif ($volume <= 20) {
-            // Blok 1 + Blok 2: 0-10 m³ + 11-20 m³
-            $totalTarif = $this->tarif_blok_1 + $this->tarif_blok_2;
-        } elseif ($volume <= 30) {
-            // Blok 1 + Blok 2 + Blok 3: 0-10 m³ + 11-20 m³ + 21-30 m³
-            $totalTarif = $this->tarif_blok_1 + $this->tarif_blok_2 + $this->tarif_blok_3;
-        } else {
-            // Blok 1 + Blok 2 + Blok 3 + Blok 4: semua blok
-            $totalTarif = $this->tarif_blok_1 + $this->tarif_blok_2 + $this->tarif_blok_3 + $this->tarif_blok_4;
+        // Blok 1: 0-10 m³
+        if ($remainingVolume > 0) {
+            $volumeBlok1 = min($remainingVolume, 10);
+            $totalTarif += $volumeBlok1 * $this->tarif_blok_1;
+            $remainingVolume -= $volumeBlok1;
+        }
+        
+        // Blok 2: 11-20 m³
+        if ($remainingVolume > 0) {
+            $volumeBlok2 = min($remainingVolume, 10);
+            $totalTarif += $volumeBlok2 * $this->tarif_blok_2;
+            $remainingVolume -= $volumeBlok2;
+        }
+        
+        // Blok 3: 21-30 m³
+        if ($remainingVolume > 0) {
+            $volumeBlok3 = min($remainingVolume, 10);
+            $totalTarif += $volumeBlok3 * $this->tarif_blok_3;
+            $remainingVolume -= $volumeBlok3;
+        }
+        
+        // Blok 4: >30 m³
+        if ($remainingVolume > 0) {
+            $totalTarif += $remainingVolume * $this->tarif_blok_4;
         }
         
         return $totalTarif;
@@ -125,7 +138,75 @@ class SubGolonganPelanggan extends Model
         $biayaDanameter = (float) $tarifDanameter;
         $biayaVolume = $this->hitungTarifVolume($volume);
         
-        return $biayaTetap + $biayaDanameter + $biayaVolume;
+        return [
+            'biaya_tetap' => $biayaTetap,
+            'biaya_pemakaian' => $biayaVolume,
+            'biaya_danameter' => $biayaDanameter,
+            'total_tarif' => $biayaTetap + $biayaDanameter + $biayaVolume,
+            'volume_m3' => $volume,
+            'detail_blok' => $this->getDetailBlok($volume)
+        ];
+    }
+
+    /**
+     * Get detailed calculation per block
+     */
+    public function getDetailBlok($volume)
+    {
+        $details = [];
+        $remainingVolume = $volume;
+
+        // Blok 1: 0-10 m³
+        if ($remainingVolume > 0) {
+            $volumeBlok1 = min($remainingVolume, 10);
+            $details[] = [
+                'blok' => 1,
+                'range' => '0-10 m³',
+                'volume_terpakai' => $volumeBlok1,
+                'tarif_per_m3' => $this->tarif_blok_1,
+                'subtotal' => $volumeBlok1 * $this->tarif_blok_1
+            ];
+            $remainingVolume -= $volumeBlok1;
+        }
+
+        // Blok 2: 11-20 m³
+        if ($remainingVolume > 0) {
+            $volumeBlok2 = min($remainingVolume, 10);
+            $details[] = [
+                'blok' => 2,
+                'range' => '11-20 m³',
+                'volume_terpakai' => $volumeBlok2,
+                'tarif_per_m3' => $this->tarif_blok_2,
+                'subtotal' => $volumeBlok2 * $this->tarif_blok_2
+            ];
+            $remainingVolume -= $volumeBlok2;
+        }
+
+        // Blok 3: 21-30 m³
+        if ($remainingVolume > 0) {
+            $volumeBlok3 = min($remainingVolume, 10);
+            $details[] = [
+                'blok' => 3,
+                'range' => '21-30 m³',
+                'volume_terpakai' => $volumeBlok3,
+                'tarif_per_m3' => $this->tarif_blok_3,
+                'subtotal' => $volumeBlok3 * $this->tarif_blok_3
+            ];
+            $remainingVolume -= $volumeBlok3;
+        }
+
+        // Blok 4: >30 m³
+        if ($remainingVolume > 0) {
+            $details[] = [
+                'blok' => 4,
+                'range' => '>30 m³',
+                'volume_terpakai' => $remainingVolume,
+                'tarif_per_m3' => $this->tarif_blok_4,
+                'subtotal' => $remainingVolume * $this->tarif_blok_4
+            ];
+        }
+
+        return $details;
     }
 
     // Accessor untuk display tarif blok
