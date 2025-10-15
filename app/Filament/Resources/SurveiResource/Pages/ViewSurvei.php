@@ -18,7 +18,7 @@ class ViewSurvei extends ViewRecord
             Actions\EditAction::make()
                 ->label('Edit Survei')
                 ->icon('heroicon-o-pencil'),
-            
+
             Actions\Action::make('setujui')
                 ->label('Setujui Survei')
                 ->icon('heroicon-o-check-badge')

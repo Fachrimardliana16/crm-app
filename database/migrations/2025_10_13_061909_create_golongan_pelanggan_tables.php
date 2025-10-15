@@ -37,6 +37,15 @@ return new class extends Migration
             $table->decimal('tarif_blok_3', 15, 2)->default(0)->comment('Tarif untuk pemakaian 21-30 m³');
             $table->decimal('tarif_blok_4', 15, 2)->default(0)->comment('Tarif untuk pemakaian >30 m³');
             
+            // Tarif struktur tambahan (untuk fleksibilitas sistem)
+            $table->decimal('tarif_dasar', 15, 2)->nullable()->comment('Base tariff (alternatif)');
+            $table->decimal('tarif_per_m3', 15, 2)->nullable()->comment('Rate per cubic meter (alternatif)');
+            $table->integer('batas_minimum_m3')->default(0)->comment('Minimum usage threshold');
+            
+            // Biaya tambahan
+            $table->decimal('biaya_beban_tetap', 15, 2)->default(0)->comment('Monthly fixed cost');
+            $table->decimal('biaya_administrasi', 15, 2)->default(0)->comment('Administration fee');
+            $table->decimal('biaya_pemeliharaan', 15, 2)->default(0)->comment('Maintenance fee');
             $table->boolean('is_active')->default(true);
             $table->integer('urutan')->default(0); // untuk sorting
             $table->timestamps();

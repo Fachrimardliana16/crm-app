@@ -26,21 +26,39 @@ class SubGolonganPelanggan extends Model implements HasAllowedFields, HasAllowed
         'kode_sub_golongan',
         'nama_sub_golongan',
         'deskripsi',
+        // PDAM Purbalingga block system
         'biaya_tetap_subgolongan',
         'tarif_blok_1',
         'tarif_blok_2',
         'tarif_blok_3',
         'tarif_blok_4',
+        // Alternative tariff structure
+        'tarif_dasar',
+        'tarif_per_m3',
+        'batas_minimum_m3',
+        // Additional costs
+        'biaya_beban_tetap',
+        'biaya_administrasi',
+        'biaya_pemeliharaan',
         'is_active',
         'urutan',
     ];
 
     protected $casts = [
+        // PDAM Purbalingga block system
         'biaya_tetap_subgolongan' => 'decimal:2',
         'tarif_blok_1' => 'decimal:2',
         'tarif_blok_2' => 'decimal:2',
         'tarif_blok_3' => 'decimal:2',
         'tarif_blok_4' => 'decimal:2',
+        // Alternative tariff structure
+        'tarif_dasar' => 'decimal:2',
+        'tarif_per_m3' => 'decimal:2',
+        'batas_minimum_m3' => 'integer',
+        // Additional costs
+        'biaya_beban_tetap' => 'decimal:2',
+        'biaya_administrasi' => 'decimal:2',
+        'biaya_pemeliharaan' => 'decimal:2',
         'is_active' => 'boolean',
         'urutan' => 'integer',
     ];
