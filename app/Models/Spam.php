@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\HasGeometry;
 
 class Spam extends Model
 {
-    use HasFactory, HasUuids, LogsActivity;
+    use HasFactory, HasUuids, LogsActivity, HasGeometry;
 
     protected $table = 'spam';
     protected $primaryKey = 'id_spam';
@@ -37,6 +38,9 @@ class Spam extends Model
         'tanggal_operasional',
         'sumber_air',
         'keterangan',
+        'latitude',
+        'longitude',
+        'polygon_area',
         'dibuat_oleh',
         'dibuat_pada',
         'diperbarui_oleh',
@@ -48,6 +52,8 @@ class Spam extends Model
         'dibuat_pada' => 'datetime',
         'diperbarui_pada' => 'datetime',
         'kapasitas_produksi' => 'decimal:2',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     // Activity logging configuration

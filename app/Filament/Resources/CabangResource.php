@@ -90,6 +90,32 @@ class CabangResource extends Resource
                             ->label('Keterangan')
                             ->rows(2),
                     ]),
+
+                Forms\Components\Section::make('Lokasi & Geometri')
+                    ->description('Informasi lokasi dan area cakupan cabang')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('latitude')
+                                    ->label('Latitude')
+                                    ->numeric()
+                                    ->step('any')
+                                    ->placeholder('Contoh: -7.2575'),
+
+                                Forms\Components\TextInput::make('longitude')
+                                    ->label('Longitude')
+                                    ->numeric()
+                                    ->step('any')
+                                    ->placeholder('Contoh: 112.7521'),
+                            ]),
+
+                        Forms\Components\Textarea::make('polygon_area')
+                            ->label('Area Polygon (WKT)')
+                            ->placeholder('Contoh: POLYGON((112.7521 -7.2575, 112.7522 -7.2576, ...))')
+                            ->rows(3)
+                            ->hint('Format Well-Known Text (WKT) untuk polygon area cakupan cabang'),
+                    ])
+                    ->collapsible(),
             ]);
     }
 
@@ -139,6 +165,32 @@ class CabangResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
+
+                Tables\Columns\TextColumn::make('latitude')
+                    ->label('Koordinat')
+                    ->formatStateUsing(function ($record) {
+                        if ($record->latitude && $record->longitude) {
+                            return number_format($record->latitude, 6) . ', ' . number_format($record->longitude, 6);
+                        }
+                        return '-';
+                    })
+                    ->tooltip('Latitude, Longitude')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('polygon_area_size')
+                    ->label('Area Polygon')
+                    ->formatStateUsing(function ($record) {
+                        $area = $record->polygon_area_size;
+                        if ($area) {
+                            if ($area > 1000000) {
+                                return number_format($area / 1000000, 2) . ' km²';
+                            }
+                            return number_format($area, 0) . ' m²';
+                        }
+                        return '-';
+                    })
+                    ->tooltip('Luas area polygon dalam meter persegi atau kilometer persegi')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')

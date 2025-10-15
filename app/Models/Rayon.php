@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\HasGeometry;
 
 class Rayon extends Model
 {
-    use HasFactory, HasUuids, LogsActivity;
+    use HasFactory, HasUuids, LogsActivity, HasGeometry;
 
     protected $table = 'rayon';
     protected $primaryKey = 'id_rayon';
@@ -30,6 +31,9 @@ class Rayon extends Model
         'jumlah_pelanggan',
         'kapasitas_maksimal',
         'status_aktif',
+        'latitude',
+        'longitude',
+        'polygon_area',
         'keterangan',
         'dibuat_oleh',
         'dibuat_pada',
@@ -45,6 +49,8 @@ class Rayon extends Model
         'radius_coverage' => 'integer',
         'jumlah_pelanggan' => 'integer',
         'kapasitas_maksimal' => 'integer',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     /**

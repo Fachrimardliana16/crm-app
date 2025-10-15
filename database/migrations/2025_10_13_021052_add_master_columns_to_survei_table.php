@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('survei', function (Blueprint $table) {
-            // Master parameter kolom
+            // Master parameter kolom (descriptive text fields)
             $table->string('luas_tanah')->nullable()->after('jarak_pemasangan');
             $table->string('luas_bangunan')->nullable()->after('luas_tanah');
             $table->string('lokasi_bangunan')->nullable()->after('luas_bangunan');
@@ -25,8 +25,8 @@ return new class extends Migration
             $table->string('fungsi_rumah')->nullable()->after('daya_listrik');
             $table->string('kepemilikan_kendaraan')->nullable()->after('fungsi_rumah');
 
-            // Field untuk map picker
-            $table->json('lokasi_map')->nullable()->after('kepemilikan_kendaraan');
+            // Note: lokasi_map column already exists in the survei table
+            // from the create_operational_workflow_tables migration
         });
     }
 
@@ -48,7 +48,7 @@ return new class extends Migration
                 'daya_listrik',
                 'fungsi_rumah',
                 'kepemilikan_kendaraan',
-                'lokasi_map',
+                // Note: lokasi_map is not dropped as it wasn't added by this migration
             ]);
         });
     }

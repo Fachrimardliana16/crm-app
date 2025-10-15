@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\HasGeometry;
 
 class Kelurahan extends Model
 {
-    use HasFactory, HasUuids, LogsActivity;
+    use HasFactory, HasUuids, LogsActivity, HasGeometry;
 
     protected $table = 'kelurahan';
     protected $primaryKey = 'id_kelurahan';
@@ -23,10 +24,15 @@ class Kelurahan extends Model
         'id_kecamatan',
         'kode_pos',
         'status_aktif',
+        'latitude',
+        'longitude',
+        'polygon_area',
     ];
 
     protected $casts = [
         'status_aktif' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function getActivitylogOptions(): LogOptions

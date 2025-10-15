@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\HasGeometry;
 
 class SubRayon extends Model
 {
-    use HasFactory, HasUuids, LogsActivity;
+    use HasFactory, HasUuids, LogsActivity, HasGeometry;
 
     protected $table = 'sub_rayon';
     protected $primaryKey = 'id_sub_rayon';
@@ -33,6 +34,9 @@ class SubRayon extends Model
         'kapasitas_maksimal',
         'nomor_pelanggan_terakhir',
         'status_aktif',
+        'latitude',
+        'longitude',
+        'polygon_area',
         'keterangan',
         'dibuat_oleh',
         'dibuat_pada',
@@ -49,6 +53,8 @@ class SubRayon extends Model
         'jumlah_pelanggan' => 'integer',
         'kapasitas_maksimal' => 'integer',
         'nomor_pelanggan_terakhir' => 'integer',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     /**

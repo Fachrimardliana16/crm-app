@@ -10,7 +10,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Status extends Model
 {
-    use HasFactory, HasUuids, LogsActivity;
+    use HasFactory, HasUuids; // Temporarily disable LogsActivity
 
     protected $table = 'status';
     protected $primaryKey = 'id_status';
@@ -40,19 +40,19 @@ class Status extends Model
         'urutan_tampil' => 'integer',
     ];
 
-    // Activity logging configuration
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly([
-                'tabel_referensi',
-                'nama_status',
-                'status_aktif',
-                'urutan_tampil',
-            ])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
-    }
+    // Activity logging configuration - commented out temporarily
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logOnly([
+    //             'tabel_referensi',
+    //             'nama_status',
+    //             'status_aktif',
+    //             'urutan_tampil',
+    //         ])
+    //         ->logOnlyDirty()
+    //         ->dontSubmitEmptyLogs();
+    // }
 
     // Scopes
     public function scopeAktif($query)

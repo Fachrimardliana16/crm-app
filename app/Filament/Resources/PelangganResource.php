@@ -164,7 +164,7 @@ class PelangganResource extends Resource
                                         return \App\Models\Status::getStatusOptions('pelanggan');
                                     })
                                     ->required()
-                                    ->default('aktif'),
+                                    ->default('BARU'),
 
                                 Select::make('golongan')
                                     ->label('Golongan')
@@ -341,17 +341,16 @@ class PelangganResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status_pelanggan')
                     ->label('Status')
+                    ->formatStateUsing(function ($state) {
+                        $status = \App\Models\Status::getStatusBadge('pelanggan', $state);
+                        return $status['label'];
+                    })
                     ->colors([
-                        'success' => 'aktif',
-                        'warning' => 'pending',
-                        'danger' => 'non_aktif',
-                        'secondary' => 'suspend',
-                    ])
-                    ->icons([
-                        'heroicon-o-check-circle' => 'aktif',
-                        'heroicon-o-clock' => 'pending',
-                        'heroicon-o-x-circle' => 'non_aktif',
-                        'heroicon-o-pause-circle' => 'suspend',
+                        'info' => 'BARU',
+                        'success' => 'AKTIF',
+                        'warning' => 'TUTUP_SEMENTARA',
+                        'danger' => 'TUTUP_TETAP',
+                        'gray' => 'BONGKAR',
                     ]),
 
                 Tables\Columns\TextColumn::make('golonganPelanggan.nama_golongan')
@@ -408,12 +407,9 @@ class PelangganResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status_pelanggan')
                     ->label('Status Pelanggan')
-                    ->options([
-                        'aktif' => 'Aktif',
-                        'non_aktif' => 'Non Aktif',
-                        'pending' => 'Pending',
-                        'suspend' => 'Suspend',
-                    ]),
+                    ->options(function () {
+                        return \App\Models\Status::getStatusOptions('pelanggan');
+                    }),
 
                 Tables\Filters\SelectFilter::make('tipe_pelanggan')
                     ->label('Tipe Pelanggan')

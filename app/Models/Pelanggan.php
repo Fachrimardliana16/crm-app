@@ -150,6 +150,12 @@ class Pelanggan extends Model
         return $this->belongsTo(GolonganPelanggan::class, 'golongan', 'id_golongan');
     }
 
+    public function statusPelanggan()
+    {
+        return $this->belongsTo(Status::class, 'status_pelanggan', 'kode_status')
+                   ->where('tabel_referensi', 'pelanggan');
+    }
+
     public function tagihanBulanan()
     {
         return $this->hasMany(TagihanBulanan::class, 'id_pelanggan', 'id_pelanggan');
@@ -173,11 +179,11 @@ class Pelanggan extends Model
     public static function generateNomorPelanggan($subRayonId): string
     {
         $subRayon = SubRayon::with('rayon')->find($subRayonId);
-        
+
         if (!$subRayon) {
             throw new \Exception('Sub Rayon tidak ditemukan');
         }
-        
+
         return $subRayon->getNextNomorPelanggan();
     }
 
@@ -189,11 +195,11 @@ class Pelanggan extends Model
         if (!$this->nomor_pelanggan || strlen($this->nomor_pelanggan) !== 8) {
             return $this->nomor_pelanggan;
         }
-        
+
         $rayon = substr($this->nomor_pelanggan, 0, 2);
         $subRayon = substr($this->nomor_pelanggan, 2, 2);
         $urut = substr($this->nomor_pelanggan, 4, 4);
-        
+
         return "{$rayon}-{$subRayon}-{$urut}";
     }
 
@@ -209,7 +215,7 @@ class Pelanggan extends Model
                 'urut' => null,
             ];
         }
-        
+
         return [
             'rayon' => substr($this->nomor_pelanggan, 0, 2),
             'sub_rayon' => substr($this->nomor_pelanggan, 2, 2),
@@ -231,5 +237,69 @@ class Pelanggan extends Model
     public function scopeBySubRayon($query, $subRayonId)
     {
         return $query->where('id_sub_rayon', $subRayonId);
+    }
+
+    /**
+     * Scope: Filter by status pelanggan
+     */
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status_pelanggan', $status);
+    }
+
+    /**
+     * Get status pelanggan badge information
+     */
+    public function getStatusBadgeAttribute()
+    {
+        return Status::getStatusBadge('pelanggan', $this->status_pelanggan);
+    }
+
+    /**
+     * Check if pelanggan is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status_pelanggan === 'AKTIF';
+    }
+
+    /**
+     * Check if pelanggan is new
+     */
+    public function isNew(): bool
+    {
+        return $this->status_pelanggan === 'BARU';
+    }
+
+    /**
+     * Check if pelanggan is temporarily closed
+     */
+    public function isTempClosed(): bool
+    {
+        return $this->status_pelanggan === 'TUTUP_SEMENTARA';
+    }
+
+    /**
+     * Check if pelanggan is permanently closed
+     */
+    public function isPermClosed(): bool
+    {
+        return $this->status_pelanggan === 'TUTUP_TETAP';
+    }
+
+    /**
+     * Check if pelanggan installation is dismantled
+     */
+    public function isDismantled(): bool
+    {
+        return $this->status_pelanggan === 'BONGKAR';
+    }
+
+    /**
+     * Get available status options
+     */
+    public static function getStatusOptions(): array
+    {
+        return Status::getStatusOptions('pelanggan');
     }
 }

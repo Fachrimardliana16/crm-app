@@ -74,11 +74,11 @@ class StatusResource extends Resource
                                     ->label('Warna Status')
                                     ->options([
                                         'gray' => 'Abu-abu',
-                                        'red' => 'Merah',
-                                        'yellow' => 'Kuning',
-                                        'green' => 'Hijau',
-                                        'blue' => 'Biru',
-                                        'indigo' => 'Indigo',
+                                        'danger' => 'Merah',
+                                        'warning' => 'Kuning',
+                                        'success' => 'Hijau',
+                                        'info' => 'Biru',
+                                        'primary' => 'Indigo',
                                         'purple' => 'Ungu',
                                         'pink' => 'Pink',
                                     ])
@@ -129,11 +129,11 @@ class StatusResource extends Resource
                     ->label('Warna')
                     ->colors([
                         'gray' => 'gray',
-                        'red' => 'danger',
-                        'yellow' => 'warning',
-                        'green' => 'success',
-                        'blue' => 'info',
-                        'indigo' => 'primary',
+                        'danger' => 'danger',
+                        'warning' => 'warning',
+                        'success' => 'success',
+                        'info' => 'info',
+                        'primary' => 'primary',
                         'purple' => 'purple',
                         'pink' => 'pink',
                     ]),

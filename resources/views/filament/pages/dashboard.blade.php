@@ -9,7 +9,7 @@
                             Selamat Datang, {{ auth()->user()->name }}!
                         </h2>
                         <p class="text-gray-600 dark:text-gray-400 mt-1">
-                            Dashboard CRM PDAM - Sistem Manajemen Pelanggan
+                            Dashboard Customer Relationship Management - Sistem Manajemen Pelanggan
                         </p>
                     </div>
                     <div class="text-right">

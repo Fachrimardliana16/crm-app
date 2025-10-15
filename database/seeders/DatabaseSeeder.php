@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             KelurahanSeeder::class,
             MasterParameterSurveiSeeder::class, // Added
             GolonganPelangganSeeder::class, // Added
+            StatusPelangganSeeder::class, // Added - Status Pelanggan data
             RayonSeeder::class, // Added - Rayon data master
             SubRayonSeeder::class,
             DanameterSeeder::class, // Added - Danameter data master
