@@ -117,10 +117,10 @@ return new class extends Migration
             $table->string('foto_meteran_listrik')->nullable();
 
             $table->text('rekomendasi_teknis')->nullable();
-            
+
             // Map data
             $table->string('lokasi_map')->nullable();
-            
+
             // Master data foreign keys (will be constrained later)
             $table->unsignedBigInteger('master_luas_tanah_id')->nullable();
             $table->unsignedBigInteger('master_luas_bangunan_id')->nullable();
@@ -133,12 +133,12 @@ return new class extends Migration
             $table->unsignedBigInteger('master_daya_listrik_id')->nullable();
             $table->unsignedBigInteger('master_fungsi_rumah_id')->nullable();
             $table->unsignedBigInteger('master_kepemilikan_kendaraan_id')->nullable();
-            
+
             // Calculated and result columns
             $table->integer('skor_total')->nullable();
             $table->enum('hasil_survei', ['direkomendasikan', 'tidak_direkomendasikan', 'perlu_review'])->nullable();
             $table->enum('kategori_golongan', ['A', 'B', 'C', 'D'])->nullable();
-            
+
             $table->string('dibuat_oleh');
             $table->timestamp('dibuat_pada');
             $table->string('diperbarui_oleh')->nullable();

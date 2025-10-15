@@ -29,22 +29,22 @@ return new class extends Migration
             $table->string('kode_sub_golongan', 20)->unique(); // SOC-UM, SOC-KH, etc.
             $table->string('nama_sub_golongan'); // Sosial Umum, Sosial Khusus, etc.
             $table->text('deskripsi')->nullable();
-            
+
             // Tarif struktur
             $table->decimal('tarif_dasar', 15, 2)->nullable(); // base tariff
             $table->decimal('tarif_per_m3', 15, 2)->nullable(); // rate per cubic meter
             $table->integer('batas_minimum_m3')->default(0); // minimum usage
-            
+
             // Tarif progresif
             $table->decimal('tarif_progresif_1', 15, 2)->nullable(); // blok kedua
             $table->decimal('tarif_progresif_2', 15, 2)->nullable(); // blok ketiga
             $table->decimal('tarif_progresif_3', 15, 2)->nullable(); // blok keempat
-            
+
             // Biaya tetap
             $table->decimal('biaya_beban_tetap', 15, 2)->default(0); // monthly fixed cost
             $table->decimal('biaya_administrasi', 15, 2)->default(0); // admin fee
             $table->decimal('biaya_pemeliharaan', 15, 2)->default(0); // maintenance fee
-            
+
             $table->boolean('is_active')->default(true);
             $table->integer('urutan')->default(0); // untuk sorting
             $table->timestamps();
