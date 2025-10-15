@@ -262,6 +262,10 @@ class SubGolonganPelangganResource extends Resource
             //
         ];
     }
+    public static function getApiTransformer()
+    {
+        return \App\Filament\Resources\SubGolonganPelangganResource\Api\Transformers\SubGolonganPelangganTransformer::class;
+    }
 
     public static function getPages(): array
     {

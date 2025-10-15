@@ -265,6 +265,11 @@ class RayonResource extends Resource
         ];
     }
 
+    public static function getApiTransformer()
+    {
+        return \App\Filament\Resources\RayonResource\Api\Transformers\RayonTransformer::class;
+    }
+
     public static function getPages(): array
     {
         return [

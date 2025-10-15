@@ -19,6 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Rupadana\ApiService\ApiServicePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -91,6 +92,7 @@ class AdminPanelProvider extends PanelProvider
                     ->enableSanctumTokens(
                         permissions: ['create', 'view', 'update', 'delete'] // optional, customize the permissions (default = ['create', 'view', 'update', 'delete'])
                     ),
+                ApiServicePlugin::make(),
             ]);
     }
 }

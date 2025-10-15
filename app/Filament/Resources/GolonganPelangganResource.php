@@ -139,6 +139,11 @@ class GolonganPelangganResource extends Resource
         ];
     }
 
+    public static function getApiTransformer()
+    {
+        return \App\Filament\Resources\GolonganPelangganResource\Api\Transformers\GolonganPelangganTransformer::class;
+    }
+
     public static function getPages(): array
     {
         return [

@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Rupadana\ApiService\Contracts\HasAllowedFields;
+use Rupadana\ApiService\Contracts\HasAllowedFilters;
+use Rupadana\ApiService\Contracts\HasAllowedSorts;
 // use Spatie\Activitylog\Traits\LogsActivity;
 // use Spatie\Activitylog\LogOptions;
 
-class GolonganPelanggan extends Model
+class GolonganPelanggan extends Model implements HasAllowedFields, HasAllowedFilters, HasAllowedSorts
 {
     use HasFactory, HasUuids;
 
@@ -66,5 +69,41 @@ class GolonganPelanggan extends Model
     public function getNamaLengkapAttribute()
     {
         return $this->kode_golongan . ' - ' . $this->nama_golongan;
+    }
+
+    // API Service Contracts Implementation
+    public static function getAllowedFields(): array
+    {
+        return [
+            'id_golongan_pelanggan',
+            'kode_golongan',
+            'nama_golongan',
+            'deskripsi',
+            'is_active',
+            'urutan',
+            'created_at',
+            'updated_at',
+        ];
+    }
+
+    public static function getAllowedFilters(): array
+    {
+        return [
+            'kode_golongan',
+            'nama_golongan',
+            'is_active',
+            'urutan',
+        ];
+    }
+
+    public static function getAllowedSorts(): array
+    {
+        return [
+            'kode_golongan',
+            'nama_golongan',
+            'urutan',
+            'created_at',
+            'updated_at',
+        ];
     }
 }
