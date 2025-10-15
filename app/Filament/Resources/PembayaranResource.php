@@ -19,11 +19,11 @@ class PembayaranResource extends Resource
 {
     protected static ?string $model = Pembayaran::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static ?string $navigationLabel = 'Pembayaran';
-    protected static ?string $modelLabel = 'Pembayaran';
-    protected static ?string $pluralModelLabel = 'Pembayaran';
-    protected static ?string $navigationGroup = 'Workflow PDAM';
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationLabel = 'Data Pembayaran';
+    protected static ?string $modelLabel = 'Data Pembayaran';
+    protected static ?string $pluralModelLabel = 'Data Pembayaran';
+    protected static ?string $navigationGroup = 'Transaksi';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -61,15 +61,24 @@ class PembayaranResource extends Resource
                                     ->required()
                                     ->default(now()),
 
+                                Forms\Components\Select::make('jenis_pembayaran')
+                                    ->label('Jenis Pembayaran')
+                                    ->options([
+                                        'rekening' => 'Pembayaran Rekening',
+                                        'pendaftaran' => 'Pembayaran Pendaftaran',
+                                        'lainnya' => 'Pembayaran Lainnya',
+                                    ])
+                                    ->default('rekening'),
+
                                 Forms\Components\Select::make('metode_bayar')
                                     ->label('Metode Pembayaran')
                                     ->options([
-                                        'tunai' => 'Tunai',
-                                        'transfer' => 'Transfer Bank',
-                                        'kartu_debit' => 'Kartu Debit',
-                                        'kartu_kredit' => 'Kartu Kredit',
-                                        'e_wallet' => 'E-Wallet',
+                                        'cash' => 'Cash/Tunai',
                                         'qris' => 'QRIS',
+                                        'debit' => 'Kartu Debit',
+                                        'credit' => 'Kartu Kredit',
+                                        'transfer' => 'Transfer Bank',
+                                        'e_wallet' => 'E-Wallet',
                                     ])
                                     ->required(),
                             ]),
@@ -79,17 +88,46 @@ class PembayaranResource extends Resource
                     ->schema([
                         Grid::make(3)
                             ->schema([
+                                Forms\Components\TextInput::make('total_tagihan')
+                                    ->label('Total Tagihan')
+                                    ->numeric()
+                                    ->prefix('Rp'),
+
                                 Forms\Components\TextInput::make('jumlah_bayar')
                                     ->label('Jumlah Bayar')
                                     ->numeric()
                                     ->prefix('Rp')
                                     ->required(),
 
+                                Forms\Components\TextInput::make('sisa_tagihan')
+                                    ->label('Sisa Tagihan')
+                                    ->numeric()
+                                    ->prefix('Rp'),
+                            ]),
+
+                        Grid::make(3)
+                            ->schema([
+                                Forms\Components\TextInput::make('uang_diterima')
+                                    ->label('Uang Diterima (Cash)')
+                                    ->numeric()
+                                    ->prefix('Rp'),
+
+                                Forms\Components\TextInput::make('kembalian')
+                                    ->label('Kembalian')
+                                    ->numeric()
+                                    ->prefix('Rp'),
+
                                 Forms\Components\TextInput::make('biaya_admin')
                                     ->label('Biaya Admin')
                                     ->numeric()
                                     ->prefix('Rp')
                                     ->default(0),
+                            ]),
+
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('periode_pembayaran')
+                                    ->label('Periode Pembayaran'),
 
                                 Forms\Components\Select::make('status_verifikasi')
                                     ->label('Status Verifikasi')
@@ -140,18 +178,36 @@ class PembayaranResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('pelanggan.nomor_pelanggan')
+                    ->label('No. Pelanggan')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('pelanggan.nama_pelanggan')
                     ->label('Nama Pelanggan')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('tagihan.nomor_tagihan')
-                    ->label('No. Tagihan')
+                Tables\Columns\BadgeColumn::make('jenis_pembayaran')
+                    ->label('Jenis')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'rekening' => 'Rekening',
+                        'pendaftaran' => 'Pendaftaran',
+                        'lainnya' => 'Lainnya',
+                        default => 'Rekening',
+                    })
+                    ->colors([
+                        'primary' => 'rekening',
+                        'success' => 'pendaftaran',
+                        'info' => 'lainnya',
+                    ]),
+
+                Tables\Columns\TextColumn::make('periode_pembayaran')
+                    ->label('Periode')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('tanggal_bayar')
-                    ->label('Tanggal Bayar')
-                    ->date('d/m/Y')
+                Tables\Columns\TextColumn::make('total_tagihan')
+                    ->label('Total Tagihan')
+                    ->money('IDR')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('jumlah_bayar')
@@ -159,14 +215,21 @@ class PembayaranResource extends Resource
                     ->money('IDR')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('metode_bayar')
+                Tables\Columns\TextColumn::make('sisa_tagihan')
+                    ->label('Sisa')
+                    ->money('IDR')
+                    ->sortable()
+                    ->color(fn ($state) => $state > 0 ? 'warning' : 'success'),
+
+                Tables\Columns\BadgeColumn::make('metode_bayar')
                     ->label('Metode')
-                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => strtoupper($state))
                     ->colors([
-                        'primary' => 'tunai',
-                        'success' => 'transfer',
-                        'warning' => 'kartu_debit',
-                        'info' => 'e_wallet',
+                        'success' => 'cash',
+                        'primary' => 'qris',
+                        'warning' => 'debit',
+                        'info' => 'credit',
+                        'secondary' => ['transfer', 'e_wallet'],
                     ]),
 
                 Tables\Columns\BadgeColumn::make('status_verifikasi')
@@ -177,12 +240,26 @@ class PembayaranResource extends Resource
                         'danger' => 'tidak_valid',
                     ]),
 
+                Tables\Columns\TextColumn::make('tanggal_bayar')
+                    ->label('Tanggal Bayar')
+                    ->date('d/m/Y')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('dibuat_pada')
                     ->label('Dibuat')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('jenis_pembayaran')
+                    ->label('Jenis Pembayaran')
+                    ->options([
+                        'rekening' => 'Pembayaran Rekening',
+                        'pendaftaran' => 'Pembayaran Pendaftaran',
+                        'lainnya' => 'Pembayaran Lainnya',
+                    ]),
+
                 SelectFilter::make('status_verifikasi')
                     ->label('Status Verifikasi')
                     ->options([
@@ -194,13 +271,17 @@ class PembayaranResource extends Resource
                 SelectFilter::make('metode_bayar')
                     ->label('Metode Pembayaran')
                     ->options([
-                        'tunai' => 'Tunai',
-                        'transfer' => 'Transfer Bank',
-                        'kartu_debit' => 'Kartu Debit',
-                        'kartu_kredit' => 'Kartu Kredit',
-                        'e_wallet' => 'E-Wallet',
+                        'cash' => 'Cash/Tunai',
                         'qris' => 'QRIS',
+                        'debit' => 'Kartu Debit',
+                        'credit' => 'Kartu Kredit',
+                        'transfer' => 'Transfer Bank',
+                        'e_wallet' => 'E-Wallet',
                     ]),
+
+                Tables\Filters\Filter::make('sisa_tagihan')
+                    ->label('Belum Lunas')
+                    ->query(fn ($query) => $query->where('sisa_tagihan', '>', 0)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -115,6 +115,10 @@ Tarif Progresif Berdasarkan Sub Golongan Pelanggan :
 
     > 30 m3 = 5650.
 
+---
+
+15/10/25
+
 Perbarui Resource Geometry Ploygon Area :
 
 1. Tambah Kolom Input Polygon Area dan Table di Form Create dan Edit di Resource : Rayon, Sub Rayon, Spam, Cabang, Kecamatan, Kelurahan.

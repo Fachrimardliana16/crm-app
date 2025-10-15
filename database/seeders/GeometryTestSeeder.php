@@ -35,7 +35,7 @@ class GeometryTestSeeder extends Seeder
 
         // Set polygon for cabang using raw SQL
         DB::statement("
-            UPDATE cabang 
+            UPDATE cabang
             SET polygon_area = ST_GeomFromText('POLYGON((
                 112.7500 -7.2500,
                 112.7600 -7.2500,
@@ -67,7 +67,7 @@ class GeometryTestSeeder extends Seeder
 
         // Set polygon for rayon
         DB::statement("
-            UPDATE rayon 
+            UPDATE rayon
             SET polygon_area = ST_GeomFromText('POLYGON((
                 112.7300 -7.2200,
                 112.7700 -7.2200,
@@ -101,7 +101,7 @@ class GeometryTestSeeder extends Seeder
 
         // Set polygon for sub_rayon
         DB::statement("
-            UPDATE sub_rayon 
+            UPDATE sub_rayon
             SET polygon_area = ST_GeomFromText('POLYGON((
                 112.7400 -7.2400,
                 112.7500 -7.2400,

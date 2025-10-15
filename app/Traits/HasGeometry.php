@@ -59,7 +59,7 @@ trait HasGeometry
 
         $table = $this->getTable();
         $result = DB::selectOne(
-            "SELECT ST_Contains({$table}.polygon_area, ST_SetSRID(ST_MakePoint(?, ?), 4326)) as contains 
+            "SELECT ST_Contains({$table}.polygon_area, ST_SetSRID(ST_MakePoint(?, ?), 4326)) as contains
              FROM {$table} WHERE {$this->getKeyName()} = ?",
             [$longitude, $latitude, $this->getKey()]
         );
@@ -78,7 +78,7 @@ trait HasGeometry
 
         $table = $this->getTable();
         $result = DB::selectOne(
-            "SELECT ST_Area({$table}.polygon_area::geography) as area_size 
+            "SELECT ST_Area({$table}.polygon_area::geography) as area_size
              FROM {$table} WHERE {$this->getKeyName()} = ?",
             [$this->getKey()]
         );
@@ -128,7 +128,7 @@ trait HasGeometry
 
         $table = $this->getTable();
         $result = DB::selectOne(
-            "SELECT ST_AsGeoJSON({$table}.polygon_area) as geojson 
+            "SELECT ST_AsGeoJSON({$table}.polygon_area) as geojson
              FROM {$table} WHERE {$this->getKeyName()} = ?",
             [$this->getKey()]
         );
@@ -152,7 +152,7 @@ trait HasGeometry
 
         $table = $this->getTable();
         $result = DB::selectOne(
-            "SELECT ST_X(ST_Centroid({$table}.polygon_area)) as lng, ST_Y(ST_Centroid({$table}.polygon_area)) as lat 
+            "SELECT ST_X(ST_Centroid({$table}.polygon_area)) as lng, ST_Y(ST_Centroid({$table}.polygon_area)) as lat
              FROM {$table} WHERE {$this->getKeyName()} = ?",
             [$this->getKey()]
         );

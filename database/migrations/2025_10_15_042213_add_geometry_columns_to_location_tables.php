@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->after('alamat_cabang');
             $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
         });
-        
+
         // Add PostGIS geometry column using raw SQL
         DB::statement('ALTER TABLE cabang ADD COLUMN polygon_area GEOMETRY(POLYGON, 4326)');
         DB::statement('CREATE INDEX idx_cabang_coordinates ON cabang (latitude, longitude)');
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->after('nama_kecamatan');
             $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
         });
-        
+
         DB::statement('ALTER TABLE kecamatan ADD COLUMN polygon_area GEOMETRY(POLYGON, 4326)');
         DB::statement('CREATE INDEX idx_kecamatan_coordinates ON kecamatan (latitude, longitude)');
         DB::statement('CREATE INDEX idx_kecamatan_polygon ON kecamatan USING GIST (polygon_area)');
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->after('nama_kelurahan');
             $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
         });
-        
+
         DB::statement('ALTER TABLE kelurahan ADD COLUMN polygon_area GEOMETRY(POLYGON, 4326)');
         DB::statement('CREATE INDEX idx_kelurahan_coordinates ON kelurahan (latitude, longitude)');
         DB::statement('CREATE INDEX idx_kelurahan_polygon ON kelurahan USING GIST (polygon_area)');
@@ -48,7 +48,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->after('alamat_spam');
             $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
         });
-        
+
         DB::statement('ALTER TABLE spam ADD COLUMN polygon_area GEOMETRY(POLYGON, 4326)');
         DB::statement('CREATE INDEX idx_spam_coordinates ON spam (latitude, longitude)');
         DB::statement('CREATE INDEX idx_spam_polygon ON spam USING GIST (polygon_area)');
@@ -58,7 +58,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->after('deskripsi');
             $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
         });
-        
+
         DB::statement('ALTER TABLE rayon ADD COLUMN polygon_area GEOMETRY(POLYGON, 4326)');
         DB::statement('CREATE INDEX idx_rayon_coordinates ON rayon (latitude, longitude)');
         DB::statement('CREATE INDEX idx_rayon_polygon ON rayon USING GIST (polygon_area)');
@@ -68,7 +68,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->after('deskripsi');
             $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
         });
-        
+
         DB::statement('ALTER TABLE sub_rayon ADD COLUMN polygon_area GEOMETRY(POLYGON, 4326)');
         DB::statement('CREATE INDEX idx_sub_rayon_coordinates ON sub_rayon (latitude, longitude)');
         DB::statement('CREATE INDEX idx_sub_rayon_polygon ON sub_rayon USING GIST (polygon_area)');
