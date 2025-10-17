@@ -12,7 +12,7 @@ use App\Traits\HasGeometry;
 
 class Spam extends Model
 {
-    use HasFactory, HasUuids, LogsActivity, HasGeometry;
+    use HasFactory, HasUuids, HasGeometry; // LogsActivity disabled temporarily
 
     protected $table = 'spam';
     protected $primaryKey = 'id_spam';
@@ -41,6 +41,7 @@ class Spam extends Model
         'latitude',
         'longitude',
         'polygon_area',
+        'location', // Add for map picker
         'dibuat_oleh',
         'dibuat_pada',
         'diperbarui_oleh',
@@ -56,19 +57,100 @@ class Spam extends Model
         'longitude' => 'decimal:8',
     ];
 
-    // Activity logging configuration
-    public function getActivitylogOptions(): LogOptions
+    protected static function boot()
     {
-        return LogOptions::defaults()
-            ->logOnly([
-                'nama_spam',
-                'status_operasional',
-                'kapasitas_produksi',
-                'sumber_air',
-            ])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (auth()->check()) {
+                $model->dibuat_oleh = auth()->id();
+                $model->dibuat_pada = now();
+            } else {
+                // For seeding or console commands
+                $model->dibuat_oleh = 'system';
+                $model->dibuat_pada = now();
+            }
+        });
+
+        static::updating(function ($model) {
+            if (auth()->check()) {
+                $model->diperbarui_oleh = auth()->id();
+                $model->diperbarui_pada = now();
+            } else {
+                // For seeding or console commands
+                $model->diperbarui_oleh = 'system';
+                $model->diperbarui_pada = now();
+            }
+        });
     }
+
+    // Accessor dan Mutator untuk location field
+    public function getLocationAttribute()
+    {
+        $result = [
+            'lat' => $this->latitude ?? -7.388119,
+            'lng' => $this->longitude ?? 109.358398,
+        ];
+
+        if ($this->polygon_area) {
+            try {
+                $geometry = json_decode($this->polygon_area, true);
+                if ($geometry && isset($geometry['type'])) {
+                    // Return as FeatureCollection untuk compatibility dengan GeoMan
+                    $result['geojson'] = [
+                        'type' => 'FeatureCollection',
+                        'features' => [
+                            [
+                                'type' => 'Feature',
+                                'geometry' => $geometry,
+                                'properties' => []
+                            ]
+                        ]
+                    ];
+                }
+            } catch (\Exception $e) {
+                // Ignore error, just return lat/lng
+            }
+        }
+
+        return $result;
+    }
+
+    public function setLocationAttribute($value)
+    {
+        if (is_array($value) && isset($value['geojson'])) {
+            $geojson = $value['geojson'];
+            
+            if (isset($geojson['type'])) {
+                if ($geojson['type'] === 'FeatureCollection' && isset($geojson['features'][0]['geometry'])) {
+                    // Extract first geometry from FeatureCollection
+                    $geometry = $geojson['features'][0]['geometry'];
+                    $this->attributes['polygon_area'] = json_encode($geometry);
+                } elseif ($geojson['type'] === 'Feature' && isset($geojson['geometry'])) {
+                    // Extract geometry from Feature
+                    $geometry = $geojson['geometry'];
+                    $this->attributes['polygon_area'] = json_encode($geometry);
+                } elseif (in_array($geojson['type'], ['Polygon', 'Point', 'LineString', 'MultiPolygon'])) {
+                    // Already a geometry object
+                    $this->attributes['polygon_area'] = json_encode($geojson);
+                }
+            }
+        }
+    }
+
+    // Activity logging configuration
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logOnly([
+    //             'nama_spam',
+    //             'status_operasional',
+    //             'kapasitas_produksi',
+    //             'sumber_air',
+    //         ])
+    //         ->logOnlyDirty()
+    //         ->dontSubmitEmptyLogs();
+    // }
 
     // Relationships
     public function pelanggan(): HasMany

@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Dotswan\MapPicker\Fields\Map;
+use Filament\Forms\Set;
 
 class KecamatanResource extends Resource
 {
@@ -55,6 +57,59 @@ class KecamatanResource extends Resource
                             ->label('Status Aktif')
                             ->default(true)
                             ->required(),
+                    ]),
+
+                Forms\Components\Section::make('Lokasi & Area Polygon')
+                    ->description('Koordinat dan area cakupan kecamatan')
+                    ->schema([
+                        Map::make('location')
+                            ->label('Lokasi & Area Kecamatan')
+                            ->columnSpanFull()
+                            ->defaultLocation(latitude: -7.388119, longitude: 109.358398) // Cilacap coordinates
+                            ->draggable(true)
+                            ->clickable(true)
+                            ->zoom(12)
+                            ->minZoom(8)
+                            ->maxZoom(20)
+                            ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
+                            ->detectRetina(true)
+                            
+                            // Marker Configuration
+                            ->showMarker(true)
+                            ->markerColor("#3b82f6")
+                            
+                            // Controls
+                            ->showFullscreenControl(true)
+                            ->showZoomControl(true)
+                            
+                            // GeoMan Integration for Polygon Drawing
+                            ->geoMan(true)
+                            ->geoManEditable(true)
+                            ->geoManPosition('topleft')
+                            ->drawMarker(false) // Disable marker drawing
+                            ->drawPolygon(true) // Enable polygon drawing
+                            ->drawPolyline(false)
+                            ->drawCircle(false)
+                            ->drawRectangle(true)
+                            ->drawText(false)
+                            ->dragMode(true)
+                            ->cutPolygon(true)
+                            ->editPolygon(true)
+                            ->deleteLayer(true)
+                            ->setColor('#3388ff')
+                            ->setFilledColor('#cad9ec')
+                            
+                            // Extra styling untuk memberikan ruang yang cukup untuk toolbar
+                            ->extraStyles([
+                                'min-height: 500px',
+                                'height: 500px',
+                                'border-radius: 8px',
+                                'border: 1px solid #e5e7eb'
+                            ]),
+
+                        // Hidden fields untuk menyimpan koordinat
+                        Forms\Components\Hidden::make('latitude'),
+                        Forms\Components\Hidden::make('longitude'),
                     ]),
             ]);
     }

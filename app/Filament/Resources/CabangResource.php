@@ -12,6 +12,8 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\SelectFilter;
+use Dotswan\MapPicker\Fields\Map;
+use Filament\Forms\Set;
 
 class CabangResource extends Resource
 {
@@ -91,29 +93,53 @@ class CabangResource extends Resource
                             ->rows(2),
                     ]),
 
-                Forms\Components\Section::make('Lokasi & Geometri')
-                    ->description('Informasi lokasi dan area cakupan cabang')
+                Forms\Components\Section::make('Lokasi & Area Polygon')
+                    ->description('Koordinat dan area cakupan cabang/unit')
                     ->schema([
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\TextInput::make('latitude')
-                                    ->label('Latitude')
-                                    ->numeric()
-                                    ->step('any')
-                                    ->placeholder('Contoh: -7.2575'),
-
-                                Forms\Components\TextInput::make('longitude')
-                                    ->label('Longitude')
-                                    ->numeric()
-                                    ->step('any')
-                                    ->placeholder('Contoh: 112.7521'),
+                        Map::make('location')
+                            ->label('Lokasi & Area Cabang/Unit')
+                            ->columnSpanFull()
+                            ->defaultLocation(latitude: -7.388119, longitude: 109.358398)
+                            ->draggable(true)
+                            ->clickable(true)
+                            ->zoom(13)
+                            ->minZoom(8)
+                            ->maxZoom(20)
+                            ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
+                            ->detectRetina(true)
+                            
+                            // Marker Configuration
+                            ->showMarker(true)
+                            ->markerColor("#ef4444")
+                            
+                            // Controls
+                            ->showFullscreenControl(true)
+                            ->showZoomControl(true)
+                            
+                            // GeoMan Integration for Polygon Drawing
+                            ->geoMan(true)
+                            ->geoManEditable(true)
+                            ->geoManPosition('topleft')
+                            ->drawMarker(false)
+                            ->drawPolygon(true)
+                            ->drawPolyline(false)
+                            ->drawCircle(false)
+                            ->drawRectangle(true)
+                            ->drawText(false)
+                            ->dragMode(true)
+                            ->cutPolygon(true)
+                            ->editPolygon(true)
+                            ->deleteLayer(true)
+                            ->setColor('#ef4444')
+                            ->setFilledColor('#fee2e2')
+                            
+                            // Extra styling untuk memberikan ruang yang cukup untuk toolbar
+                            ->extraStyles([
+                                'min-height: 500px',
+                                'height: 500px',
+                                'border-radius: 8px',
+                                'border: 1px solid #e5e7eb'
                             ]),
-
-                        Forms\Components\Textarea::make('polygon_area')
-                            ->label('Area Polygon (WKT)')
-                            ->placeholder('Contoh: POLYGON((112.7521 -7.2575, 112.7522 -7.2576, ...))')
-                            ->rows(3)
-                            ->hint('Format Well-Known Text (WKT) untuk polygon area cakupan cabang'),
                     ])
                     ->collapsible(),
             ]);

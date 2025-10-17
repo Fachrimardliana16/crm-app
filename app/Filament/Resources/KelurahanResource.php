@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Dotswan\MapPicker\Fields\Map;
+use Filament\Forms\Set;
 
 class KelurahanResource extends Resource
 {
@@ -84,6 +86,55 @@ class KelurahanResource extends Resource
                             ->label('Status Aktif')
                             ->default(true)
                             ->required(),
+                    ]),
+
+                Forms\Components\Section::make('Lokasi & Area Polygon')
+                    ->description('Koordinat dan area cakupan kelurahan')
+                    ->schema([
+                        Map::make('location')
+                            ->label('Lokasi & Area Kelurahan')
+                            ->columnSpanFull()
+                            ->defaultLocation(latitude: -7.388119, longitude: 109.358398)
+                            ->draggable(true)
+                            ->clickable(true)
+                            ->zoom(14)
+                            ->minZoom(10)
+                            ->maxZoom(20)
+                            ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
+                            ->detectRetina(true)
+                            
+                            // Marker Configuration
+                            ->showMarker(true)
+                            ->markerColor("#10b981")
+                            
+                            // Controls
+                            ->showFullscreenControl(true)
+                            ->showZoomControl(true)
+                            
+                            // GeoMan Integration for Polygon Drawing
+                            ->geoMan(true)
+                            ->geoManEditable(true)
+                            ->geoManPosition('topleft')
+                            ->drawMarker(false)
+                            ->drawPolygon(true)
+                            ->drawPolyline(false)
+                            ->drawCircle(false)
+                            ->drawRectangle(true)
+                            ->drawText(false)
+                            ->dragMode(true)
+                            ->cutPolygon(true)
+                            ->editPolygon(true)
+                            ->deleteLayer(true)
+                            ->setColor('#10b981')
+                            ->setFilledColor('#d1fae5')
+                            
+                            // Extra styling untuk memberikan ruang yang cukup untuk toolbar
+                            ->extraStyles([
+                                'min-height: 500px',
+                                'height: 500px',
+                                'border-radius: 8px',
+                                'border: 1px solid #e5e7eb'
+                            ]),
                     ]),
             ]);
     }

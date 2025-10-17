@@ -13,6 +13,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Dotswan\MapPicker\Fields\Map;
+use Filament\Forms\Set;
 
 class SubRayonResource extends Resource
 {
@@ -105,30 +107,52 @@ class SubRayonResource extends Resource
                             ]),
                     ]),
                     
-                Forms\Components\Section::make('Informasi Geografis')
+                Forms\Components\Section::make('Lokasi & Area Polygon')
+                    ->description('Koordinat dan area cakupan sub rayon')
                     ->schema([
-                        Forms\Components\Grid::make(3)
-                            ->schema([
-                                Forms\Components\TextInput::make('koordinat_pusat_lat')
-                                    ->label('Latitude Pusat')
-                                    ->numeric()
-                                    ->step(0.00000001)
-                                    ->placeholder('-7.2574719')
-                                    ->helperText('Koordinat latitude pusat sub rayon'),
-                                    
-                                Forms\Components\TextInput::make('koordinat_pusat_lng')
-                                    ->label('Longitude Pusat')
-                                    ->numeric()
-                                    ->step(0.00000001)
-                                    ->placeholder('112.7520883')
-                                    ->helperText('Koordinat longitude pusat sub rayon'),
-                                    
-                                Forms\Components\TextInput::make('radius_coverage')
-                                    ->label('Radius Coverage (meter)')
-                                    ->numeric()
-                                    ->step(1)
-                                    ->placeholder('2000')
-                                    ->helperText('Radius jangkauan dalam meter'),
+                        Map::make('location')
+                            ->label('Lokasi & Area Sub Rayon')
+                            ->columnSpanFull()
+                            ->defaultLocation(latitude: -7.388119, longitude: 109.358398)
+                            ->draggable(true)
+                            ->clickable(true)
+                            ->zoom(14)
+                            ->minZoom(12)
+                            ->maxZoom(20)
+                            ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
+                            ->detectRetina(true)
+                            
+                            // Marker Configuration
+                            ->showMarker(true)
+                            ->markerColor("#06b6d4")
+                            
+                            // Controls
+                            ->showFullscreenControl(true)
+                            ->showZoomControl(true)
+                            
+                            // GeoMan Integration for Polygon Drawing
+                            ->geoMan(true)
+                            ->geoManEditable(true)
+                            ->geoManPosition('topleft')
+                            ->drawMarker(false)
+                            ->drawPolygon(true)
+                            ->drawPolyline(false)
+                            ->drawCircle(false)
+                            ->drawRectangle(true)
+                            ->drawText(false)
+                            ->dragMode(true)
+                            ->cutPolygon(true)
+                            ->editPolygon(true)
+                            ->deleteLayer(true)
+                            ->setColor('#06b6d4')
+                            ->setFilledColor('#cffafe')
+                            
+                            // Extra styling untuk memberikan ruang yang cukup untuk toolbar
+                            ->extraStyles([
+                                'min-height: 500px',
+                                'height: 500px',
+                                'border-radius: 8px',
+                                'border: 1px solid #e5e7eb'
                             ]),
                     ]),
                     
