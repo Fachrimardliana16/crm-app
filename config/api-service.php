@@ -4,8 +4,8 @@ return [
     'navigation' => [
         'token' => [
             'cluster' => null,
-            'group' => 'User',
-            'sort' => -1,
+            'group' => 'User Management',
+            'sort' => 10,
             'icon' => 'heroicon-o-key',
             'should_register_navigation' => true,
         ],
