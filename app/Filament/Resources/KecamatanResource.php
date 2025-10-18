@@ -59,7 +59,7 @@ class KecamatanResource extends Resource
                             ->required(),
                     ]),
 
-                Forms\Components\Section::make('Lokasi & Area Polygon')
+                Forms\Components\Section::make('Lokasi & Area Kecamatan')
                     ->description('Koordinat dan area cakupan kecamatan')
                     ->schema([
                         Map::make('location')
