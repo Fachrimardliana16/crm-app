@@ -1,0 +1,16 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-webhook:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Call Webhook URL
+        run: |
+          curl -X GET "http://36.93.220.244:2525/hook?access_key=LdPmexfWZ9hghKPug55AMTfWECAHKVRP21U8LXqAEhj6hjhD&param=crm-app"
