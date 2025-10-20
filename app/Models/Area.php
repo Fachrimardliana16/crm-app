@@ -25,8 +25,6 @@ class Area extends Model
         'deskripsi_area',
         'kelurahan',
         'kecamatan',
-        'kota',
-        'provinsi',
         'kode_pos',
         'status_area',
         'koordinat_pusat_lat',
@@ -75,11 +73,6 @@ class Area extends Model
     public function scopeAktif($query)
     {
         return $query->where('status_area', 'aktif');
-    }
-
-    public function scopeByKota($query, $kota)
-    {
-        return $query->where('kota', $kota);
     }
 
     public function scopeAvailable($query)

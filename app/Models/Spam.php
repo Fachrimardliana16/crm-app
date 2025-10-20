@@ -26,8 +26,6 @@ class Spam extends Model
         'alamat_spam',
         'kelurahan',
         'kecamatan',
-        'kota',
-        'provinsi',
         'kode_pos',
         'telepon',
         'fax',
@@ -120,7 +118,7 @@ class Spam extends Model
     {
         if (is_array($value) && isset($value['geojson'])) {
             $geojson = $value['geojson'];
-            
+
             if (isset($geojson['type'])) {
                 if ($geojson['type'] === 'FeatureCollection' && isset($geojson['features'][0]['geometry'])) {
                     // Extract first geometry from FeatureCollection
@@ -167,11 +165,6 @@ class Spam extends Model
     public function scopeAktif($query)
     {
         return $query->where('status_operasional', 'aktif');
-    }
-
-    public function scopeByKota($query, $kota)
-    {
-        return $query->where('kota', $kota);
     }
 
     // Accessors

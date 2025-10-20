@@ -21,7 +21,6 @@ class Kecamatan extends Model
     protected $fillable = [
         'kode_kecamatan',
         'nama_kecamatan',
-        'provinsi',
         'status_aktif',
         'latitude',
         'longitude',
@@ -39,7 +38,7 @@ class Kecamatan extends Model
     {
         if (is_array($value) && isset($value['geojson'])) {
             $geojson = $value['geojson'];
-            
+
             if (isset($geojson['type'])) {
                 if ($geojson['type'] === 'FeatureCollection' && isset($geojson['features'][0]['geometry'])) {
                     // Extract first geometry from FeatureCollection

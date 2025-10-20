@@ -87,8 +87,12 @@ class PembayaranPage extends Page implements HasForms
                         // Input Nomor Pelanggan dengan Button Cari
                         TextInput::make('search_input')
                             ->label('Nomor Pelanggan')
-                            ->placeholder('Masukan nomor pelanggan')
+                            ->placeholder('Masukkan nomor pelanggan')
+                            ->required()
+                            ->numeric()
                             ->live(debounce: 500)
+                            ->rule('digits:8') // Tepat 8 digit
+                            ->validationAttribute('Nomor Pelanggan')
                             ->suffixAction(
                                 Action::make('cariManual')
                                     ->icon('heroicon-o-magnifying-glass')

@@ -78,14 +78,6 @@ class AreaResource extends Resource
                                     ->label('Kecamatan')
                                     ->maxLength(100),
 
-                                Forms\Components\TextInput::make('kota')
-                                    ->label('Kota')
-                                    ->maxLength(100),
-
-                                Forms\Components\TextInput::make('provinsi')
-                                    ->label('Provinsi')
-                                    ->maxLength(100),
-
                                 Forms\Components\TextInput::make('kode_pos')
                                     ->label('Kode Pos')
                                     ->maxLength(10),
@@ -205,15 +197,6 @@ class AreaResource extends Resource
                         'non_aktif' => 'Non Aktif',
                         'maintenance' => 'Maintenance',
                     ]),
-
-                Tables\Filters\SelectFilter::make('kota')
-                    ->label('Kota')
-                    ->options(function () {
-                        return \App\Models\Area::distinct('kota')
-                            ->whereNotNull('kota')
-                            ->pluck('kota', 'kota')
-                            ->toArray();
-                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

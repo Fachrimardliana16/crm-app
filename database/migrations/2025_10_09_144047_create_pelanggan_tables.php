@@ -25,8 +25,6 @@ return new class extends Migration
             $table->string('rt_rw')->nullable();
             $table->string('kelurahan');
             $table->string('kecamatan');
-            $table->string('kota');
-            $table->string('provinsi');
             $table->string('kode_pos')->nullable();
             $table->string('nomor_hp')->nullable(); // Encrypted
             $table->string('nomor_telepon')->nullable(); // Encrypted
@@ -37,7 +35,7 @@ return new class extends Migration
             $table->string('segment')->nullable();
             $table->uuid('id_area')->nullable();
             $table->uuid('id_spam')->nullable();
-            
+
             // Rayon & Sub Rayon untuk sistem penomoran pelanggan
             $table->uuid('id_rayon')->nullable()->comment('Foreign key ke tabel rayon');
             $table->uuid('id_sub_rayon')->nullable()->comment('Foreign key ke tabel sub_rayon');

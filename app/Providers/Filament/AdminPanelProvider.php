@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->registration()
             ->passwordReset()
             ->emailVerification()
+             ->sidebarCollapsibleOnDesktop()
             ->profile()
             ->colors([
                 'primary' => Color::Amber,

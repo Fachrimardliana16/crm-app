@@ -70,10 +70,6 @@ class KelurahanResource extends Resource
                                             ->label('Nama Kecamatan')
                                             ->required()
                                             ->maxLength(255),
-                                        Forms\Components\TextInput::make('provinsi')
-                                            ->label('Provinsi')
-                                            ->required()
-                                            ->default('Jawa Tengah'),
                                     ]),
 
                                 Forms\Components\TextInput::make('kode_pos')
@@ -102,15 +98,15 @@ class KelurahanResource extends Resource
                             ->maxZoom(20)
                             ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
                             ->detectRetina(true)
-                            
+
                             // Marker Configuration
                             ->showMarker(true)
                             ->markerColor("#10b981")
-                            
+
                             // Controls
                             ->showFullscreenControl(true)
                             ->showZoomControl(true)
-                            
+
                             // GeoMan Integration for Polygon Drawing
                             ->geoMan(true)
                             ->geoManEditable(true)
@@ -127,7 +123,7 @@ class KelurahanResource extends Resource
                             ->deleteLayer(true)
                             ->setColor('#10b981')
                             ->setFilledColor('#d1fae5')
-                            
+
                             // Extra styling untuk memberikan ruang yang cukup untuk toolbar
                             ->extraStyles([
                                 'min-height: 500px',

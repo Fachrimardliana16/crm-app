@@ -73,8 +73,6 @@ String alamat
 String rt_rw
 String kelurahan
 String kecamatan
-String kota
-String provinsi
 String kode_pos
 String nomor_hp
 String nomor_telepon

@@ -219,14 +219,6 @@ class PendaftaranResource extends Resource
                                                     ->label('Kode Kecamatan')
                                                     ->required()
                                                     ->maxLength(10),
-                                                Forms\Components\TextInput::make('kota')
-                                                    ->label('Kota')
-                                                    ->required()
-                                                    ->maxLength(255),
-                                                Forms\Components\TextInput::make('provinsi')
-                                                    ->label('Provinsi')
-                                                    ->required()
-                                                    ->maxLength(255),
                                             ]),
                                         Forms\Components\TextInput::make('kode_pos')
                                             ->label('Kode Pos')
@@ -379,11 +371,37 @@ class PendaftaranResource extends Resource
                                         }
                                     })
                                     ->createOptionForm([
-                                        Forms\Components\TextInput::make('nama_tipe_layanan')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\Textarea::make('deskripsi'),
-                                    ]),
+                                        Forms\Components\Section::make('Create Tipe Layanan')
+                                            ->schema([
+                                                Forms\Components\Grid::make(2)
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('kode_tipe_layanan')
+                                                            ->label('Kode Tipe Layanan')
+                                                            ->required()
+                                                            ->maxLength(3),
+
+                                                        Forms\Components\TextInput::make('nama_tipe_layanan')
+                                                            ->label('Nama Tipe Layanan')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                    ]),
+
+                                                Forms\Components\Textarea::make('deskripsi')
+                                                    ->label('Deskripsi')
+                                                    ->maxLength(500),
+
+                                                Forms\Components\TextInput::make('biaya_standar')
+                                                    ->label('Biaya Standar')
+                                                    ->required()
+                                                    ->numeric()
+                                                    ->prefix('Rp'),
+
+                                                Forms\Components\Toggle::make('status_aktif')
+                                                    ->label('Status Aktif')
+                                                    ->helperText('Aktifkan jika tipe layanan masih digunakan.')
+                                                    ->default(true),
+                                            ]),
+                                        ]),
 
                                 Select::make('id_jenis_daftar')
                                     ->label('Jenis Daftar')
@@ -402,13 +420,41 @@ class PendaftaranResource extends Resource
                                         }
                                     })
                                     ->createOptionForm([
+                                    Grid::make(2)
+                                            ->schema([
+                                         Forms\Components\TextInput::make('kode_jenis_daftar')
+                                            ->required()
+                                            ->maxLength(3),
                                         Forms\Components\TextInput::make('nama_jenis_daftar')
                                             ->required()
                                             ->maxLength(255),
-                                        Forms\Components\TextInput::make('biaya')
+                                    ]),
+                                        Forms\Components\Textarea::make('deskripsi'),
+                                    Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('biaya_daftar')
                                             ->numeric()
                                             ->prefix('Rp'),
-                                        Forms\Components\Textarea::make('deskripsi'),
+                                        Forms\Components\TextInput::make('biaya_bulanan_tambahan')
+                                            ->numeric()
+                                            ->prefix('Rp'),
+                                        Forms\Components\TextInput::make('potongan_layanan')
+                                            ->numeric()
+                                            ->prefix('Rp'),
+                                        Forms\Components\TextInput::make('biaya_tambahan')
+                                            ->label('Biaya Tambahan')
+                                            ->numeric()
+                                            ->prefix('Rp'),
+                                    ]),
+                                        Forms\Components\TextInput::make('lama_proses_hari')
+                                            ->required()
+                                            ->numeric()
+                                            ->maxLength(255),
+                                        Forms\Components\Toggle::make('status_aktif')
+                                            ->label('Status Aktif')
+                                            ->helperText('Aktifkan jika jenis daftar masih digunakan.')
+                                            ->default(true),
+
                                     ]),
 
                                 Select::make('id_tipe_pendaftaran')
@@ -428,17 +474,50 @@ class PendaftaranResource extends Resource
                                         }
                                     })
                                     ->createOptionForm([
-                                        Forms\Components\TextInput::make('nama_tipe_pendaftaran')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('biaya')
-                                            ->numeric()
-                                            ->prefix('Rp'),
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('kode_tipe_pendaftaran')
+                                                    ->label('Kode Tipe Pendaftaran')
+                                                    ->required()
+                                                    ->maxLength(3),
+
+                                                Forms\Components\TextInput::make('nama_tipe_pendaftaran')
+                                                    ->label('Nama Tipe Pendaftaran')
+                                                    ->required()
+                                                    ->maxLength(255),
+                                            ]),
+
+                                        Forms\Components\Textarea::make('deskripsi'),
+                                        Forms\Components\Grid::make(2)
+                                            ->schema([
+                                            Forms\Components\TextInput::make('biaya')
+                                                ->numeric()
+                                                ->prefix('Rp'),
+                                            Forms\Components\TextInput::make('biaya_admin')
+                                                ->numeric()
+                                                ->prefix('Rp'),
+                                        ]),
+
+                                        Forms\Components\Grid::make(4)
+                                            ->schema([
+                                            Forms\Components\TextInput::make('prioritas')
+                                                ->numeric(),
+                                            Forms\Components\Toggle::make('status_aktif')
+                                                ->label('Status Aktif')
+                                                ->helperText('Aktifkan jika tipe pendaftaran masih digunakan.')
+                                                ->default(true),
+                                            Forms\Components\Toggle::make('otomatis_approve')
+                                                ->label('Otomatis Approve')
+                                                ->helperText('Jika diaktifkan, pendaftaran dengan tipe ini akan otomatis disetujui.'),
+                                            Forms\Components\Toggle::make('perlu_survey')
+                                                ->label('Survey Lapangan')
+                                                ->helperText('Jika diaktifkan, pendaftaran dengan tipe ini wajib melalui proses survey lapangan.'),
+                                        ]),
                                         Forms\Components\TextInput::make('data_pengembalian')
                                             ->label('Data Pengembalian')
                                             ->numeric()
                                             ->prefix('Rp'),
-                                        Forms\Components\Textarea::make('deskripsi'),
+
                                     ]),
                             ]),
 
@@ -954,8 +1033,6 @@ class PendaftaranResource extends Resource
                     'alamat' => $record->alamat_pemasangan,
                     'kelurahan' => $record->kelurahan_pemasangan,
                     'kecamatan' => 'Perlu Diisi',
-                    'kota' => 'Perlu Diisi',
-                    'provinsi' => 'Perlu Diisi',
                     'status_pelanggan' => 'aktif',
                     'golongan' => 'standar',
                     'tipe_pelanggan' => 'domestik',

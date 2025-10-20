@@ -17,7 +17,7 @@ class SubRayonSeeder extends Seeder
     {
         // Disable activity logging temporarily for seeding
         activity()->disableLogging();
-        
+
         // Data Sub Rayon untuk setiap Rayon
         $subRayonData = [
             '01' => [ // Rayon Purbalingga Kota
@@ -157,7 +157,7 @@ class SubRayonSeeder extends Seeder
         foreach ($subRayonData as $kodeRayon => $subRayons) {
             // Cari Rayon berdasarkan kode
             $rayon = Rayon::where('kode_rayon', $kodeRayon)->first();
-            
+
             if (!$rayon) {
                 $this->command->warn("⚠️ Rayon dengan kode {$kodeRayon} tidak ditemukan. Melewati...");
                 continue;
@@ -182,7 +182,7 @@ class SubRayonSeeder extends Seeder
                     'dibuat_oleh' => 'System',
                     'dibuat_pada' => now(),
                 ]);
-                
+
                 $totalSubRayon++;
             }
 
@@ -190,7 +190,7 @@ class SubRayonSeeder extends Seeder
         }
 
         $this->command->info("🎉 Total berhasil membuat {$totalSubRayon} data Sub Rayon");
-        
+
         // Re-enable activity logging
         activity()->enableLogging();
     }

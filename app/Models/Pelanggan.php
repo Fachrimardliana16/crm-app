@@ -31,8 +31,6 @@ class Pelanggan extends Model
         'rt_rw',
         'kelurahan',
         'kecamatan',
-        'kota',
-        'provinsi',
         'kode_pos',
         'nomor_hp',
         'nomor_telepon',
@@ -147,7 +145,7 @@ class Pelanggan extends Model
 
     public function golonganPelanggan()
     {
-        return $this->belongsTo(GolonganPelanggan::class, 'golongan', 'id_golongan');
+        return $this->belongsTo(GolonganPelanggan::class, 'id_golongan_pelanggan', 'id_golongan_pelanggan');
     }
 
     public function statusPelanggan()

@@ -111,24 +111,6 @@ class PelangganResource extends Resource
                                     ->required()
                                     ->maxLength(255),
                             ]),
-
-                        Grid::make(3)
-                            ->schema([
-                                Forms\Components\TextInput::make('kota')
-                                    ->label('Kota')
-                                    ->required()
-                                    ->maxLength(255),
-
-                                Forms\Components\TextInput::make('provinsi')
-                                    ->label('Provinsi')
-                                    ->required()
-                                    ->maxLength(255),
-
-                                Forms\Components\TextInput::make('kode_pos')
-                                    ->label('Kode Pos')
-                                    ->maxLength(10)
-                                    ->numeric(),
-                            ]),
                     ]),
 
                 Section::make('Kontak')
@@ -166,7 +148,7 @@ class PelangganResource extends Resource
                                     ->required()
                                     ->default('BARU'),
 
-                                Select::make('golongan')
+                                Select::make('id_golongan_pelanggan')
                                     ->label('Golongan')
                                     ->relationship('golonganPelanggan', 'nama_golongan')
                                     ->searchable()
