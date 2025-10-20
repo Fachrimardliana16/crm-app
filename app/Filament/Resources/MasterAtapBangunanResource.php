@@ -25,27 +25,104 @@ class MasterAtapBangunanResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('kode')
-                    ->required()
-                    ->maxLength(20),
-                Forms\Components\TextInput::make('nama')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('deskripsi')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('skor')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\Toggle::make('is_active')
-                    ->required(),
-                Forms\Components\TextInput::make('urutan')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-            ]);
+       return $form
+        ->schema([
+            Forms\Components\Section::make('Informasi Dasar')
+                ->description('Masukkan informasi utama untuk data ini.')
+                ->schema([
+                    Forms\Components\TextInput::make('kode')
+                                ->label('Kode Unik')
+                                ->required()
+                                ->maxLength(4)
+                                ->placeholder('Masukkan kode unik (max 4 karakter)')
+                                ->autofocus()
+                                ->rules(['alpha_dash'])
+                                ->suffixAction(
+                                    Forms\Components\Actions\Action::make('hint_kode')
+                                        ->icon('heroicon-o-information-circle')
+                                        ->color('primary')
+                                        ->action(function () {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Ketentuan Kode')
+                                                ->body('Gunakan kode yang mudah diingat.')
+                                                ->info()
+                                                ->send();
+                                        })
+                                    ),
+                    Forms\Components\TextInput::make('nama')
+                        ->label('Nama')
+                        ->required()
+                        ->maxLength(255)
+                        ->placeholder('Masukkan nama lengkap')
+                        ->suffixAction(
+                                    Forms\Components\Actions\Action::make('hint_kode')
+                                        ->icon('heroicon-o-information-circle')
+                                        ->color('primary')
+                                        ->action(function () {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Ketentuan Nama')
+                                                ->body('Masukan Nama Pagar Bangunan.')
+                                                ->info()
+                                                ->send();
+                                        })
+                                )
+                        ->live(onBlur: true),
+                ])
+                ->columns(2)
+                ->collapsible(),
+            Forms\Components\Section::make('Konfigurasi')
+                ->description('Atur detail dan prioritas data.')
+                ->schema([
+                    Forms\Components\Grid::make(12)
+                        ->schema([
+                            Forms\Components\TextInput::make('skor')
+                                ->label('Skor Penilaian')
+                                ->required()
+                                ->numeric()
+                                ->default(0)
+                                ->placeholder('0-100')
+                                ->minValue(0)
+                                ->maxValue(100)
+                                ->prefix('Skor')
+                                ->helperText('Masukkan skor antara 0 hingga 100 untuk menilai performa.')
+                                ->inputMode('numeric')
+                                ->extraInputAttributes(['style' => 'border-color: #facc15;'])
+                                ->live(debounce: 500)
+                                ->columnSpan(4),
+                            Forms\Components\TextInput::make('urutan')
+                                ->label('Prioritas Urutan')
+                                ->required()
+                                ->numeric()
+                                ->default(0)
+                                ->placeholder('Masukkan angka urutan')
+                                ->minValue(0)
+                                ->maxValue(999)
+                                ->helperText('Angka lebih kecil berarti prioritas lebih tinggi.')
+                                ->inputMode('numeric')
+                                ->extraInputAttributes(['style' => 'border-color: #3b82f6;'])
+                                ->columnSpan(4),
+                            Forms\Components\Toggle::make('is_active')
+                                ->label('Status Aktif')
+                                ->required()
+                                ->default(true)
+                                ->onColor('success')
+                                ->offColor('danger')
+                                ->inline(false)
+                                ->helperText('Aktifkan untuk menampilkan item di daftar publik.')
+                                ->extraAttributes(['class' => 'cursor-pointer'])
+                                ->columnSpan(4),
+                        ]),
+                    Forms\Components\Textarea::make('deskripsi')
+                        ->label('Deskripsi')
+                        ->placeholder('Jelaskan detail tentang data ini...')
+                        ->rows(3)
+                        ->columnSpanFull()
+                        ->hint('Opsional: Tambahkan deskripsi untuk informasi lebih lanjut.'),
+                ])
+                ->collapsible()
+                ->compact(),
+        ])
+        ->statePath('data');
     }
 
     public static function table(Table $table): Table
