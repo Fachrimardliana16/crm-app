@@ -48,7 +48,7 @@ class ListSurveis extends ListRecords
                         ->icon('heroicon-o-calendar'),
                 ])// Add icon for visual cue
                 ->action(function (array $data) {
-                    $this->generateReport($data);
+                    $this->generateReportSurvei($data);
                 }),
             Actions\CreateAction::make()
                 ->label('Tambah Baru')
