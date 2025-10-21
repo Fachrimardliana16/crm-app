@@ -26,7 +26,7 @@ class SurveiResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Survei';
 
-    protected static ?string $navigationGroup = 'Workflow PDAM';
+    protected static ?string $navigationGroup = 'Workflow';
 
     protected static ?int $navigationSort = 2;
 

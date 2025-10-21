@@ -22,7 +22,7 @@ class TagihanRabResource extends Resource
     protected static ?string $navigationLabel = 'Tagihan RAB';
     protected static ?string $modelLabel = 'Tagihan RAB';
     protected static ?string $pluralModelLabel = 'Tagihan RAB';
-    protected static ?string $navigationGroup = 'Workflow PDAM';
+    protected static ?string $navigationGroup = 'Workflow';
     protected static ?int $navigationSort = 6;
 
     public static function form(Form $form): Form

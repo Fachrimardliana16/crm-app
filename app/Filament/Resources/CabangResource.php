@@ -45,6 +45,18 @@ class CabangResource extends Resource
                                     ->required()
                                     ->maxLength(10)
                                     ->placeholder('Contoh: CKB, UKM')
+                                    ->suffixAction(
+                                    Forms\Components\Actions\Action::make('hint_kode')
+                                        ->icon('heroicon-o-information-circle')
+                                        ->color('primary')
+                                        ->action(function () {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Petunjuk Kode Cabang')
+                                                ->body('Masukan angka kode cabang.')
+                                                ->info()
+                                                ->send();
+                                        })
+                                )
                                     ->unique(ignoreRecord: true),
 
                                 Forms\Components\TextInput::make('nama_cabang')
@@ -101,21 +113,22 @@ class CabangResource extends Resource
                             ->columnSpanFull()
                             ->defaultLocation(latitude: -7.388119, longitude: 109.358398)
                             ->draggable(true)
+
                             ->clickable(true)
                             ->zoom(13)
                             ->minZoom(8)
                             ->maxZoom(20)
                             ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
                             ->detectRetina(true)
-                            
+
                             // Marker Configuration
                             ->showMarker(true)
                             ->markerColor("#ef4444")
-                            
+
                             // Controls
                             ->showFullscreenControl(true)
                             ->showZoomControl(true)
-                            
+
                             // GeoMan Integration for Polygon Drawing
                             ->geoMan(true)
                             ->geoManEditable(true)
@@ -132,7 +145,7 @@ class CabangResource extends Resource
                             ->deleteLayer(true)
                             ->setColor('#ef4444')
                             ->setFilledColor('#fee2e2')
-                            
+
                             // Extra styling untuk memberikan ruang yang cukup untuk toolbar
                             ->extraStyles([
                                 'min-height: 500px',

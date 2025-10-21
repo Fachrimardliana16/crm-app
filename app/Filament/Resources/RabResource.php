@@ -25,7 +25,7 @@ class RabResource extends Resource
 
     protected static ?string $pluralModelLabel = 'RAB';
 
-    protected static ?string $navigationGroup = 'Workflow PDAM';
+    protected static ?string $navigationGroup = 'Workflow';
 
     protected static ?int $navigationSort = 3;
 

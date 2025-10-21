@@ -21,7 +21,7 @@ class RincianAngsuranResource extends Resource
     protected static ?string $navigationLabel = 'Rincian Angsuran';
     protected static ?string $modelLabel = 'Rincian Angsuran';
     protected static ?string $pluralModelLabel = 'Rincian Angsuran';
-    protected static ?string $navigationGroup = 'Workflow PDAM';
+    protected static ?string $navigationGroup = 'Workflow';
     protected static ?int $navigationSort = 7;
 
     public static function form(Form $form): Form

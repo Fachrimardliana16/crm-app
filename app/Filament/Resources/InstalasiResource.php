@@ -20,7 +20,7 @@ class InstalasiResource extends Resource
     protected static ?string $navigationLabel = 'Instalasi';
     protected static ?string $modelLabel = 'Instalasi';
     protected static ?string $pluralModelLabel = 'Instalasi';
-    protected static ?string $navigationGroup = 'Workflow PDAM';
+    protected static ?string $navigationGroup = 'Workflow';
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
