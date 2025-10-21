@@ -102,10 +102,16 @@ class SpamResource extends Resource
                                     ->native(false),
                             ]),
 
-                        Forms\Components\TextInput::make('sumber_air')
+                        Forms\Components\Select::make('sumber_air')
                             ->label('Sumber Air')
-                            ->maxLength(100)
-                            ->placeholder('Air tanah, mata air, dll'),
+                            ->options([
+                                'Air Tanah' => 'Air Tanah',
+                                'Air Permukaan' => 'Air Permukaan',
+                                'Air Hujan' => 'Air Hujan',
+                                'Campuran' => 'Campuran',
+                            ])
+                            ->placeholder('Pilih sumber air')
+                            ->native(false),
 
                         Forms\Components\Textarea::make('keterangan')
                             ->label('Keterangan')
@@ -174,23 +180,62 @@ class SpamResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id_spam'),
+                Tables\Columns\TextColumn::make('kode_spam')
+                    ->label('Kode SPAM')
+                    ->searchable()
+                    ->sortable(),
+                    
                 Tables\Columns\TextColumn::make('nama_spam')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('wilayah')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
+                    ->label('Nama SPAM')
+                    ->searchable()
+                    ->sortable(),
+                    
+                Tables\Columns\TextColumn::make('alamat_spam')
+                    ->label('Alamat')
+                    ->limit(50)
+                    ->searchable()
+                    ->toggleable(),
+                    
+                Tables\Columns\TextColumn::make('kelurahan')
+                    ->label('Kelurahan')
+                    ->searchable()
+                    ->toggleable(),
+                    
+                Tables\Columns\TextColumn::make('kecamatan')
+                    ->label('Kecamatan')
+                    ->searchable()
+                    ->toggleable(),
+                    
+                Tables\Columns\TextColumn::make('kapasitas_produksi')
+                    ->label('Kapasitas')
+                    ->numeric()
+                    ->suffix(' L/detik')
+                    ->sortable()
+                    ->toggleable(),
+                    
+                Tables\Columns\BadgeColumn::make('status_operasional')
+                    ->label('Status')
+                    ->colors([
+                        'success' => 'aktif',
+                        'danger' => 'nonaktif',
+                        'warning' => 'maintenance',
+                    ]),
+                    
+                Tables\Columns\TextColumn::make('sumber_air')
+                    ->label('Sumber Air')
+                    ->badge()
+                    ->toggleable(),
+                    
                 Tables\Columns\TextColumn::make('dibuat_oleh')
-                    ->searchable(),
+                    ->label('Dibuat Oleh')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
                 Tables\Columns\TextColumn::make('dibuat_pada')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('diperbarui_oleh')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('diperbarui_pada')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('Dibuat Pada')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

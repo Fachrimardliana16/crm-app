@@ -137,6 +137,57 @@ class SubGolonganPelangganResource extends Resource
                     ])
                     ->collapsible(),
 
+                Forms\Components\Section::make('Sistem Scoring Survei')
+                    ->description('Pengaturan range skor untuk menentukan sub golongan berdasarkan hasil survei pelanggan')
+                    ->schema([
+                        Forms\Components\Toggle::make('gunakan_scoring')
+                            ->label('Gunakan Sistem Scoring Otomatis')
+                            ->default(true)
+                            ->live()
+                            ->helperText('Jika diaktifkan, sistem akan otomatis menentukan sub golongan berdasarkan skor survei')
+                            ->columnSpanFull(),
+
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('skor_minimum')
+                                    ->label('Skor Minimum')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->helperText('Skor minimum untuk masuk ke sub golongan ini')
+                                    ->visible(fn (Forms\Get $get) => $get('gunakan_scoring')),
+
+                                Forms\Components\TextInput::make('skor_maksimum')
+                                    ->label('Skor Maksimum')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->helperText('Skor maksimum (kosongkan jika tidak terbatas)')
+                                    ->visible(fn (Forms\Get $get) => $get('gunakan_scoring')),
+                            ]),
+
+                        Forms\Components\TextInput::make('prioritas_scoring')
+                            ->label('Prioritas Scoring')
+                            ->numeric()
+                            ->default(0)
+                            ->helperText('Prioritas jika ada overlap range skor (semakin tinggi semakin prioritas)')
+                            ->visible(fn (Forms\Get $get) => $get('gunakan_scoring')),
+
+                        Forms\Components\Textarea::make('kriteria_scoring')
+                            ->label('Kriteria Scoring')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->helperText('Deskripsi kriteria dan parameter yang digunakan untuk scoring')
+                            ->visible(fn (Forms\Get $get) => $get('gunakan_scoring'))
+                            ->columnSpanFull(),
+
+                        Forms\Components\Placeholder::make('info_scoring')
+                            ->label('Informasi Scoring')
+                            ->content('Parameter survei yang dinilai: Luas Tanah, Luas Bangunan, Lokasi Bangunan, Material Dinding, Lantai, Atap, Pagar, Kondisi Jalan, Daya Listrik, Fungsi Rumah, dan Kepemilikan Kendaraan. Total skor maksimum sekitar 100-150 poin.')
+                            ->visible(fn (Forms\Get $get) => $get('gunakan_scoring'))
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
+
                 Forms\Components\Section::make('Pengaturan')
                     ->schema([
                         Forms\Components\Grid::make(2)
@@ -219,6 +270,24 @@ class SubGolonganPelangganResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
+                Tables\Columns\IconColumn::make('gunakan_scoring')
+                    ->label('Auto Scoring')
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('scoring_range_display')
+                    ->label('Range Skor')
+                    ->badge()
+                    ->color(fn ($record) => $record->gunakan_scoring ? 'info' : 'gray')
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('prioritas_scoring')
+                    ->label('Prioritas')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime()
@@ -237,6 +306,13 @@ class SubGolonganPelangganResource extends Resource
                     ->boolean()
                     ->trueLabel('Aktif')
                     ->falseLabel('Non-Aktif')
+                    ->native(false),
+
+                Tables\Filters\TernaryFilter::make('gunakan_scoring')
+                    ->label('Gunakan Scoring')
+                    ->boolean()
+                    ->trueLabel('Ya')
+                    ->falseLabel('Tidak')
                     ->native(false),
             ])
             ->actions([

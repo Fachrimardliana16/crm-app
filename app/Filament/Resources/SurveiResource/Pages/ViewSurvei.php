@@ -96,7 +96,7 @@ class ViewSurvei extends ViewRecord
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Hasil Survei')
+                Infolists\Components\Section::make('Hasil Survei')
                     ->schema([
                         Infolists\Components\TextEntry::make('subrayon')
                             ->label('Sub Rayon'),

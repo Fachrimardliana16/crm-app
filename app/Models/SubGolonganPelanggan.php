@@ -39,6 +39,12 @@ class SubGolonganPelanggan extends Model
         'biaya_pemeliharaan',
         'is_active',
         'urutan',
+        // Scoring system
+        'skor_minimum',
+        'skor_maksimum',
+        'kriteria_scoring',
+        'gunakan_scoring',
+        'prioritas_scoring',
     ];
 
     protected $casts = [
@@ -58,6 +64,11 @@ class SubGolonganPelanggan extends Model
         'biaya_pemeliharaan' => 'decimal:2',
         'is_active' => 'boolean',
         'urutan' => 'integer',
+        // Scoring system
+        'skor_minimum' => 'integer',
+        'skor_maksimum' => 'integer',
+        'gunakan_scoring' => 'boolean',
+        'prioritas_scoring' => 'integer',
     ];
 
     // Activity logging configuration
@@ -94,6 +105,21 @@ class SubGolonganPelanggan extends Model
     public function scopeByGolongan($query, $golonganId)
     {
         return $query->where('id_golongan_pelanggan', $golonganId);
+    }
+
+    public function scopeByScoring($query, $skor)
+    {
+        return $query->where('gunakan_scoring', true)
+                    ->where('skor_minimum', '<=', $skor)
+                    ->where(function ($q) use ($skor) {
+                        $q->whereNull('skor_maksimum')
+                          ->orWhere('skor_maksimum', '>=', $skor);
+                    });
+    }
+
+    public function scopePrioritasScoring($query)
+    {
+        return $query->orderBy('prioritas_scoring', 'desc');
     }
 
     // Accessors
@@ -155,5 +181,91 @@ class SubGolonganPelanggan extends Model
             'blok_3' => 'Rp ' . number_format((float) $this->tarif_blok_3, 0, ',', '.') . ' (21-30 m³)',
             'blok_4' => 'Rp ' . number_format((float) $this->tarif_blok_4, 0, ',', '.') . ' (>30 m³)',
         ];
+    }
+
+    // Accessor untuk display scoring range
+    public function getScoringRangeDisplayAttribute()
+    {
+        if (!$this->gunakan_scoring) {
+            return 'Tidak menggunakan scoring otomatis';
+        }
+
+        $min = $this->skor_minimum;
+        $max = $this->skor_maksimum;
+
+        if ($max === null) {
+            return "≥ {$min} poin";
+        }
+
+        return "{$min} - {$max} poin";
+    }
+
+    // Method untuk mengecek apakah skor masuk dalam range sub golongan ini
+    public function isScoreInRange($skor)
+    {
+        if (!$this->gunakan_scoring) {
+            return false;
+        }
+
+        if ($skor < $this->skor_minimum) {
+            return false;
+        }
+
+        if ($this->skor_maksimum !== null && $skor > $this->skor_maksimum) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Static method untuk menentukan sub golongan berdasarkan skor
+    public static function tentukanSubGolonganBySkor($skor, $golonganId = null)
+    {
+        $query = self::aktif()
+                    ->where('gunakan_scoring', true)
+                    ->byScoring($skor)
+                    ->prioritasScoring();
+
+        if ($golonganId) {
+            $query->byGolongan($golonganId);
+        }
+
+        return $query->first();
+    }
+
+    // Static method untuk mendapatkan semua sub golongan yang cocok dengan skor
+    public static function getSubGolonganBySkor($skor, $golonganId = null)
+    {
+        $query = self::aktif()
+                    ->where('gunakan_scoring', true)
+                    ->byScoring($skor)
+                    ->prioritasScoring();
+
+        if ($golonganId) {
+            $query->byGolongan($golonganId);
+        }
+
+        return $query->get();
+    }
+
+    // Method untuk mendapatkan rekomendasi sub golongan berdasarkan parameter survei
+    public static function rekomendasiSubGolongan($skorTotal, $golonganId = null)
+    {
+        $subGolongan = self::tentukanSubGolonganBySkor($skorTotal, $golonganId);
+        
+        if (!$subGolongan) {
+            // Jika tidak ada yang cocok, ambil sub golongan dengan skor minimum terdekat
+            $query = self::aktif()->where('gunakan_scoring', true);
+            
+            if ($golonganId) {
+                $query->byGolongan($golonganId);
+            }
+            
+            $subGolongan = $query->orderBy('skor_minimum', 'desc')
+                               ->where('skor_minimum', '<=', $skorTotal)
+                               ->first();
+        }
+
+        return $subGolongan;
     }
 }

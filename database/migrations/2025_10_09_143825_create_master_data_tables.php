@@ -16,6 +16,7 @@ return new class extends Migration
         // SPAM
         Schema::create('spam', function (Blueprint $table) {
             $table->uuid('id_spam')->primary();
+            $table->string('kode_spam');
             $table->string('nama_spam');
             $table->string('wilayah');
             $table->text('deskripsi')->nullable();
