@@ -36,9 +36,10 @@ class SurveiResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Informasi Pendaftaran')
+                    ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('id_pendaftaran')
-                            ->label('Pilih Pendaftaran')
+                            ->label('Nomor Registrasi Pendaftaran')
                             ->relationship('pendaftaran', 'nomor_registrasi')
                             ->searchable(['nomor_registrasi'])
                             ->getSearchResultsUsing(fn (string $search): array =>
@@ -54,7 +55,7 @@ class SurveiResource extends Resource
                             ->afterStateUpdated(function (callable $set, $state) {
                                 // Reset id_pelanggan terlebih dahulu
                                 $set('id_pelanggan', null);
-                                
+
                                 if ($state) {
                                     $pendaftaran = \App\Models\Pendaftaran::find($state);
                                     if ($pendaftaran) {
@@ -82,18 +83,18 @@ class SurveiResource extends Resource
                                                     'dibuat_oleh' => auth()->user()->name ?? 'System',
                                                     'dibuat_pada' => now(),
                                                 ]);
-                                                
+
                                                 // Update pendaftaran dengan id_pelanggan yang baru dibuat
                                                 $pendaftaran->update(['id_pelanggan' => $pelanggan->id_pelanggan]);
-                                                
+
                                                 $set('id_pelanggan', $pelanggan->id_pelanggan);
-                                                
+
                                                 \Filament\Notifications\Notification::make()
                                                     ->title('Pelanggan Baru Dibuat')
                                                     ->body("Pelanggan '{$pelanggan->nama_pelanggan}' berhasil dibuat otomatis dari data pendaftaran")
                                                     ->success()
                                                     ->send();
-                                                    
+
                                             } catch (\Exception $e) {
                                                 \Filament\Notifications\Notification::make()
                                                     ->title('Gagal Membuat Pelanggan')
@@ -146,40 +147,8 @@ class SurveiResource extends Resource
                             }),
                     ]),
 
-                Forms\Components\Section::make('Detail Survei')
-                    ->schema([
-                        Forms\Components\Select::make('id_spam')
-                            ->label('SPAM')
-                            ->relationship('spam', 'nama_spam')
-                            ->searchable()
-                            ->preload(),
-
-                        Forms\Components\TextInput::make('nip_surveyor')
-                            ->label('NIP Surveyor')
-                            ->default(auth()->user()->email ?? auth()->id())
-                            ->readOnly()
-                            ->maxLength(20)
-                            ->helperText('Terisi otomatis sesuai user yang login'),
-
-                        Forms\Components\DatePicker::make('tanggal_survei')
-                            ->label('Tanggal Survei')
-                            ->default(now())
-                            ->native(false),
-
-                        Forms\Components\Select::make('status_survei')
-                            ->label('Status Survei')
-                            ->options([
-                                'draft' => 'Draft',
-                                'disetujui' => 'Disetujui',
-                                'ditolak' => 'Ditolak',
-                            ])
-                            ->default('draft')
-                            ->required()
-                            ->live(),
-                    ])
-                    ->columns(2),
-
                 Forms\Components\Section::make('Lokasi & Koordinat')
+                    ->collapsible()
                     ->schema([
                         LeafletMapPicker::make('location')
                             ->label('Pilih Lokasi (Klik pada Peta)')
@@ -199,7 +168,8 @@ class SurveiResource extends Resource
                             ->reactive(),
 
                         Forms\Components\TextInput::make('latitude_terverifikasi')
-                            ->label('Latitude Terverifikasi')
+                            ->label('Latitude')
+                            ->helperText('Koordinat latitude terverifikasi dari peta')
                             ->numeric()
                             ->step('0.00000001')
                             ->live()
@@ -211,7 +181,8 @@ class SurveiResource extends Resource
                             }),
 
                         Forms\Components\TextInput::make('longitude_terverifikasi')
-                            ->label('Longitude Terverifikasi')
+                            ->label('Longitude')
+                            ->helperText('Koordinat longitude terverifikasi dari peta')
                             ->numeric()
                             ->step('0.00000001')
                             ->live()
@@ -233,88 +204,109 @@ class SurveiResource extends Resource
                             ->numeric()
                             ->step('0.01')
                             ->suffix('meter'),
+
+                         Forms\Components\Select::make('id_spam')
+                            ->label('SPAM')
+                            ->relationship('spam', 'nama_spam')
+                            ->searchable()
+                            ->preload()
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->visible(fn (Forms\Get $get) => in_array($get('status_survei'), ['draft', 'disetujui'])),
 
                 Forms\Components\Section::make('Parameter Survei')
+                    ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('master_luas_tanah_id')
                             ->label('Luas Tanah')
                             ->relationship('masterLuasTanah', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_luas_bangunan_id')
                             ->label('Luas Bangunan')
                             ->relationship('masterLuasBangunan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_lokasi_bangunan_id')
                             ->label('Lokasi Bangunan')
                             ->relationship('masterLokasiBangunan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_dinding_bangunan_id')
                             ->label('Dinding Bangunan')
                             ->relationship('masterDindingBangunan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_lantai_bangunan_id')
                             ->label('Lantai Bangunan')
                             ->relationship('masterLantaiBangunan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_atap_bangunan_id')
                             ->label('Atap Bangunan')
                             ->relationship('masterAtapBangunan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_pagar_bangunan_id')
                             ->label('Pagar Bangunan')
                             ->relationship('masterPagarBangunan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
+
 
                         Forms\Components\Select::make('master_kondisi_jalan_id')
                             ->label('Kondisi Jalan')
                             ->relationship('masterKondisiJalan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_daya_listrik_id')
                             ->label('Daya Listrik')
                             ->relationship('masterDayaListrik', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_fungsi_rumah_id')
                             ->label('Fungsi/Status Rumah')
                             ->relationship('masterFungsiRumah', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
 
                         Forms\Components\Select::make('master_kepemilikan_kendaraan_id')
                             ->label('Kepemilikan Kendaraan')
                             ->relationship('masterKepemilikanKendaraan', 'nama')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nama} (Skor: {$record->skor})")
                             ->live()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload(),
+
                     ])
                     ->columns(3)
                     ->visible(fn (Forms\Get $get) => in_array($get('status_survei'), ['draft', 'disetujui']))
@@ -371,7 +363,7 @@ class SurveiResource extends Resource
                         // Tentukan rekomendasi sub golongan
                         if ($totalScore > 0) {
                             $subGolongan = \App\Models\SubGolonganPelanggan::rekomendasiSubGolongan($totalScore);
-                            
+
                             if ($subGolongan) {
                                 $set('rekomendasi_sub_golongan_id', $subGolongan->id_sub_golongan_pelanggan);
                                 $set('rekomendasi_sub_golongan_text', $subGolongan->nama_sub_golongan . ' (' . $subGolongan->scoring_range_display . ')');
@@ -389,6 +381,7 @@ class SurveiResource extends Resource
                     }),
 
                 Forms\Components\Section::make('Dokumentasi Foto')
+                    ->collapsible()
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
@@ -453,17 +446,8 @@ class SurveiResource extends Resource
                     ->visible(fn (Forms\Get $get) => in_array($get('status_survei'), ['draft', 'disetujui'])),
 
                 Forms\Components\Section::make('Hasil Survei')
+                    ->collapsible()
                     ->schema([
-                        Forms\Components\Select::make('hasil_survei')
-                            ->label('Hasil Survei')
-                            ->options([
-                                'direkomendasikan' => 'Direkomendasikan',
-                                'tidak_direkomendasikan' => 'Tidak Direkomendasikan',
-                                'perlu_review' => 'Perlu Review Ulang',
-                            ])
-                            ->live()
-                            ->columnSpanFull(),
-
                         // Grid 1: Skor Total dan Kategori Golongan (2 grid sejajar)
                         Forms\Components\Grid::make(2)
                             ->schema([
@@ -490,7 +474,7 @@ class SurveiResource extends Resource
                                     ->extraAttributes([
                                         'class' => 'text-sm font-medium text-primary-600'
                                     ]),
-                                
+
                                 Forms\Components\Hidden::make('rekomendasi_sub_golongan_id'),
                             ]),
 
@@ -502,15 +486,15 @@ class SurveiResource extends Resource
                                 ->color('primary')
                                 ->action(function (callable $set, callable $get) {
                                     $skorTotal = $get('skor_total') ?? 0;
-                                    
+
                                     if ($skorTotal > 0) {
                                         $subGolongan = \App\Models\SubGolonganPelanggan::rekomendasiSubGolongan($skorTotal);
-                                        
+
                                         if ($subGolongan) {
                                             $set('rekomendasi_sub_golongan_id', $subGolongan->id_sub_golongan_pelanggan);
                                             $set('rekomendasi_sub_golongan_text', $subGolongan->nama_sub_golongan . ' (' . $subGolongan->scoring_range_display . ')');
                                             $set('hasil_survei', 'direkomendasikan');
-                                            
+
                                             \Filament\Notifications\Notification::make()
                                                 ->title('Rekomendasi Berhasil Dihasilkan')
                                                 ->body("Sub Golongan: {$subGolongan->nama_sub_golongan}")
@@ -519,7 +503,7 @@ class SurveiResource extends Resource
                                         } else {
                                             $set('rekomendasi_sub_golongan_text', 'Tidak ada sub golongan yang sesuai dengan skor ' . $skorTotal);
                                             $set('hasil_survei', 'perlu_review');
-                                            
+
                                             \Filament\Notifications\Notification::make()
                                                 ->title('Tidak Ada Sub Golongan yang Sesuai')
                                                 ->body("Skor {$skorTotal} tidak masuk dalam range sub golongan manapun")
@@ -538,6 +522,16 @@ class SurveiResource extends Resource
                         ])
                         ->columnSpanFull(),
 
+                        Forms\Components\Select::make('hasil_survei')
+                            ->label('Hasil Survei')
+                            ->options([
+                                'direkomendasikan' => 'Direkomendasikan',
+                                'tidak_direkomendasikan' => 'Tidak Direkomendasikan',
+                                'perlu_review' => 'Perlu Review Ulang',
+                            ])
+                            ->live()
+                            ->columnSpanFull(),
+
                         Forms\Components\Textarea::make('catatan_teknis')
                             ->label('Catatan Survei')
                             ->rows(3)
@@ -549,6 +543,8 @@ class SurveiResource extends Resource
                             ->rows(3)
                             ->maxLength(1000)
                             ->columnSpanFull(),
+
+
 
                         // Hidden fields for additional data
                         Forms\Components\Hidden::make('subrayon'),
@@ -568,6 +564,41 @@ class SurveiResource extends Resource
                         Forms\Components\Hidden::make('diperbarui_pada'),
                     ])
                     ->visible(fn (Forms\Get $get) => in_array($get('status_survei'), ['draft', 'disetujui'])),
+
+                Forms\Components\Section::make('Audit trail')
+                    ->collapsible(true)
+                    ->schema([
+                        Forms\Components\DatePicker::make('tanggal_survei')
+                            ->label('Tanggal Survei')
+                            ->default(now())
+                            ->native(false)
+                            ->disabled()
+                            ->dehydrated()
+                            ->helperText('Diatur otomatis oleh sistem'),
+
+                        Forms\Components\TextInput::make('nip_surveyor')
+                            ->label('NIP Surveyor')
+                            ->default(auth()->user()->email ?? auth()->id())
+                            ->disabled()
+                            ->dehydrated()
+                            ->maxLength(20)
+                            ->helperText('Diatur otomatis sesuai user yang login'),
+
+                        Forms\Components\Select::make('status_survei')
+                            ->label('Status Survei')
+                            ->options([
+                                'draft' => 'Draft',
+                                'disetujui' => 'Disetujui',
+                                'ditolak' => 'Ditolak',
+                            ])
+                            ->default('draft')
+                            ->required()
+                            ->disabled()
+                            ->dehydrated()
+                            ->live()
+                            ->helperText('Status dikelola oleh sistem'),
+                    ])
+                    ->columns(3),
             ]);
     }
 
@@ -827,10 +858,10 @@ class SurveiResource extends Resource
                             foreach ($records as $record) {
                                 try {
                                     $skorTotal = $record->hitungTotalSkor();
-                                    
+
                                     if ($skorTotal > 0) {
                                         $subGolongan = \App\Models\SubGolonganPelanggan::rekomendasiSubGolongan($skorTotal, $golonganId);
-                                        
+
                                         if ($subGolongan) {
                                             $record->update([
                                                 'skor_total' => $skorTotal,

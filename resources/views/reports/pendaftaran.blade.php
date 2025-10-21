@@ -198,40 +198,22 @@
 
 <body>
     <div class="header">
-        <h1>LAPORAN DATA PENDAFTARAN</h1>
-        <p class="subtitle">Periode {{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} -
-            {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</p>
-    </div>
+        <h2 style="font-family: 'Times New Roman', Times, serif; font-size: 18pt; color: #1a3c6d; margin: 5px 0;">Perumda
+            Air Minum Tirta Perwira</h2>
+        <h2 style="font-family: 'Times New Roman', Times, serif; font-size: 14pt; color: #2d5a9e; margin: 5px 0;">
+            Kabupaten Purbalingga</h2>
+        <hr style="border: 0; border-top: 2px solid #1a3c6d; width: 100px; margin: 15px auto;">
+        <h3
+            style="font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #333; margin: 10px 0; text-transform;">
+            Laporan Data Pendaftaran</h3>
 
-    <!-- Summary Box -->
-    <div class="summary-box">
-        <div class="summary-item">
-            <div class="summary-number">{{ $total_records }}</div>
-            <div class="summary-label">Total Pendaftaran</div>
-        </div>
-        <div class="summary-item">
-            <div class="summary-number">{{ $pendaftarans->whereNotNull('id_pelanggan')->count() }}</div>
-            <div class="summary-label">Sudah Pelanggan</div>
-        </div>
-        <div class="summary-item">
-            <div class="summary-number">{{ $pendaftarans->whereNull('id_pelanggan')->count() }}</div>
-            <div class="summary-label">Belum Pelanggan</div>
-        </div>
-        <div class="summary-item">
-            <div class="summary-number">Rp
-                {{ number_format($pendaftarans->sum('total_biaya_pendaftaran'), 0, ',', '.') }}</div>
-            <div class="summary-label">Total Biaya</div>
-        </div>
     </div>
 
     <!-- Filter Information -->
     <div class="filter-section">
-        <div class="filter-row">
-            <span class="filter-label">Periode:</span>
-            <span class="filter-value">{{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} -
-                {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</span>
-        </div>
-
+        <span class="filter-label">Periode:</span>
+        <span class="filter-value">{{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} -
+            {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</span>
         @if (!empty($filters['cabang_unit']))
             <div class="filter-row">
                 <span class="filter-label">Cabang/Unit:</span>

@@ -17,15 +17,10 @@ class CreateSurvei extends CreateRecord
         $data['dibuat_oleh'] = auth()->id();
         $data['dibuat_pada'] = now();
 
-        // Set default status if not provided
-        if (empty($data['status_survei'])) {
-            $data['status_survei'] = 'draft';
-        }
-
-        // Set NIP surveyor jika belum ada
-        if (empty($data['nip_surveyor'])) {
-            $data['nip_surveyor'] = auth()->user()->email ?? auth()->id();
-        }
+        // Set Trial section fields (these are auto-managed by system)
+        $data['tanggal_survei'] = now()->format('Y-m-d');
+        $data['nip_surveyor'] = auth()->user()->email ?? auth()->id();
+        $data['status_survei'] = 'draft';
 
         // Calculate scoring
         $data = $this->calculateSurveyScore($data);

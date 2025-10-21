@@ -72,8 +72,20 @@ class ViewSurvei extends ViewRecord
                     ])
                     ->columns(2),
 
-                Infolists\Components\Section::make('Status & Jadwal Survei')
+                Infolists\Components\Section::make('Trial')
+                    ->description('Informasi ini dikelola otomatis oleh sistem dan tidak dapat diubah secara manual')
                     ->schema([
+                        Infolists\Components\TextEntry::make('tanggal_survei')
+                            ->label('Tanggal Survei')
+                            ->date('d F Y')
+                            ->placeholder('Belum dijadwalkan')
+                            ->badge()
+                            ->color('primary'),
+                        Infolists\Components\TextEntry::make('nip_surveyor')
+                            ->label('NIP Surveyor')
+                            ->placeholder('Belum ditentukan')
+                            ->badge()
+                            ->color('info'),
                         Infolists\Components\TextEntry::make('status_survei')
                             ->label('Status Survei')
                             ->badge()
@@ -83,18 +95,16 @@ class ViewSurvei extends ViewRecord
                                 'ditolak' => 'danger',
                                 default => 'gray',
                             }),
-                        Infolists\Components\TextEntry::make('tanggal_survei')
-                            ->label('Tanggal Survei')
-                            ->date('d F Y')
-                            ->placeholder('Belum dijadwalkan'),
-                        Infolists\Components\TextEntry::make('nip_surveyor')
-                            ->label('NIP Surveyor')
-                            ->placeholder('Belum ditentukan'),
+                    ])
+                    ->columns(3),
+
+                Infolists\Components\Section::make('Detail Survei')
+                    ->schema([
                         Infolists\Components\TextEntry::make('spam.nama_spam')
                             ->label('SPAM')
                             ->placeholder('Belum ditentukan'),
                     ])
-                    ->columns(2),
+                    ->columns(1),
 
                 Infolists\Components\Section::make('Hasil Survei')
                     ->schema([

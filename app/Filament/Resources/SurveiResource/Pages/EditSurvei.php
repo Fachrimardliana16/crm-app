@@ -42,10 +42,12 @@ class EditSurvei extends EditRecord
         $data['diperbarui_oleh'] = auth()->id();
         $data['diperbarui_pada'] = now();
 
-        // Auto set tanggal_survei when there's survey data
-        if (empty($data['tanggal_survei']) && !empty($data['nilai_survei'])) {
-            $data['tanggal_survei'] = now()->format('Y-m-d');
-        }
+        // Preserve original values for protected fields in Trial section
+        $originalRecord = $this->record;
+        $data['tanggal_survei'] = $originalRecord->tanggal_survei ?? now()->format('Y-m-d');
+        $data['nip_surveyor'] = $originalRecord->nip_surveyor ?? (auth()->user()->email ?? auth()->id());
+        // Status survei hanya dapat diubah melalui action buttons, bukan form edit
+        $data['status_survei'] = $originalRecord->status_survei ?? 'draft';
 
         // Calculate scoring
         $data = $this->calculateSurveyScore($data);
