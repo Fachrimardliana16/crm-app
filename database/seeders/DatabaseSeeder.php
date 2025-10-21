@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
             StatusPelangganSeeder::class, // Added - Status Pelanggan data
             RayonSeeder::class, // Added - Rayon data master
             SubRayonSeeder::class,
-            DanameterSeeder::class, // Added - Danameter data master
+            DanameterSeeder::class,
+            SubGolonganScoringSeeder::class, // Added - Sub Golongan Scoring data master
         ]);
 
         // User::factory(10)->create();

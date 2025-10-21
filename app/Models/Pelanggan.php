@@ -186,6 +186,36 @@ class Pelanggan extends Model
     }
 
     /**
+     * Generate nomor pelanggan sederhana untuk auto-create
+     * Format: YYYY.MM.XXXX (contoh: 2025.10.0001)
+     */
+    public static function generateSimpleNomorPelanggan(): string
+    {
+        $year = date('Y');
+        $month = date('m');
+        
+        // Format: YYYY.MM.XXXX
+        $prefix = $year . '.' . $month . '.';
+        
+        // Cari nomor terakhir dengan prefix yang sama
+        $lastPelanggan = static::where('nomor_pelanggan', 'LIKE', $prefix . '%')
+            ->orderBy('nomor_pelanggan', 'desc')
+            ->first();
+            
+        if ($lastPelanggan) {
+            // Ambil 4 digit terakhir dan increment
+            $lastNumber = intval(substr($lastPelanggan->nomor_pelanggan, -4));
+            $newNumber = $lastNumber + 1;
+        } else {
+            // Jika belum ada, mulai dari 1
+            $newNumber = 1;
+        }
+        
+        // Format dengan padding 4 digit
+        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
      * Get formatted nomor pelanggan dengan pemisah
      */
     public function getFormattedNomorPelangganAttribute(): string
