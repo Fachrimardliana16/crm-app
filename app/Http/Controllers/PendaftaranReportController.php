@@ -21,7 +21,7 @@ class PendaftaranReportController extends Controller
             // Get filters from request
             $startDate = Carbon::parse($request->start_date)->startOfDay();
             $endDate = Carbon::parse($request->end_date)->endOfDay();
-            
+
             // Build query
             $query = Pendaftaran::with([
                 'cabang',
@@ -92,8 +92,8 @@ class PendaftaranReportController extends Controller
             ]);
 
             // Generate filename
-            $filename = 'laporan-pendaftaran-' . 
-                       $startDate->format('d-m-Y') . '-sampai-' . 
+            $filename = 'laporan-pendaftaran-' .
+                       $startDate->format('d-m-Y') . '-sampai-' .
                        $endDate->format('d-m-Y') . '.pdf';
 
             // Return PDF download

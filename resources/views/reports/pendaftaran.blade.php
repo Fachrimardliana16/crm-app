@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -94,15 +95,44 @@
             background-color: #f3f4f6;
         }
 
-        .no-col { width: 4%; text-align: center; }
-        .date-col { width: 8%; }
-        .cabang-col { width: 12%; }
-        .area-col { width: 10%; }
-        .nama-col { width: 15%; }
-        .alamat-col { width: 20%; }
-        .tipe-col { width: 10%; }
-        .status-col { width: 8%; text-align: center; }
-        .biaya-col { width: 10%; text-align: right; }
+        .no-col {
+            width: 4%;
+            text-align: center;
+        }
+
+        .date-col {
+            width: 8%;
+        }
+
+        .cabang-col {
+            width: 12%;
+        }
+
+        .area-col {
+            width: 10%;
+        }
+
+        .nama-col {
+            width: 15%;
+        }
+
+        .alamat-col {
+            width: 20%;
+        }
+
+        .tipe-col {
+            width: 10%;
+        }
+
+        .status-col {
+            width: 8%;
+            text-align: center;
+        }
+
+        .biaya-col {
+            width: 10%;
+            text-align: right;
+        }
 
         .footer {
             margin-top: 20px;
@@ -165,10 +195,12 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>LAPORAN DATA PENDAFTARAN</h1>
-        <p class="subtitle">Periode {{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</p>
+        <p class="subtitle">Periode {{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} -
+            {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</p>
     </div>
 
     <!-- Summary Box -->
@@ -186,7 +218,8 @@
             <div class="summary-label">Belum Pelanggan</div>
         </div>
         <div class="summary-item">
-            <div class="summary-number">Rp {{ number_format($pendaftarans->sum('total_biaya_pendaftaran'), 0, ',', '.') }}</div>
+            <div class="summary-number">Rp
+                {{ number_format($pendaftarans->sum('total_biaya_pendaftaran'), 0, ',', '.') }}</div>
             <div class="summary-label">Total Biaya</div>
         </div>
     </div>
@@ -195,49 +228,56 @@
     <div class="filter-section">
         <div class="filter-row">
             <span class="filter-label">Periode:</span>
-            <span class="filter-value">{{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</span>
+            <span class="filter-value">{{ \Carbon\Carbon::parse($filters['start_date'])->format('d/m/Y') }} -
+                {{ \Carbon\Carbon::parse($filters['end_date'])->format('d/m/Y') }}</span>
         </div>
-        
+
         @if (!empty($filters['cabang_unit']))
-        <div class="filter-row">
-            <span class="filter-label">Cabang/Unit:</span>
-            <span class="filter-value">{{ \App\Models\Cabang::whereIn('id_cabang', $filters['cabang_unit'])->pluck('nama_cabang')->implode(', ') }}</span>
-        </div>
+            <div class="filter-row">
+                <span class="filter-label">Cabang/Unit:</span>
+                <span
+                    class="filter-value">{{ \App\Models\Cabang::whereIn('id_cabang', $filters['cabang_unit'])->pluck('nama_cabang')->implode(', ') }}</span>
+            </div>
         @endif
 
         @if (!empty($filters['kecamatan']))
-        <div class="filter-row">
-            <span class="filter-label">Kecamatan:</span>
-            <span class="filter-value">{{ \App\Models\Kecamatan::whereIn('id_kecamatan', $filters['kecamatan'])->pluck('nama_kecamatan')->implode(', ') }}</span>
-        </div>
+            <div class="filter-row">
+                <span class="filter-label">Kecamatan:</span>
+                <span
+                    class="filter-value">{{ \App\Models\Kecamatan::whereIn('id_kecamatan', $filters['kecamatan'])->pluck('nama_kecamatan')->implode(', ') }}</span>
+            </div>
         @endif
 
         @if (!empty($filters['kelurahan']))
-        <div class="filter-row">
-            <span class="filter-label">Kelurahan:</span>
-            <span class="filter-value">{{ \App\Models\Kelurahan::whereIn('id_kelurahan', $filters['kelurahan'])->pluck('nama_kelurahan')->implode(', ') }}</span>
-        </div>
+            <div class="filter-row">
+                <span class="filter-label">Kelurahan:</span>
+                <span
+                    class="filter-value">{{ \App\Models\Kelurahan::whereIn('id_kelurahan', $filters['kelurahan'])->pluck('nama_kelurahan')->implode(', ') }}</span>
+            </div>
         @endif
 
         @if (!empty($filters['tipe_pelayanan']))
-        <div class="filter-row">
-            <span class="filter-label">Tipe Pelayanan:</span>
-            <span class="filter-value">{{ \App\Models\TipeLayanan::whereIn('id_tipe_layanan', $filters['tipe_pelayanan'])->pluck('nama_tipe_layanan')->implode(', ') }}</span>
-        </div>
+            <div class="filter-row">
+                <span class="filter-label">Tipe Pelayanan:</span>
+                <span
+                    class="filter-value">{{ \App\Models\TipeLayanan::whereIn('id_tipe_layanan', $filters['tipe_pelayanan'])->pluck('nama_tipe_layanan')->implode(', ') }}</span>
+            </div>
         @endif
 
         @if (!empty($filters['jenis_daftar']))
-        <div class="filter-row">
-            <span class="filter-label">Jenis Pendaftaran:</span>
-            <span class="filter-value">{{ \App\Models\JenisDaftar::whereIn('id_jenis_daftar', $filters['jenis_daftar'])->pluck('nama_jenis_daftar')->implode(', ') }}</span>
-        </div>
+            <div class="filter-row">
+                <span class="filter-label">Jenis Pendaftaran:</span>
+                <span
+                    class="filter-value">{{ \App\Models\JenisDaftar::whereIn('id_jenis_daftar', $filters['jenis_daftar'])->pluck('nama_jenis_daftar')->implode(', ') }}</span>
+            </div>
         @endif
 
         @if (!empty($filters['tipe_pendaftaran']))
-        <div class="filter-row">
-            <span class="filter-label">Tipe Pendaftaran:</span>
-            <span class="filter-value">{{ \App\Models\TipePendaftaran::whereIn('id_tipe_pendaftaran', $filters['tipe_pendaftaran'])->pluck('nama_tipe_pendaftaran')->implode(', ') }}</span>
-        </div>
+            <div class="filter-row">
+                <span class="filter-label">Tipe Pendaftaran:</span>
+                <span
+                    class="filter-value">{{ \App\Models\TipePendaftaran::whereIn('id_tipe_pendaftaran', $filters['tipe_pendaftaran'])->pluck('nama_tipe_pendaftaran')->implode(', ') }}</span>
+            </div>
         @endif
     </div>
 
@@ -259,33 +299,37 @@
         </thead>
         <tbody>
             @forelse ($pendaftarans as $index => $pendaftaran)
-            <tr>
-                <td class="no-col">{{ $index + 1 }}</td>
-                <td class="date-col">{{ \Carbon\Carbon::parse($pendaftaran->tanggal_daftar)->format('d/m/Y') }}</td>
-                <td class="nama-col">{{ $pendaftaran->nama_pemohon ?? '-' }}</td>
-                <td class="alamat-col">{{ \Illuminate\Support\Str::limit($pendaftaran->alamat_pemasangan ?? '-', 40) }}</td>
-                <td class="cabang-col">{{ $pendaftaran->cabang->nama_cabang ?? '-' }}</td>
-                <td class="area-col">
-                    {{ $pendaftaran->kelurahan->kecamatan->nama_kecamatan ?? '-' }}<br>
-                    <small>{{ $pendaftaran->kelurahan->nama_kelurahan ?? '-' }}</small>
-                </td>
-                <td class="tipe-col">{{ $pendaftaran->tipeLayanan->nama_tipe_layanan ?? '-' }}</td>
-                <td class="tipe-col">{{ $pendaftaran->jenisDaftar->nama_jenis_daftar ?? '-' }}</td>
-                <td class="biaya-col">{{ $pendaftaran->total_biaya_pendaftaran ? 'Rp ' . number_format($pendaftaran->total_biaya_pendaftaran, 0, ',', '.') : '-' }}</td>
-                <td class="status-col">
-                    @if($pendaftaran->id_pelanggan)
-                        <span class="status-badge status-sudah">Sudah</span>
-                    @else
-                        <span class="status-badge status-belum">Belum</span>
-                    @endif
-                </td>
-            </tr>
+                <tr>
+                    <td class="no-col">{{ $index + 1 }}</td>
+                    <td class="date-col">{{ \Carbon\Carbon::parse($pendaftaran->tanggal_daftar)->format('d/m/Y') }}
+                    </td>
+                    <td class="nama-col">{{ $pendaftaran->nama_pemohon ?? '-' }}</td>
+                    <td class="alamat-col">
+                        {{ \Illuminate\Support\Str::limit($pendaftaran->alamat_pemasangan ?? '-', 40) }}</td>
+                    <td class="cabang-col">{{ $pendaftaran->cabang->nama_cabang ?? '-' }}</td>
+                    <td class="area-col">
+                        {{ $pendaftaran->kelurahan->kecamatan->nama_kecamatan ?? '-' }}<br>
+                        <small>{{ $pendaftaran->kelurahan->nama_kelurahan ?? '-' }}</small>
+                    </td>
+                    <td class="tipe-col">{{ $pendaftaran->tipeLayanan->nama_tipe_layanan ?? '-' }}</td>
+                    <td class="tipe-col">{{ $pendaftaran->jenisDaftar->nama_jenis_daftar ?? '-' }}</td>
+                    <td class="biaya-col">
+                        {{ $pendaftaran->total_biaya_pendaftaran ? 'Rp ' . number_format($pendaftaran->total_biaya_pendaftaran, 0, ',', '.') : '-' }}
+                    </td>
+                    <td class="status-col">
+                        @if ($pendaftaran->id_pelanggan)
+                            <span class="status-badge status-sudah">Sudah</span>
+                        @else
+                            <span class="status-badge status-belum">Belum</span>
+                        @endif
+                    </td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="10" style="text-align: center; padding: 20px; color: #6b7280;">
-                    Tidak ada data pendaftaran ditemukan pada periode dan filter yang dipilih
-                </td>
-            </tr>
+                <tr>
+                    <td colspan="10" style="text-align: center; padding: 20px; color: #6b7280;">
+                        Tidak ada data pendaftaran ditemukan pada periode dan filter yang dipilih
+                    </td>
+                </tr>
             @endforelse
         </tbody>
     </table>
@@ -299,4 +343,5 @@
         </div>
     </div>
 </body>
+
 </html>
