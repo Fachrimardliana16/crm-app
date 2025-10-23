@@ -47,6 +47,7 @@ class PendaftaranResource extends Resource
             ->schema([
                 Section::make('Informasi Pemohon')
                     ->description('Data pemohon yang akan mendaftar')
+                    ->collapsible()
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -54,8 +55,16 @@ class PendaftaranResource extends Resource
                                     ->label('Nomor Registrasi')
                                     ->disabled()
                                     ->dehydrated()
-                                    ->placeholder('Auto-generate dari cabang')
-                                    ->live(),
+                                    ->placeholder('Auto-generate dari pemilihan cabang/unit')
+                                    ->live()
+                                    ->suffix(function (callable $get) {
+                                        $cabangId = $get('id_cabang');
+                                        if ($cabangId) {
+                                            $cabang = \App\Models\Cabang::find($cabangId);
+                                            return $cabang ? $cabang->nama_cabang : '';
+                                        }
+                                        return '';
+                                    }),
 
                                 Forms\Components\DatePicker::make('tanggal_daftar')
                                     ->label('Tanggal Daftar')
@@ -76,17 +85,29 @@ class PendaftaranResource extends Resource
                                         if ($get('id_cabang')) {
                                             self::generateNomorRegistrasi($get, $set);
                                         }
-                                    }),
+                                    })
+                                    ->suffixAction(
+                                    Forms\Components\Actions\Action::make('hint_nama_pemohon')
+                                            ->icon('heroicon-o-information-circle')
+                                            ->color('primary')
+                                            ->action(function () {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Petunjuk Nama Pemohon')
+                                                    ->body('Masukan Nama lengkap sesuai identitas resmi.')
+                                                ->info()
+                                                ->send();
+                                        })
+                                ),
 
-                                Select::make('id_cabang')
+                               Select::make('id_cabang')
                                     ->label('Cabang/Unit')
                                     ->options(function () {
                                         return \App\Models\Cabang::where('status_aktif', true)
                                             ->get()
                                             ->mapWithKeys(function ($cabang) {
-                                                $display = $cabang->nama_cabang;
+                                                $display = "<span style='font-size: 16px; font-weight: bold;'>{$cabang->nama_cabang}</span>";
                                                 if (!empty($cabang->wilayah_pelayanan)) {
-                                                    $display .= ' (Wil Pelayanan: ' . $cabang->wilayah_pelayanan . ')';
+                                                    $display .= "<br><span style='font-size: 12px;'>Wil Pelayanan: {$cabang->wilayah_pelayanan}</span>";
                                                 }
                                                 return [$cabang->id_cabang => $display];
                                             });
@@ -95,6 +116,7 @@ class PendaftaranResource extends Resource
                                     ->preload()
                                     ->required()
                                     ->live()
+                                    ->allowHtml() // Penting: Aktifkan allowHtml untuk merender HTML di opsi
                                     ->createOptionForm([
                                         Forms\Components\TextInput::make('kode_cabang')
                                             ->label('Kode Cabang')
@@ -134,7 +156,7 @@ class PendaftaranResource extends Resource
 
                         Grid::make(2)
                             ->schema([
-                                Forms\Components\Select::make('jenis_identitas')
+                                 Forms\Components\Select::make('jenis_identitas')
                                     ->label('Jenis Identitas')
                                     ->options([
                                         'ktp' => 'KTP',
@@ -142,13 +164,59 @@ class PendaftaranResource extends Resource
                                         'passport' => 'Passport',
                                         'kk' => 'Kartu Keluarga',
                                     ])
-                                    ->required(),
+                                    ->required()
+                                    ->reactive() // Make the field reactive to update other fields dynamically
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Set maxLength based on jenis_identitas
+                                        if ($state === 'ktp') {
+                                            $set('nomor_identitas', null); // Reset nomor_identitas when jenis_identitas changes
+                                            $set('nomor_identitas_max_length', 13);
+                                        } elseif ($state === 'sim') {
+                                            $set('nomor_identitas', null);
+                                            $set('nomor_identitas_max_length', 22);
+                                        } elseif ($state === 'passport') {
+                                            $set('nomor_identitas', null);
+                                            $set('nomor_identitas_max_length', 8); // Example length for passport
+                                        } elseif ($state === 'kk') {
+                                            $set('nomor_identitas', null);
+                                            $set('nomor_identitas_max_length', 16); // Example length for Kartu Keluarga
+                                        }
+                                    }),
 
                                 Forms\Components\TextInput::make('nomor_identitas')
                                     ->label('Nomor Identitas')
                                     ->required()
                                     ->numeric()
-                                    ->maxLength(50),
+                                    ->maxLength(function (callable $get) {
+                                        $maxLength = $get('nomor_identitas_max_length');
+                                        return $maxLength ?: 50; // Default to 50 if no maxLength is set
+                                    })
+                                    ->helperText('Periksa lagi kesesuaian nomor identitas.')
+                                    ->suffixAction(
+                                        Forms\Components\Actions\Action::make('hint_nomor_identitas')
+                                            ->icon('heroicon-o-information-circle')
+                                            ->color('primary')
+                                            ->action(function () {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Petunjuk Nomor Identitas')
+                                                    ->body('Masukan Nomor identitas sesuai identitas resmi.')
+                                                    ->info()
+                                                    ->send();
+                                            })
+                                    ),
+                            ]),
+
+                          Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('no_hp_pemohon')
+                                    ->label('No. Telp')
+                                    ->tel()
+                                    ->required()
+                                    ->maxLength(20),
+                                Forms\Components\TextInput::make('email_pemohon')
+                                    ->label('Email Pemohon')
+                                    ->email()
+                                    ->maxLength(255),
                             ]),
 
                         Select::make('id_pekerjaan')
@@ -166,6 +234,7 @@ class PendaftaranResource extends Resource
 
                 Section::make('Alamat & Lokasi')
                     ->description('Detail alamat dan koordinat pemasangan')
+                    ->collapsible()
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -224,21 +293,19 @@ class PendaftaranResource extends Resource
                                             ->label('Kode Pos')
                                             ->maxLength(10),
                                     ]),
+
+
                             ]),
                         Forms\Components\Textarea::make('alamat_pemasangan')
-                            ->label('Alamat Pemasangan')
+                            ->label('Alamat')
                             ->required()
                             ->rows(3),
 
-                        Forms\Components\TextInput::make('no_hp_pemohon')
-                            ->label('No. HP Pemohon')
-                            ->tel()
-                            ->numeric()
-                            ->maxLength(20),
 
                         Forms\Components\Textarea::make('keterangan_arah_lokasi')
                             ->label('Keterangan Arah Lokasi')
-                            ->rows(2),
+                            ->rows(2)
+                            ->placeholder('Contoh: Masuk ke dalam gang sekitar 20 meter dari jalan utama, rumah warna merah dengan pagar biru.'),
 
                         LeafletMapPicker::make('location')
                             ->label('Lokasi Pemasangan')
@@ -350,6 +417,7 @@ class PendaftaranResource extends Resource
 
                 Section::make('Detail Layanan')
                     ->description('Jenis layanan dan cabang pendaftaran')
+                    ->collapsible()
                     ->schema([
                         Grid::make(3)
                             ->schema([
@@ -604,6 +672,7 @@ class PendaftaranResource extends Resource
 
                 Section::make('Kondisi Lokasi')
                     ->description('Kondisi infrastruktur di lokasi pemasangan')
+                    ->collapsible()
                     ->schema([
                         Grid::make(3)
                             ->schema([
@@ -619,7 +688,8 @@ class PendaftaranResource extends Resource
                                     ])
                                     ->extraInputAttributes([
                                         'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")',
-                                    ]),
+                                    ])
+                                    ->suffix('orang'),
 
                                 Select::make('ada_toren')
                                     ->label('Ada Toren Air')
@@ -643,6 +713,7 @@ class PendaftaranResource extends Resource
 
                 Section::make('Dokumen & Finansial')
                     ->description('Upload dokumen dan informasi dana')
+                    ->collapsible()
                     ->schema([
                         Grid::make(2)
                             ->schema([

@@ -18,13 +18,6 @@ class TipeLayananSeeder extends Seeder
                 'biaya_standar' => 100000,
                 'status_aktif' => true,
             ],
-            [
-                'kode_tipe_layanan' => 'GM',
-                'nama_tipe_layanan' => 'Ganti Meter',
-                'deskripsi' => 'Penggantian meter air yang rusak atau expired',
-                'biaya_standar' => 200000,
-                'status_aktif' => true,
-            ],
         ];
 
         foreach ($tipeLayananData as $data) {

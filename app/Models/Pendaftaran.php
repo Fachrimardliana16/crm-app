@@ -34,12 +34,14 @@ class Pendaftaran extends Model
         'nama_pemohon',
         'alamat_pemasangan',
         'no_hp_pemohon',
+        'email_pemohon',
         'latitude_awal',
         'longitude_awal',
         'elevasi_awal_mdpl',
         'keterangan_arah_lokasi',
         'scan_identitas_utama',
         'scan_dokumen_mou',
+        'jumlah_pemakai',
         'ada_toren',
         'ada_sumur',
         'biaya_tipe_layanan',
@@ -76,6 +78,8 @@ class Pendaftaran extends Model
     ];
 
     protected $encrypted = [
+        'nama_pemohon',
+        'email_pemohon',
         'nomor_identitas',
         'scan_identitas_utama',
         'scan_dokumen_mou',
@@ -143,11 +147,6 @@ class Pendaftaran extends Model
         return $query->where('status_pendaftaran', $status);
     }
 
-    public function scopeByTipeLayanan($query, $tipe)
-    {
-        return $query->where('tipe_layanan', $tipe);
-    }
-
     public function scopeByJenisDaftar($query, $jenis)
     {
         return $query->where('jenis_daftar', $jenis);
@@ -192,5 +191,15 @@ class Pendaftaran extends Model
     public function getKecamatanIdAttribute()
     {
         return $this->kelurahan?->id_kecamatan;
+    }
+
+    // Setter untuk geom
+    public function setGeomAttribute($value)
+    {
+        if ($this->latitude_awal && $this->longitude_awal) {
+            $this->attributes['geom'] = DB::raw("ST_SetSRID(ST_MakePoint({$this->longitude_awal}, {$this->latitude_awal}), 4326)");
+        } else {
+            $this->attributes['geom'] = null;
+        }
     }
 }

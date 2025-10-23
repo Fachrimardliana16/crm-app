@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        DB::statement('CREATE EXTENSION IF NOT EXISTS postgis;');
         // PENDAFTARAN - Customer registration workflow
         Schema::create('pendaftaran', function (Blueprint $table) {
             $table->uuid('id_pendaftaran')->primary();
@@ -18,10 +19,7 @@ return new class extends Migration
             $table->uuid('id_cabang'); // Added from update migration
             $table->uuid('id_pelanggan')->nullable(); // Made nullable from update migration
             $table->string('status_pendaftaran')->default('draft');
-            $table->string('cabang_pendaftaran')->nullable();
-            $table->string('kelurahan_pemasangan')->nullable(); // Made nullable from make migration
             $table->uuid('id_kelurahan')->nullable(); // Added from update migration
-            $table->string('tipe_layanan')->nullable();
             $table->uuid('id_tipe_layanan')->nullable(); // Added from update migration
             $table->string('pekerjaan_pemohon')->nullable();
             $table->uuid('id_pekerjaan')->nullable(); // Added from update migration
@@ -29,6 +27,7 @@ return new class extends Migration
             $table->string('nomor_identitas')->nullable(); // Encrypted
             $table->date('tanggal_daftar');
             $table->string('nama_pemohon');
+            $table->string('email_pemohon')->nullable(); // Added missing column
             $table->string('no_hp_pemohon')->nullable(); // Added missing column
             $table->text('alamat_pemasangan');
 
@@ -60,11 +59,11 @@ return new class extends Migration
             $table->decimal('total_biaya_termasuk_pajak', 15, 2)->nullable();
 
             // Installation Details
+            $table->string('jumlah_pemakai')->nullable();
             $table->enum('ada_toren', ['ya', 'tidak'])->default('tidak');
             $table->enum('ada_sumur', ['ya', 'tidak'])->default('tidak');
             $table->enum('jenis_daftar', ['standar', 'non_standar'])->default('standar');
             $table->uuid('id_jenis_daftar')->nullable(); // Added from update migration
-            $table->enum('tipe_daftar', ['standar', 'kilat'])->default('standar');
             $table->uuid('id_tipe_pendaftaran')->nullable(); // Added from update migration
 
             // Additional fields from missing columns migration
@@ -81,8 +80,33 @@ return new class extends Migration
 
             $table->foreign('id_pelanggan')->references('id_pelanggan')->on('pelanggan')->onDelete('cascade');
             $table->index(['status_pendaftaran', 'tanggal_daftar']);
-            $table->index(['tipe_layanan', 'jenis_daftar']);
         });
+
+        // Tambahkan kolom geom dengan tipe GEOMETRY(POINT, 4326)
+        DB::statement('ALTER TABLE pendaftaran ADD COLUMN geom geometry(POINT, 4326)');
+
+        // Buat trigger untuk mengisi geom otomatis
+        DB::statement('
+            CREATE OR REPLACE FUNCTION update_geom_from_lat_lon()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                IF NEW.latitude_awal IS NOT NULL AND NEW.longitude_awal IS NOT NULL THEN
+                    NEW.geom := ST_SetSRID(ST_MakePoint(NEW.longitude_awal, NEW.latitude_awal), 4326);
+                ELSE
+                    NEW.geom := NULL;
+                END IF;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+        ');
+
+        DB::statement('
+            CREATE TRIGGER trigger_update_geom
+            BEFORE INSERT OR UPDATE
+            ON pendaftaran
+            FOR EACH ROW
+            EXECUTE FUNCTION update_geom_from_lat_lon();
+        ');
 
         // SURVEI - Technical survey process
         Schema::create('survei', function (Blueprint $table) {
@@ -418,6 +442,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Hapus trigger dan fungsi
+        DB::statement('DROP TRIGGER IF EXISTS trigger_update_geom ON pendaftaran');
+        DB::statement('DROP FUNCTION IF EXISTS update_geom_from_lat_lon');
+        // Hapus tabel
         Schema::dropIfExists('pembayaran_bulanan');
         Schema::dropIfExists('tagihan_bulanan');
         Schema::dropIfExists('bacaan_meter');

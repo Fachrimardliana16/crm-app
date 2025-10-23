@@ -17,8 +17,11 @@ class ListPendaftarans extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('mou')
+                ->label('Unduh MOU')
+                ->color('info'),
             Actions\Action::make('report')
-                ->label('Report Pendaftaran')
+                ->label('Report')
                 ->color('danger')
                 ->modalHeading('Filter Laporan Pendaftaran')
                 ->modalSubmitActionLabel('Buat Laporan')
