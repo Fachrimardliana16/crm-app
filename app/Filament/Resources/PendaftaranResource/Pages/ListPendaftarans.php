@@ -9,6 +9,8 @@ use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification;
 use Carbon\Carbon;
+use Filament\Support\Facades\FilamentView;
+use Filament\Tables\View\TablesRenderHook;
 
 class ListPendaftarans extends ListRecords
 {
@@ -23,6 +25,45 @@ class ListPendaftarans extends ListRecords
                 ->icon('heroicon-s-plus')
                 ->color('success'),
         ];
+    }
+
+    // public function mount(): void
+    // {
+    //     FilamentView::registerRenderHook(
+    //         TablesRenderHook::TOOLBAR_START,
+    //         function () {
+    //             return Blade::render('<x-filament::button tag="a" href="{{ $link }}">Add New</x-filament::button>', [
+    //                 'link' => self::$resource::getUrl('create')
+    //             ]);
+    //         }
+    //     );
+
+    //     parent::mount();
+    // }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            PendaftaranResource\Widgets\PendaftaranStatOverview::class,
+        ];
+    }
+
+     public  function getTabs(): array
+    {
+        $tabs = [
+            'all' => Tab::make('All')
+                ->modifyQueryUsing(fn (Builder $query) => $query), // tampilkan semua
+        ];
+
+        // Ambil semua cabang secara dinamis
+        $branches = \App\Models\Cabang::orderBy('nama_cabang')->get();
+
+        foreach ($branches as $branch) {
+            $tabs['branch_' . $branch->id_cabang] = Tab::make($branch->nama_cabang)
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('id_cabang', $branch->id_cabang));
+        }
+
+        return $tabs;
     }
 
 

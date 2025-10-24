@@ -24,6 +24,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Afsakar\LeafletMapPicker\LeafletMapPicker;
+use Filament\Resources\Components\Tab;
+
 class PendaftaranResource extends Resource
 {
     protected static ?string $model = Pendaftaran::class;
@@ -39,6 +41,7 @@ class PendaftaranResource extends Resource
     protected static ?string $navigationGroup = 'Workflow';
 
     protected static ?int $navigationSort = 1;
+
 
     public static function form(Form $form): Form
     {
@@ -916,7 +919,7 @@ class PendaftaranResource extends Resource
 
                 // GPS dengan link ke maps
                 Tables\Columns\TextColumn::make('coordinates')
-                    ->label('GPS')
+                    ->label('Lokasi')
                     ->getStateUsing(function ($record) {
                         if ($record->latitude_awal && $record->longitude_awal) {
                             return 'Lihat Maps';
@@ -1335,9 +1338,10 @@ class PendaftaranResource extends Resource
             ->color('danger'),
     ])
     // Anda bisa menambahkan label untuk dropdown, misalnya:
-    ->label('Opsi Pendaftaran')
-    ->icon('heroicon-o-ellipsis-vertical') // Ikon titik tiga vertikal
-    ->color('gray')
+    ->label('Detail')
+    ->button()
+    ->color('danger')
+    ->icon('heroicon-o-ellipsis-vertical')
 ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

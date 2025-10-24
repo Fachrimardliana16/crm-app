@@ -120,13 +120,14 @@ class ViewPendaftaran extends ViewRecord
                     ->description('Detail lokasi pemasangan')
                     ->icon('heroicon-o-map-pin')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(3)
                             ->schema([
                                 TextEntry::make('cabang.nama_cabang')
                                     ->label('Cabang')
                                     ->icon('heroicon-o-building-office')
                                     ->badge()
-                                    ->color('primary'),
+                                    ->color('primary')
+                                    ->columnSpanFull(),
 
                                 TextEntry::make('kelurahan.nama_kelurahan')
                                     ->label('Kelurahan')
@@ -138,7 +139,6 @@ class ViewPendaftaran extends ViewRecord
 
                                 TextEntry::make('alamat_pemasangan')
                                     ->label('Alamat Pemasangan')
-                                    ->columnSpanFull()
                                     ->icon('heroicon-o-home'),
 
                                 TextEntry::make('keterangan_arah_lokasi')
@@ -199,8 +199,11 @@ class ViewPendaftaran extends ViewRecord
                     ->description('Informasi kondisi di lokasi pemasangan')
                     ->icon('heroicon-o-eye')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(3)
                             ->schema([
+                                TextEntry::make('jumlah_pemakai')
+                                    ->label('Jumlah Pemakai Air')
+                                    ->placeholder('Tidak ada informasi'),
                                 IconEntry::make('ada_toren')
                                     ->label('Ada Toren')
                                     ->boolean()
