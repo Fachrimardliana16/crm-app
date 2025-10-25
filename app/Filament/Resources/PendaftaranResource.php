@@ -1199,7 +1199,7 @@ class PendaftaranResource extends Resource
                         ->icon('heroicon-o-funnel'), // Filter icon for visual clarity
                 ])
                 ->action(function (array $data) {
-                    $this->generateReportPendaftaran($data);
+                    self::generateReportPendaftaran($data);
                 }),
 
             Action::make('mou')

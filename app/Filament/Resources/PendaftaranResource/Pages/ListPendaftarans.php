@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Carbon\Carbon;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\View\TablesRenderHook;
+use filament\widgets\Tables\Actions\CreateAction;
 
 class ListPendaftarans extends ListRecords
 {
