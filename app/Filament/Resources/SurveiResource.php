@@ -153,10 +153,7 @@ class SurveiResource extends Resource
                         LeafletMapPicker::make('location')
                             ->label('Pilih Lokasi (Klik pada Peta)')
                             ->columnSpanFull()
-                            ->default([
-                                'lat' => -6.200000,
-                                'lng' => 106.816666
-                            ])
+                            ->defaultLocation([-7.388119, 109.358398]) // Purbalingga default
                             ->live()
                             ->afterStateUpdated(function (callable $set, $state): void {
                                 if ($state && isset($state['lat']) && isset($state['lng'])) {
@@ -365,8 +362,9 @@ class SurveiResource extends Resource
                             $subGolongan = \App\Models\SubGolonganPelanggan::rekomendasiSubGolongan($totalScore);
 
                             if ($subGolongan) {
+                                $rangeDisplay = $subGolongan->skor_minimum . ' - ' . $subGolongan->skor_maksimum . ' poin';
                                 $set('rekomendasi_sub_golongan_id', $subGolongan->id_sub_golongan_pelanggan);
-                                $set('rekomendasi_sub_golongan_text', $subGolongan->nama_sub_golongan . ' (' . $subGolongan->scoring_range_display . ')');
+                                $set('rekomendasi_sub_golongan_text', $subGolongan->nama_sub_golongan . ' (' . $rangeDisplay . ')');
                                 $set('hasil_survei', 'direkomendasikan');
                             } else {
                                 $set('rekomendasi_sub_golongan_id', null);
@@ -382,65 +380,115 @@ class SurveiResource extends Resource
 
                 Forms\Components\Section::make('Dokumentasi Foto')
                     ->collapsible()
+                    ->collapsed() // Default collapsed to avoid auto-loading issues
+                    ->description('Upload foto pendukung survei (opsional)')
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\FileUpload::make('foto_peta_lokasi')
                                     ->label('Foto Peta Lokasi')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false)
+                                    ->loadingIndicatorPosition('center')
+                                    ->panelLayout('integrated')
+                                    ->uploadingMessage('Uploading foto...')
+                                    ->removeUploadedFileButtonPosition('top-right'),
 
                                 Forms\Components\FileUpload::make('foto_tanah_bangunan')
                                     ->label('Foto Tanah & Bangunan')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false)
+                                    ->loadingIndicatorPosition('center')
+                                    ->panelLayout('integrated')
+                                    ->uploadingMessage('Uploading foto...')
+                                    ->removeUploadedFileButtonPosition('top-right'),
                             ]),
 
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\FileUpload::make('foto_dinding')
                                     ->label('Foto Dinding')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false),
 
                                 Forms\Components\FileUpload::make('foto_lantai')
                                     ->label('Foto Lantai')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false),
                             ]),
 
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\FileUpload::make('foto_atap')
                                     ->label('Foto Atap')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false),
 
                                 Forms\Components\FileUpload::make('foto_pagar')
                                     ->label('Foto Pagar')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false),
                             ]),
 
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\FileUpload::make('foto_jalan')
                                     ->label('Foto Jalan')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false),
 
                                 Forms\Components\FileUpload::make('foto_meteran_listrik')
                                     ->label('Foto Meteran Listrik')
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                                    ->maxSize(1024)
-                                    ->directory('survei/foto'),
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(2048) // 2MB
+                                    ->directory('survei/foto')
+                                    ->disk('public')
+                                    ->visibility('private')
+                                    ->nullable()
+                                    ->preserveFilenames(false)
+                                    ->enableReordering(false),
                             ]),
                     ])
                     ->visible(fn (Forms\Get $get) => in_array($get('status_survei'), ['draft', 'disetujui'])),
@@ -455,15 +503,24 @@ class SurveiResource extends Resource
                                     ->label('Skor Total')
                                     ->numeric()
                                     ->disabled()
+                                    ->dehydrated(true)  // ✅ FORCE SAVE MESKIPUN DISABLED
                                     ->suffix('poin')
                                     ->helperText('Dihitung otomatis dari parameter survei'),
 
                                 Forms\Components\TextInput::make('kategori_golongan')
                                     ->label('Kategori Golongan')
                                     ->disabled()
+                                    ->dehydrated(true)  // ✅ FORCE SAVE MESKIPUN DISABLED
                                     ->placeholder('Akan terisi otomatis berdasarkan skor')
                                     ->helperText('Kategori golongan sesuai dengan sub golongan yang direkomendasikan'),
                             ]),
+
+                        // Hidden fields untuk data yang dihitung otomatis
+                        Forms\Components\Hidden::make('rekomendasi_sub_golongan_id')
+                            ->dehydrated(true),
+                        
+                        Forms\Components\Hidden::make('hasil_survei')
+                            ->dehydrated(true),
 
                         // Grid 2: Rekomendasi Sub Golongan
                         Forms\Components\Grid::make(1)
@@ -491,8 +548,9 @@ class SurveiResource extends Resource
                                         $subGolongan = \App\Models\SubGolonganPelanggan::rekomendasiSubGolongan($skorTotal);
 
                                         if ($subGolongan) {
+                                            $rangeDisplay = $subGolongan->skor_minimum . ' - ' . $subGolongan->skor_maksimum . ' poin';
                                             $set('rekomendasi_sub_golongan_id', $subGolongan->id_sub_golongan_pelanggan);
-                                            $set('rekomendasi_sub_golongan_text', $subGolongan->nama_sub_golongan . ' (' . $subGolongan->scoring_range_display . ')');
+                                            $set('rekomendasi_sub_golongan_text', $subGolongan->nama_sub_golongan . ' (' . $rangeDisplay . ')');
                                             $set('hasil_survei', 'direkomendasikan');
 
                                             \Filament\Notifications\Notification::make()
@@ -547,6 +605,8 @@ class SurveiResource extends Resource
 
 
                         // Hidden fields for additional data
+                        Forms\Components\Hidden::make('rekomendasi_sub_golongan_text')
+                            ->dehydrated(true),
                         Forms\Components\Hidden::make('subrayon'),
                         Forms\Components\Hidden::make('nilai_survei'),
                         Forms\Components\Hidden::make('golongan_survei'),
@@ -605,29 +665,35 @@ class SurveiResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['pendaftaran.cabang', 'pelanggan', 'spam', 'rekomendasiSubGolongan']))
             ->columns([
+                // === INFORMASI UTAMA ===
                 Tables\Columns\TextColumn::make('pendaftaran.nomor_registrasi')
                     ->label('No. Registrasi')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->badge()
+                    ->color('primary')
+                    ->copyable()
+                    ->description(fn ($record) => 'Tgl: ' . $record->pendaftaran?->tanggal_daftar?->format('d/m/Y')),
 
-                Tables\Columns\TextColumn::make('pelanggan.nama_pelanggan')
-                    ->label('Nama Pelanggan')
+                Tables\Columns\TextColumn::make('pendaftaran.nama_pemohon')
+                    ->label('Pemohon')
                     ->searchable()
                     ->sortable()
-                    ->limit(30),
+                    ->limit(25)
+                    ->description(fn ($record) => $record->pelanggan?->nama_pelanggan)
+                    ->tooltip(fn ($record) => 
+                        "Pemohon: " . $record->pendaftaran?->nama_pemohon . "\n" .
+                        "Pelanggan: " . $record->pelanggan?->nama_pelanggan
+                    ),
 
-                Tables\Columns\TextColumn::make('pelanggan.alamat')
-                    ->label('Alamat')
-                    ->searchable()
-                    ->limit(40)
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                // === STATUS & TANGGAL ===
                 Tables\Columns\BadgeColumn::make('status_survei')
-                    ->label('Status Survei')
+                    ->label('Status')
                     ->colors([
                         'warning' => 'draft',
-                        'success' => 'disetujui',
+                        'success' => 'disetujui', 
                         'danger' => 'ditolak',
                     ])
                     ->icons([
@@ -641,34 +707,12 @@ class SurveiResource extends Resource
                     ->label('Tanggal Survei')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->placeholder('Belum dijadwalkan'),
+                    ->placeholder('Belum dijadwalkan')
+                    ->description(fn ($record) => $record->nip_surveyor ? 'Surveyor: ' . $record->nip_surveyor : 'Surveyor: Belum ditentukan'),
 
-                Tables\Columns\TextColumn::make('nip_surveyor')
-                    ->label('Surveyor')
-                    ->searchable()
-                    ->placeholder('Belum ditentukan')
-                    ->toggleable(),
-
-                Tables\Columns\BadgeColumn::make('rekomendasi_teknis')
-                    ->label('Rekomendasi')
-                    ->colors([
-                        'success' => 'Layak',
-                        'danger' => 'Tidak Layak',
-                        'warning' => 'Perlu Perbaikan',
-                        'secondary' => 'Perlu Survey Ulang',
-                    ])
-                    ->placeholder('Belum ada')
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('nilai_survei')
-                    ->label('Nilai')
-                    ->numeric()
-                    ->sortable()
-                    ->placeholder('-')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                // === SCORING & REKOMENDASI ===
                 Tables\Columns\TextColumn::make('skor_total')
-                    ->label('Skor Total')
+                    ->label('Skor')
                     ->numeric()
                     ->sortable()
                     ->suffix(' poin')
@@ -680,20 +724,7 @@ class SurveiResource extends Resource
                         $record->skor_total >= 50 => 'info',
                         default => 'danger'
                     })
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('kategori_golongan')
-                    ->label('Kategori')
-                    ->badge()
-                    ->color(fn ($record) => match ($record->kategori_golongan) {
-                        'A' => 'success',
-                        'B' => 'warning',
-                        'C' => 'info',
-                        'D' => 'danger',
-                        default => 'secondary'
-                    })
-                    ->placeholder('-')
-                    ->toggleable(),
+                    ->description(fn ($record) => $record->kategori_golongan ?: 'Belum ditentukan'),
 
                 Tables\Columns\TextColumn::make('rekomendasiSubGolongan.nama_sub_golongan')
                     ->label('Sub Golongan')
@@ -703,15 +734,94 @@ class SurveiResource extends Resource
                     ->color('primary')
                     ->limit(20)
                     ->tooltip(fn ($record) => $record->rekomendasi_sub_golongan_text)
+                    ->description(fn ($record) => $record->hasil_survei ? 
+                        match($record->hasil_survei) {
+                            'direkomendasikan' => '✓ Direkomendasikan',
+                            'tidak_direkomendasikan' => '✗ Tidak Direkomendasikan', 
+                            'perlu_review' => '⚠ Perlu Review',
+                            default => 'Belum ditentukan'
+                        } : 'Belum ditentukan'
+                    ),
+
+                // === ALAMAT & LOKASI (TOGGLEABLE) ===
+                Tables\Columns\TextColumn::make('pendaftaran.alamat_pemasangan')
+                    ->label('Alamat Pemasangan')
+                    ->searchable()
+                    ->limit(40)
+                    ->tooltip(fn ($record) => $record->pendaftaran?->alamat_pemasangan)
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('pendaftaran.cabang.nama_cabang')
+                    ->label('Cabang')
+                    ->searchable()
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('Tidak ada cabang')
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('pendaftaran.dibuat_pada')
-                    ->label('Tgl Pendaftaran')
-                    ->date('d/m/Y')
+                Tables\Columns\TextColumn::make('spam.nama_spam')
+                    ->label('SPAM')
+                    ->searchable()
+                    ->placeholder('Belum ditentukan')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                // === DATA DETAIL (TOGGLEABLE) ===
+                Tables\Columns\TextColumn::make('pelanggan.nomor_pelanggan')
+                    ->label('No. Pelanggan')
+                    ->searchable()
+                    ->badge()
+                    ->color('info')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('pelanggan.alamat')
+                    ->label('Alamat Pelanggan')
+                    ->searchable()
+                    ->limit(40)
+                    ->tooltip(fn ($record) => $record->pelanggan?->alamat)
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\BadgeColumn::make('rekomendasi_teknis')
+                    ->label('Rekomendasi Teknis')
+                    ->colors([
+                        'success' => 'Layak',
+                        'danger' => 'Tidak Layak',
+                        'warning' => 'Perlu Perbaikan',
+                        'secondary' => 'Perlu Survey Ulang',
+                    ])
+                    ->placeholder('Belum ada')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('nilai_survei')
+                    ->label('Nilai')
+                    ->numeric()
                     ->sortable()
-                    ->toggleable(),
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('wilayah_pelayanan')
+                    ->label('Wilayah Pelayanan')
+                    ->options(function () {
+                        return \App\Models\Cabang::where('status_aktif', true)
+                            ->whereNotNull('wilayah_pelayanan')
+                            ->where('wilayah_pelayanan', '!=', '')
+                            ->distinct()
+                            ->pluck('wilayah_pelayanan', 'wilayah_pelayanan')
+                            ->toArray();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $value) => $query->whereHas(
+                                'pendaftaran.cabang',
+                                fn (Builder $query) => $query->where('wilayah_pelayanan', $value)
+                            )
+                        );
+                    })
+                    ->indicator('Wilayah'),
+
                 Tables\Filters\SelectFilter::make('status_survei')
                     ->label('Status Survei')
                     ->options([
@@ -721,8 +831,17 @@ class SurveiResource extends Resource
                     ])
                     ->multiple(),
 
+                Tables\Filters\SelectFilter::make('hasil_survei')
+                    ->label('Hasil Survei')
+                    ->options([
+                        'direkomendasikan' => 'Direkomendasikan',
+                        'tidak_direkomendasikan' => 'Tidak Direkomendasikan',
+                        'perlu_review' => 'Perlu Review',
+                    ])
+                    ->multiple(),
+
                 Tables\Filters\SelectFilter::make('rekomendasi_teknis')
-                    ->label('Rekomendasi')
+                    ->label('Rekomendasi Teknis')
                     ->options([
                         'Layak' => 'Layak',
                         'Tidak Layak' => 'Tidak Layak',
@@ -760,6 +879,35 @@ class SurveiResource extends Resource
                         return $indicators;
                     }),
 
+                Tables\Filters\Filter::make('tanggal_pendaftaran')
+                    ->form([
+                        Forms\Components\DatePicker::make('dari_tanggal_daftar')
+                            ->label('Dari Tanggal Daftar'),
+                        Forms\Components\DatePicker::make('sampai_tanggal_daftar')
+                            ->label('Sampai Tanggal Daftar'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['dari_tanggal_daftar'],
+                                fn (Builder $query, $date): Builder => $query->whereHas('pendaftaran', fn($q) => $q->whereDate('tanggal_daftar', '>=', $date)),
+                            )
+                            ->when(
+                                $data['sampai_tanggal_daftar'],
+                                fn (Builder $query, $date): Builder => $query->whereHas('pendaftaran', fn($q) => $q->whereDate('tanggal_daftar', '<=', $date)),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['dari_tanggal_daftar'] ?? null) {
+                            $indicators['dari_tanggal_daftar'] = 'Pendaftaran dari: ' . \Carbon\Carbon::parse($data['dari_tanggal_daftar'])->format('d/m/Y');
+                        }
+                        if ($data['sampai_tanggal_daftar'] ?? null) {
+                            $indicators['sampai_tanggal_daftar'] = 'Pendaftaran sampai: ' . \Carbon\Carbon::parse($data['sampai_tanggal_daftar'])->format('d/m/Y');
+                        }
+                        return $indicators;
+                    }),
+
                 Tables\Filters\SelectFilter::make('kategori_golongan')
                     ->label('Kategori Golongan')
                     ->options([
@@ -775,6 +923,12 @@ class SurveiResource extends Resource
                     ->searchable()
                     ->preload(),
 
+                Tables\Filters\SelectFilter::make('id_spam')
+                    ->label('SPAM')
+                    ->relationship('spam', 'nama_spam')
+                    ->searchable()
+                    ->preload(),
+
                 Tables\Filters\Filter::make('ada_rekomendasi')
                     ->label('Ada Rekomendasi Sub Golongan')
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('rekomendasi_sub_golongan_id'))
@@ -784,54 +938,83 @@ class SurveiResource extends Resource
                     ->label('Skor Tinggi (≥75)')
                     ->query(fn (Builder $query): Builder => $query->where('skor_total', '>=', 75))
                     ->toggle(),
+
+                Tables\Filters\Filter::make('sudah_ada_scoring')
+                    ->label('Sudah Ada Scoring')
+                    ->query(fn (Builder $query): Builder => $query->where('skor_total', '>', 0))
+                    ->toggle(),
             ])
             ->actions([
-                Tables\Actions\Action::make('input_hasil')
-                    ->label('Input Hasil')
-                    ->icon('heroicon-o-document-text')
-                    ->color('primary')
-                    ->visible(fn ($record) => $record->status_survei === 'draft')
-                    ->url(fn ($record) => self::getUrl('edit', ['record' => $record])),
-
+                // Primary Actions - Always visible
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat')
-                    ->icon('heroicon-o-eye'),
+                    ->icon('heroicon-o-eye')
+                    ->button(),
 
                 Tables\Actions\EditAction::make()
                     ->label('Edit')
-                    ->icon('heroicon-o-pencil'),
+                    ->icon('heroicon-o-pencil')
+                    ->button()
+                    ->color('warning'),
 
-                Tables\Actions\Action::make('setujui')
-                    ->label('Setujui')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    ->visible(fn ($record) => $record->status_survei === 'draft' && !empty($record->rekomendasi_teknis))
-                    ->action(function ($record) {
-                        $record->update([
-                            'status_survei' => 'disetujui',
-                            'diperbarui_oleh' => auth()->id(),
-                            'diperbarui_pada' => now(),
-                        ]);
-                    })
-                    ->requiresConfirmation()
-                    ->modalHeading('Setujui Hasil Survei')
-                    ->modalDescription('Apakah Anda yakin ingin menyetujui hasil survei ini?'),
+                // Action Group untuk actions lainnya
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('input_hasil')
+                        ->label('Input Hasil')
+                        ->icon('heroicon-o-document-text')
+                        ->color('primary')
+                        ->visible(fn ($record) => $record->status_survei === 'draft')
+                        ->url(fn ($record) => self::getUrl('edit', ['record' => $record])),
 
-                Tables\Actions\Action::make('tolak')
-                    ->label('Tolak')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->visible(fn ($record) => $record->status_survei === 'draft')
-                    ->action(function ($record) {
-                        $record->update([
-                            'status_survei' => 'ditolak',
-                            'diperbarui_oleh' => auth()->id(),
-                            'diperbarui_pada' => now(),
-                        ]);
-                    })
-                    ->requiresConfirmation()
-                    ->modalHeading('Tolak Hasil Survei')
-                    ->modalDescription('Apakah Anda yakin ingin menolak hasil survei ini?'),
+                    Tables\Actions\Action::make('setujui')
+                        ->label('Setujui')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('success')
+                        ->visible(fn ($record) => $record->status_survei === 'draft' && !empty($record->rekomendasi_teknis))
+                        ->action(function ($record) {
+                            $record->update([
+                                'status_survei' => 'disetujui',
+                                'diperbarui_oleh' => auth()->id(),
+                                'diperbarui_pada' => now(),
+                            ]);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Survei Disetujui')
+                                ->body('Status survei berhasil diperbarui')
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Setujui Hasil Survei')
+                        ->modalDescription('Apakah Anda yakin ingin menyetujui hasil survei ini?'),
+
+                    Tables\Actions\Action::make('tolak')
+                        ->label('Tolak')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->visible(fn ($record) => $record->status_survei === 'draft')
+                        ->action(function ($record) {
+                            $record->update([
+                                'status_survei' => 'ditolak',
+                                'diperbarui_oleh' => auth()->id(),
+                                'diperbarui_pada' => now(),
+                            ]);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Survei Ditolak')
+                                ->body('Status survei berhasil diperbarui')
+                                ->warning()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Tolak Hasil Survei')
+                        ->modalDescription('Apakah Anda yakin ingin menolak hasil survei ini?'),
+                ])
+                ->label('More')
+                ->icon('heroicon-m-ellipsis-horizontal')
+                ->size('sm')
+                ->button()
+                ->outlined(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -863,12 +1046,13 @@ class SurveiResource extends Resource
                                         $subGolongan = \App\Models\SubGolonganPelanggan::rekomendasiSubGolongan($skorTotal, $golonganId);
 
                                         if ($subGolongan) {
+                                            $rangeDisplay = $subGolongan->skor_minimum . ' - ' . $subGolongan->skor_maksimum . ' poin';
                                             $record->update([
                                                 'skor_total' => $skorTotal,
                                                 'rekomendasi_sub_golongan_id' => $subGolongan->id_sub_golongan_pelanggan,
-                                                'rekomendasi_sub_golongan_text' => $subGolongan->nama_sub_golongan . ' (' . $subGolongan->scoring_range_display . ')',
+                                                'rekomendasi_sub_golongan_text' => $subGolongan->nama_sub_golongan . ' (' . $rangeDisplay . ')',
                                                 'hasil_survei' => 'direkomendasikan',
-                                                'kategori_golongan' => $skorTotal >= 100 ? 'A' : ($skorTotal >= 75 ? 'B' : ($skorTotal >= 50 ? 'C' : 'D')),
+                                                'kategori_golongan' => $subGolongan->golonganPelanggan->nama_golongan ?? 'Tidak Ditentukan',
                                             ]);
                                             $processed++;
                                         } else {
@@ -876,7 +1060,7 @@ class SurveiResource extends Resource
                                             $record->update([
                                                 'skor_total' => $skorTotal,
                                                 'hasil_survei' => 'perlu_review',
-                                                'kategori_golongan' => $skorTotal >= 100 ? 'A' : ($skorTotal >= 75 ? 'B' : ($skorTotal >= 50 ? 'C' : 'D')),
+                                                'kategori_golongan' => 'Tidak Ditentukan',
                                             ]);
                                         }
                                     } else {
@@ -937,15 +1121,21 @@ class SurveiResource extends Resource
                         ->modalDescription('Hanya survei dengan status draft yang akan ditolak.'),
                 ]),
             ])
-            ->defaultSort('pendaftaran.dibuat_pada', 'desc')
+            ->defaultSort('dibuat_pada', 'desc')
             ->persistSortInSession()
-            ->persistFiltersInSession();
+            ->persistFiltersInSession()
+            ->striped()
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(25)
+            ->emptyStateHeading('Belum ada data survei')
+            ->emptyStateDescription('Mulai dengan membuat survei baru atau tunggu pendaftaran yang akan disurvei.')
+            ->emptyStateIcon('heroicon-o-map-pin');
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PendaftaranRelationManager::class,
         ];
     }
 

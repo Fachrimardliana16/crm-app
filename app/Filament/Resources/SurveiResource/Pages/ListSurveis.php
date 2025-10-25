@@ -3,12 +3,33 @@
 namespace App\Filament\Resources\SurveiResource\Pages;
 
 use App\Filament\Resources\SurveiResource;
+use App\Filament\Resources\SurveiResource\Widgets\PendaftaranMenungguSurveiWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Components\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListSurveis extends ListRecords
 {
     protected static string $resource = SurveiResource::class;
+
+    public function getTabs(): array
+    {
+        $tabs = [
+            'all' => Tab::make('All')
+                ->modifyQueryUsing(fn (Builder $query) => $query), // tampilkan semua
+        ];
+
+        // Ambil semua cabang secara dinamis
+        $branches = \App\Models\Cabang::orderBy('nama_cabang')->get();
+
+        foreach ($branches as $branch) {
+            $tabs['branch_' . $branch->id_cabang] = Tab::make($branch->nama_cabang)
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('pendaftaran', fn($q) => $q->where('id_cabang', $branch->id_cabang)));
+        }
+
+        return $tabs;
+    }
 
     protected function getHeaderActions(): array
     {
@@ -53,6 +74,13 @@ class ListSurveis extends ListRecords
             Actions\CreateAction::make()
                 ->label('Tambah Baru')
                 ->color('success'),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            PendaftaranMenungguSurveiWidget::class,
         ];
     }
 }

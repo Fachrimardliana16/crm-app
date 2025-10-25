@@ -22,9 +22,6 @@ class CreateSurvei extends CreateRecord
         $data['nip_surveyor'] = auth()->user()->email ?? auth()->id();
         $data['status_survei'] = 'draft';
 
-        // Calculate scoring
-        $data = $this->calculateSurveyScore($data);
-
         return $data;
     }
 
@@ -33,7 +30,12 @@ class CreateSurvei extends CreateRecord
         // Generate UUID for id_survei
         $data['id_survei'] = \Illuminate\Support\Str::uuid()->toString();
 
-        return static::getModel()::create($data);
+        $survei = static::getModel()::create($data);
+        
+        // Update scoring after creation
+        $this->updateSurveiScoring($survei);
+
+        return $survei;
     }
 
     protected function getRedirectUrl(): string
@@ -41,113 +43,24 @@ class CreateSurvei extends CreateRecord
         return $this->getResource()::getUrl('view', ['record' => $this->record]);
     }
 
-    private function calculateSurveyScore(array $data): array
+    private function updateSurveiScoring($survei): void
     {
-        $score = 0;
-
-        // Scoring untuk setiap parameter (masing-masing maksimal 10 poin)
-        $scoreMap = [
-            'luas_tanah' => [
-                '0-60' => 2,
-                '60-120' => 4,
-                '120-200' => 6,
-                '200-300' => 8,
-                '>300' => 10
-            ],
-            'luas_bangunan' => [
-                '0-36' => 2,
-                '36-70' => 4,
-                '70-120' => 6,
-                '120-200' => 8,
-                '>200' => 10
-            ],
-            'lokasi_bangunan' => [
-                'gang-sempit' => 2,
-                'gang-sedang' => 4,
-                'tepi-jalan-kecil' => 6,
-                'tepi-jalan-besar' => 8,
-                'jalan-utama' => 10
-            ],
-            'dinding_bangunan' => [
-                'bambu-kayu' => 2,
-                'semi-permanen' => 4,
-                'tembok-setengah' => 6,
-                'tembok-penuh' => 8,
-                'bata-expose' => 10
-            ],
-            'lantai_bangunan' => [
-                'tanah' => 2,
-                'semen' => 4,
-                'keramik-biasa' => 6,
-                'keramik-bagus' => 8,
-                'granit-marmer' => 10
-            ],
-            'atap_bangunan' => [
-                'rumbia-jerami' => 2,
-                'seng-asbes' => 4,
-                'genteng-tanah' => 6,
-                'genteng-beton' => 8,
-                'dak-beton' => 10
-            ],
-            'pagar_bangunan' => [
-                'tidak-ada' => 2,
-                'bambu-kayu' => 4,
-                'kawat-seng' => 6,
-                'tembok-setengah' => 8,
-                'tembok-penuh' => 10
-            ],
-            'lokasi_jalan' => [
-                'tanah-berbatu' => 2,
-                'makadam' => 4,
-                'paving-conblock' => 6,
-                'aspal-sedang' => 8,
-                'aspal-mulus' => 10
-            ],
-            'daya_listrik' => [
-                'non-pln' => 2,
-                '450-900' => 4,
-                '1300' => 6,
-                '2200' => 8,
-                '>2200' => 10
-            ],
-            'fungsi_rumah' => [
-                'kontrak-kost' => 2,
-                'rumah-sendiri' => 4,
-                'rumah-keluarga' => 6,
-                'rumah-dinas' => 8,
-                'rumah-mewah' => 10
-            ],
-            'kepemilikan_kendaraan' => [
-                'tidak-ada' => 2,
-                'sepeda-becak' => 4,
-                'sepeda-motor' => 6,
-                'mobil-motor' => 8,
-                'mobil-mewah' => 10
-            ],
-        ];
-
-        foreach ($scoreMap as $field => $values) {
-            if (isset($data[$field]) && isset($values[$data[$field]])) {
-                $score += $values[$data[$field]];
-            }
+        try {
+            // Gunakan method dari model untuk menghitung scoring
+            $survei->updateHasilSurvei();
+            
+            // Notification untuk debug
+            \Filament\Notifications\Notification::make()
+                ->title('Scoring Updated')
+                ->body("Skor total: {$survei->skor_total}")
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
+                ->title('Error Update Scoring')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
         }
-
-        // Set nilai survei jika ada parameter yang diisi
-        if ($score > 0) {
-            $data['nilai_survei'] = $score;
-
-            // Auto set golongan berdasarkan score (total maksimal 110 poin)
-            if ($score >= 88) { // 80% dari 110
-                $data['golongan_survei'] = 'A';
-            } elseif ($score >= 66) { // 60% dari 110
-                $data['golongan_survei'] = 'B';
-            } elseif ($score >= 44) { // 40% dari 110
-                $data['golongan_survei'] = 'C';
-            } else {
-                $data['golongan_survei'] = 'D';
-            }
-        }
-
-        return $data;
     }
 }
