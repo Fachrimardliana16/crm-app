@@ -52,6 +52,7 @@ class Pendaftaran extends Model
         'id_pajak',
         'nilai_pajak',
         'total_biaya_pendaftaran',
+        'status_pendaftaran', // Added missing field
         'dibuat_oleh',
         'dibuat_pada',
         'diperbarui_oleh',
@@ -84,6 +85,21 @@ class Pendaftaran extends Model
         'scan_identitas_utama',
         'scan_dokumen_mou',
     ];
+
+    protected $attributes = [
+        'status_pendaftaran' => 'draft',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->status_pendaftaran)) {
+                $model->status_pendaftaran = 'draft';
+            }
+        });
+    }
 
     // Relationships
     public function pelanggan(): BelongsTo

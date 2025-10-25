@@ -107,6 +107,16 @@ class Survei extends Model
         return $this->belongsTo(Pendaftaran::class, 'id_pendaftaran', 'id_pendaftaran');
     }
 
+    // Dummy relationship untuk RelationManager - mengembalikan query kosong
+    // karena kita override dengan getTableQuery() di RelationManager
+    public function pendaftaranDraft()
+    {
+        // Menggunakan hasMany dengan kondisi yang tidak mungkin terpenuhi
+        // karena kita akan override query di RelationManager
+        return $this->hasMany(Pendaftaran::class, 'id_pendaftaran', 'id_survei_dummy')
+            ->where('id_pendaftaran', 'never-match');
+    }
+
     // Master Data Relations
     public function masterLuasTanah()
     {
@@ -176,6 +186,12 @@ class Survei extends Model
     public function rekomendasiSubGolongan(): BelongsTo
     {
         return $this->belongsTo(SubGolonganPelanggan::class, 'rekomendasi_sub_golongan_id', 'id_sub_golongan_pelanggan');
+    }
+
+    // Method untuk mendapatkan nama sub golongan
+    public function getNamaSubGolongan()
+    {
+        return $this->rekomendasiSubGolongan?->nama_sub_golongan;
     }
 
     // Method untuk menghitung total skor survei
@@ -254,9 +270,12 @@ class Survei extends Model
         
         // Update rekomendasi di database
         if ($subGolongan) {
+            // Buat range display dari skor minimum dan maksimum
+            $rangeDisplay = $subGolongan->skor_minimum . ' - ' . $subGolongan->skor_maksimum . ' poin';
+            
             $this->update([
                 'rekomendasi_sub_golongan_id' => $subGolongan->id_sub_golongan_pelanggan,
-                'rekomendasi_sub_golongan_text' => $subGolongan->nama_sub_golongan . ' (' . $subGolongan->scoring_range_display . ')',
+                'rekomendasi_sub_golongan_text' => $subGolongan->nama_sub_golongan . ' (' . $rangeDisplay . ')', // Deskripsi lengkap
             ]);
         } else {
             $this->update([
@@ -288,7 +307,7 @@ class Survei extends Model
         // Jika ada rekomendasi sub golongan yang sudah diset, gunakan itu
         if ($this->rekomendasiSubGolongan && $this->rekomendasiSubGolongan->golonganPelanggan) {
             $subGolongan = $this->rekomendasiSubGolongan;
-            return $subGolongan->golonganPelanggan->nama_golongan . ' (Skor ' . $subGolongan->skor_minimum . '-' . $subGolongan->skor_maksimum . ')';
+            return $subGolongan->golonganPelanggan->nama_golongan; // Hanya nama golongan
         }
 
         // Jika belum ada, cari sub golongan yang sesuai dengan skor
@@ -300,11 +319,11 @@ class Survei extends Model
             ->first();
 
         if ($subGolongan && $subGolongan->golonganPelanggan) {
-            return $subGolongan->golonganPelanggan->nama_golongan . ' (Skor ' . $subGolongan->skor_minimum . '-' . $subGolongan->skor_maksimum . ')';
+            return $subGolongan->golonganPelanggan->nama_golongan; // Hanya nama golongan
         }
 
         // Fallback jika tidak ditemukan sub golongan yang sesuai
-        return 'Tidak ada golongan yang sesuai (Skor ' . $skor . ')';
+        return 'Tidak Ditentukan';
     }
 
     // Method untuk update hasil survei berdasarkan scoring
