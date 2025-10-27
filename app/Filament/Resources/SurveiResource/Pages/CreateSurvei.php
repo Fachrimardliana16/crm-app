@@ -11,6 +11,12 @@ class CreateSurvei extends CreateRecord
 {
     protected static string $resource = SurveiResource::class;
 
+    // Override to hide relation managers on create page
+    public function getRelationManagers(): array
+    {
+        return [];
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Set default values
@@ -62,5 +68,12 @@ class CreateSurvei extends CreateRecord
                 ->danger()
                 ->send();
         }
+    }
+
+    protected function afterCreate(): void
+    {
+        // Send workflow notifications
+        $notificationService = app(\App\Services\WorkflowNotificationService::class);
+        $notificationService->surveiCreated($this->record);
     }
 }

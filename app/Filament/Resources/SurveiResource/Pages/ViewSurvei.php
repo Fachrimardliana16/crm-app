@@ -12,6 +12,12 @@ class ViewSurvei extends ViewRecord
 {
     protected static string $resource = SurveiResource::class;
 
+    // Override to hide relation managers on view page
+    public function getRelationManagers(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

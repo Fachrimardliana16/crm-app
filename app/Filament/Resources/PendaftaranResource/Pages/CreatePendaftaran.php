@@ -144,6 +144,10 @@ class CreatePendaftaran extends CreateRecord
 
     protected function afterCreate(): void
     {
+        // Send workflow notifications
+        $notificationService = app(\App\Services\WorkflowNotificationService::class);
+        $notificationService->pendaftaranCreated($this->record);
+        
         // Create survei record automatically after pendaftaran is created
         $this->createSurveiRecord();
 
