@@ -25,6 +25,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Afsakar\LeafletMapPicker\LeafletMapPicker;
 use Filament\Resources\Components\Tab;
+use Filament\Notifications\Actions\Action as NotificationAction;
 
 class PendaftaranResource extends Resource
 {
@@ -1218,7 +1219,9 @@ class PendaftaranResource extends Resource
             Action::make('mou')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->label('Surat Pernyataan')
-                ->color('warning'),
+                ->color('warning')
+                ->url(route('surat-pernyataan'))
+                ->openUrlInNewTab(), // Membuka di tab baru
             ])
 
             ->filters([
@@ -1360,32 +1363,48 @@ class PendaftaranResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
 
-                    BulkAction::make('print_multiple_faktur')
+                   BulkAction::make('print_multiple_faktur')
                         ->label('Print Multiple Faktur')
                         ->icon('heroicon-o-printer')
                         ->color('success')
                         ->action(function (Collection $records) {
-                            // Generate multiple URLs untuk print
+
+                            // 1. Generate URLs
                             $urls = $records->map(function ($record) {
                                 return route('faktur.pembayaran', ['pendaftaran' => $record->id_pendaftaran]);
                             })->toArray();
 
-                            // JavaScript untuk membuka multiple tabs
-                            $script = "
-                                const urls = " . json_encode($urls) . ";
-                                urls.forEach((url, index) => {
-                                    setTimeout(() => {
-                                        window.open(url, '_blank');
-                                    }, index * 500); // Delay 500ms antar tab
-                                });
+                            // 2. Encode URLS ke JSON string (hanya UNESCAPED_SLASHES)
+                            $urlsJson = json_encode($urls, JSON_UNESCAPED_SLASHES);
+
+                            // 3. Tentukan skrip JS yang akan disematkan
+                            // Kunci: Hapus deklarasi 'const urls ='
+                            $jsScript = "
+                                {
+                                    JSON.parse(" . "'" . $urlsJson . "'" . ").forEach((url, index) => {
+                                        setTimeout(() => {
+                                            window.open(url, '_blank');
+                                        }, index * 200);
+                                    });
+                                }
                             ";
 
-                            session()->flash('print_script', $script);
-
+                            // 4. Picu notifikasi dengan tombol cetak.
                             Notification::make()
-                                ->title('Faktur Disiapkan')
-                                ->body(count($records) . ' faktur akan dibuka di tab baru.')
+                                ->title('Siap Cetak Faktur')
+                                ->body('Klik tombol di bawah untuk membuka ' . count($records) . ' faktur.')
                                 ->success()
+                                ->actions([
+                                    NotificationAction::make('print_now')
+                                        ->label('CETAK SEMUA')
+                                        ->button()
+                                        ->extraAttributes(function () use ($jsScript) {
+                                            return [
+                                                'x-on:click.prevent' => $jsScript,
+                                            ];
+                                        })
+                                ])
+                                ->persistent()
                                 ->send();
                         }),
 

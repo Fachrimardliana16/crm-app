@@ -28,6 +28,13 @@ class ListPendaftarans extends ListRecords
         ];
     }
 
+    // KUNCI: Daftarkan listener Livewire
+    protected $listeners = [
+        'triggerPrintMultiple' => 'printMultipleFaktur',
+    ];
+
+
+
     // public function mount(): void
     // {
     //     FilamentView::registerRenderHook(
@@ -65,6 +72,22 @@ class ListPendaftarans extends ListRecords
         }
 
         return $tabs;
+    }
+
+    public function printMultipleFaktur(array $urls)
+    {
+        // Menyematkan array URL ke dalam JavaScript yang akan dieksekusi browser.
+        $urlsJson = json_encode($urls);
+
+        // Menggunakan helper js() yang diizinkan di Livewire/Filament Page.
+        $this->js(<<<JS
+            const urls = {$urlsJson};
+            urls.forEach((url, index) => {
+                setTimeout(() => {
+                    window.open(url, '_blank');
+                }, index * 200);
+            });
+        JS);
     }
 
 

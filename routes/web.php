@@ -19,3 +19,9 @@ Route::post('/faktur/multiple-print', [FakturController::class, 'multiplePrint']
 // Route untuk download PDF report pendaftaran
 Route::get('/reports/pendaftaran/pdf', [PendaftaranReportController::class, 'downloadPdf'])
     ->name('reports.pendaftaran.pdf');
+
+
+// Route untuk download MOU (Surat Pernyataan) pendaftaran
+Route::get('/surat-pernyataan', function () {
+    return view('surat-pernyataan.pernyataan-pendaftaran');
+})->name('surat-pernyataan');
