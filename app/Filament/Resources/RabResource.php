@@ -33,47 +33,63 @@ class RabResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi Utama')
+                Forms\Components\Grid::make(1)
+                    ->schema([
+                        Forms\Components\DatePicker::make('tanggal_input')
+                            ->label('Tanggal Input')
+                            ->default(now())
+                            ->required()
+                            ->native(false)
+                            ->columnSpanFull(),
+                    ]),
+                    
+                Forms\Components\Section::make('Data Pendaftaran')
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\Select::make('id_pendaftaran')
                                     ->label('Pendaftaran')
                                     ->relationship('pendaftaran', 'nomor_registrasi')
-                                    ->searchable()
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->nomor_registrasi} - {$record->nama_pemohon}")
+                                    ->searchable(['nomor_registrasi', 'nama_pemohon'])
                                     ->preload()
                                     ->required()
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
-                                            $pendaftaran = \App\Models\Pendaftaran::find($state);
-                                            if ($pendaftaran && $pendaftaran->id_pelanggan) {
-                                                $set('id_pelanggan', $pendaftaran->id_pelanggan);
+                                            $pendaftaran = \App\Models\Pendaftaran::with(['pelanggan', 'cabang', 'survei'])->find($state);
+                                            if ($pendaftaran) {
+                                                // Set pelanggan info
+                                                if ($pendaftaran->id_pelanggan) {
+                                                    $set('id_pelanggan', $pendaftaran->id_pelanggan);
+                                                }
+                                                
+                                                // Auto-fill data from pendaftaran
+                                                $set('nama_pelanggan', $pendaftaran->nama_pemohon);
+                                                $set('alamat_pelanggan', $pendaftaran->alamat_pemasangan);
+                                                $set('telepon_pelanggan', $pendaftaran->no_hp_pemohon);
+                                                
+                                                // Set kantor cabang
+                                                if ($pendaftaran->cabang) {
+                                                    $set('kantor_cabang', $pendaftaran->cabang->nama_cabang);
+                                                }
+                                                
+                                                // Set golongan tarif from survei rekomendasi
+                                                if ($pendaftaran->survei) {
+                                                    $set('golongan_tarif', $pendaftaran->survei->rekomendasi_sub_golongan_text);
+                                                }
                                             }
                                         }
                                     }),
-                                    
-                                Forms\Components\Select::make('id_pelanggan')
-                                    ->label('Pelanggan')
-                                    ->relationship('pelanggan', 'nama_pelanggan')
-                                    ->searchable()
-                                    ->preload()
-                                    ->disabled()
-                                    ->dehydrated(),
-                                    
-                                Forms\Components\DatePicker::make('tanggal_rab_dibuat')
-                                    ->label('Tanggal RAB Dibuat')
-                                    ->default(now())
-                                    ->required()
-                                    ->native(false),
                                     
                                 Forms\Components\Select::make('status_rab')
                                     ->label('Status RAB')
                                     ->options([
                                         'draft' => 'Draft',
-                                        'proses' => 'Proses',
-                                        'disetujui' => 'Disetujui',
-                                        'ditolak' => 'Ditolak',
+                                        'review' => 'Review',
+                                        'approved' => 'Approved',
+                                        'rejected' => 'Rejected',
+                                        'final' => 'Final',
                                     ])
                                     ->default('draft')
                                     ->required(),
@@ -81,110 +97,183 @@ class RabResource extends Resource
                     ])
                     ->collapsible(),
                     
-                Forms\Components\Section::make('Rincian Biaya Konstruksi')
+                Forms\Components\Section::make('Informasi Langganan')
+                    ->description('Sub Rayon dan No. Langganan akan diassign setelah pemasangan selesai')
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\TextInput::make('total_biaya_konstruksi')
-                                    ->label('Total Biaya Konstruksi')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->live()
-                                    ->afterStateUpdated(function (callable $get, callable $set) {
-                                        self::calculateSubTotal($get, $set);
-                                    }),
+                                Forms\Components\Select::make('jenis_biaya_sambungan')
+                                    ->label('Jenis Biaya Sambungan')
+                                    ->options([
+                                        'standar' => 'Standar',
+                                        'non_standar' => 'Non Standar',
+                                    ])
+                                    ->required()
+                                    ->default('standar'),
                                     
-                                Forms\Components\TextInput::make('total_biaya_administrasi')
-                                    ->label('Total Biaya Administrasi')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->live()
-                                    ->afterStateUpdated(function (callable $get, callable $set) {
-                                        self::calculateSubTotal($get, $set);
-                                    }),
+                                Forms\Components\TextInput::make('golongan_tarif')
+                                    ->label('Golongan Tarif')
+                                    ->readOnly()
+                                    ->helperText('Diambil dari rekomendasi survei'),
+                            ]),
+                            
+                        Forms\Components\Grid::make(1)
+                            ->schema([
+                                Forms\Components\TextInput::make('kantor_cabang')
+                                    ->label('Kantor Cabang/Unit')
+                                    ->readOnly()
+                                    ->maxLength(255),
                             ]),
                     ])
                     ->collapsible(),
                     
-                Forms\Components\Section::make('Perhitungan Total')
+                Forms\Components\Section::make('Data Pelanggan')
+                    ->description('Data ini akan otomatis terisi dari pendaftaran yang dipilih')
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\TextInput::make('sub_total_awal')
-                                    ->label('Sub Total Awal')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated(),
+                                Forms\Components\TextInput::make('nama_pelanggan')
+                                    ->label('Nama')
+                                    ->required()
+                                    ->maxLength(255),
                                     
-                                Forms\Components\TextInput::make('nilai_pajak')
-                                    ->label('Nilai Pajak')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->live()
-                                    ->afterStateUpdated(function (callable $get, callable $set) {
-                                        self::calculateTotal($get, $set);
-                                    }),
+                                Forms\Components\TextInput::make('telepon_pelanggan')
+                                    ->label('Telepon')
+                                    ->tel()
+                                    ->maxLength(20),
                                     
-                                Forms\Components\TextInput::make('total_rab_bruto')
-                                    ->label('Total RAB Bruto')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated(),
-                                    
-                                Forms\Components\TextInput::make('pembulatan')
-                                    ->label('Pembulatan')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->live()
-                                    ->afterStateUpdated(function (callable $get, callable $set) {
-                                        self::calculateFinalTotal($get, $set);
-                                    }),
-                                    
-                                Forms\Components\TextInput::make('total_final_rab')
-                                    ->label('Total Final RAB')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->extraAttributes(['class' => 'font-bold text-lg']),
+                                Forms\Components\Textarea::make('alamat_pelanggan')
+                                    ->label('Alamat')
+                                    ->rows(2)
+                                    ->required()
+                                    ->columnSpanFull(),
                             ]),
                     ])
                     ->collapsible(),
                     
-                Forms\Components\Section::make('Informasi Pembayaran')
+                Forms\Components\Section::make('Rincian Uang Muka')
+                    ->description('Input biaya perencanaan dan perhitungan akan otomatis')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('perencanaan')
+                                    ->label('Perencanaan dll')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->live(debounce: 1000)
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculateUangMuka($get, $set);
+                                    }),
+                                    
+                                Forms\Components\TextInput::make('jumlah_uang_muka')
+                                    ->label('Jumlah')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => 'bg-gray-50 font-semibold']),
+                            ]),
+                    ])
+                    ->collapsible(),
+                    
+                Forms\Components\Section::make('Biaya Instalasi')
+                    ->description('Input rincian biaya instalasi dan total akan dihitung otomatis')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('pengerjaan_tanah')
+                                    ->label('Pengerjaan Tanah')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->live(debounce: 1000)
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculateInstalasi($get, $set);
+                                    }),
+                                    
+                                Forms\Components\TextInput::make('tenaga_kerja')
+                                    ->label('Tenaga Kerja')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->live(debounce: 1000)
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculateInstalasi($get, $set);
+                                    }),
+                                    
+                                Forms\Components\TextInput::make('pipa_accessories')
+                                    ->label('Pipa dan Accessories')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->live(debounce: 1000)
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculateInstalasi($get, $set);
+                                    }),
+                                    
+                                Forms\Components\TextInput::make('jumlah_instalasi')
+                                    ->label('Jumlah Total Instalasi')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => 'bg-gray-50 font-semibold']),
+                            ]),
+                    ])
+                    ->collapsible(),
+                    
+                Forms\Components\Section::make('Rincian Piutang')
+                    ->description('Perhitungan piutang dan total biaya sambungan baru')
                     ->schema([
                         Forms\Components\Grid::make(3)
                             ->schema([
+                                Forms\Components\TextInput::make('pembulatan_piutang')
+                                    ->label('Pembulatan')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->live(debounce: 1000)
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculatePiutang($get, $set);
+                                    }),
+                                    
                                 Forms\Components\TextInput::make('uang_muka')
                                     ->label('Uang Muka')
                                     ->numeric()
-                                    ->prefix('Rp'),
+                                    ->prefix('Rp')
+                                    ->live(debounce: 1000)
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculatePiutang($get, $set);
+                                    }),
                                     
-                                Forms\Components\TextInput::make('biaya_sb')
-                                    ->label('Biaya SB')
+                                Forms\Components\TextInput::make('piutang_na')
+                                    ->label('Piutang Non Air (Piutang NA)')
                                     ->numeric()
-                                    ->prefix('Rp'),
+                                    ->prefix('Rp')
+                                    ->readOnly()
+                                    ->helperText('Total yang harus dibayar dikurangi Uang Muka')
+                                    ->extraAttributes(['class' => 'bg-gray-50 font-semibold']),
                                     
-                                Forms\Components\TextInput::make('piutang_non_adir')
-                                    ->label('Piutang Non ADIR')
+                                Forms\Components\TextInput::make('total_piutang')
+                                    ->label('Total Piutang')
                                     ->numeric()
-                                    ->prefix('Rp'),
+                                    ->prefix('Rp')
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => 'bg-gray-50 font-semibold']),
                                     
-                                Forms\Components\TextInput::make('jumlah_angsuran')
-                                    ->label('Jumlah Angsuran')
+                                Forms\Components\TextInput::make('pajak_piutang')
+                                    ->label('Pajak (%)')
                                     ->numeric()
-                                    ->suffix('kali'),
+                                    ->suffix('%')
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->live(debounce: 1000)
+                                    ->helperText('Masukkan persentase pajak (contoh: 10 untuk 10%)')
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculatePiutang($get, $set);
+                                    }),
                                     
-                                Forms\Components\Select::make('status_pembayaran')
-                                    ->label('Status Pembayaran')
-                                    ->options([
-                                        'belum' => 'Belum Bayar',
-                                        'sebagian' => 'Sebagian',
-                                        'lunas' => 'Lunas',
-                                    ])
-                                    ->default('belum'),
+                                Forms\Components\TextInput::make('total_biaya_sambungan_baru')
+                                    ->label('Total Biaya Sambungan Baru')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => 'bg-green-50 font-bold text-lg text-green-800 border-green-300'])
+                                    ->columnSpanFull(),
                             ]),
                     ])
                     ->collapsible(),
@@ -200,46 +289,57 @@ class RabResource extends Resource
             ]);
     }
 
-    protected static function calculateSubTotal(callable $get, callable $set): void
+    protected static function calculateUangMuka(callable $get, callable $set): void
     {
-        $konstruksi = (float) ($get('total_biaya_konstruksi') ?? 0);
-        $administrasi = (float) ($get('total_biaya_administrasi') ?? 0);
-        $subTotal = $konstruksi + $administrasi;
+        $perencanaan = (float) ($get('perencanaan') ?? 0);
+        // Uang muka = perencanaan (for now, bisa ditambah field lain jika diperlukan)
+        $set('jumlah_uang_muka', $perencanaan);
         
-        $set('sub_total_awal', $subTotal);
-        
-        // Calculate total bruto
-        $pajak = (float) ($get('nilai_pajak') ?? 0);
-        $totalBruto = $subTotal + $pajak;
-        $set('total_rab_bruto', $totalBruto);
-        
-        // Calculate final total
-        $pembulatan = (float) ($get('pembulatan') ?? 0);
-        $totalFinal = $totalBruto + $pembulatan;
-        $set('total_final_rab', $totalFinal);
+        // Trigger piutang calculation with small delay to prevent rapid recalculation
+        self::calculatePiutang($get, $set);
     }
 
-    protected static function calculateTotal(callable $get, callable $set): void
+    protected static function calculateInstalasi(callable $get, callable $set): void
     {
-        $subTotal = (float) ($get('sub_total_awal') ?? 0);
-        $pajak = (float) ($get('nilai_pajak') ?? 0);
-        $totalBruto = $subTotal + $pajak;
+        $pengerjaanTanah = (float) ($get('pengerjaan_tanah') ?? 0);
+        $tenagaKerja = (float) ($get('tenaga_kerja') ?? 0);
+        $pipaAccessories = (float) ($get('pipa_accessories') ?? 0);
         
-        $set('total_rab_bruto', $totalBruto);
+        $jumlahInstalasi = $pengerjaanTanah + $tenagaKerja + $pipaAccessories;
+        $set('jumlah_instalasi', $jumlahInstalasi);
         
-        // Calculate final total
-        $pembulatan = (float) ($get('pembulatan') ?? 0);
-        $totalFinal = $totalBruto + $pembulatan;
-        $set('total_final_rab', $totalFinal);
+        // Trigger piutang calculation with small delay to prevent rapid recalculation
+        self::calculatePiutang($get, $set);
     }
 
-    protected static function calculateFinalTotal(callable $get, callable $set): void
+    protected static function calculatePiutang(callable $get, callable $set): void
     {
-        $totalBruto = (float) ($get('total_rab_bruto') ?? 0);
-        $pembulatan = (float) ($get('pembulatan') ?? 0);
-        $totalFinal = $totalBruto + $pembulatan;
+        $jumlahUangMuka = (float) ($get('jumlah_uang_muka') ?? 0);
+        $jumlahInstalasi = (float) ($get('jumlah_instalasi') ?? 0);
+        $pembulatanPiutang = (float) ($get('pembulatan_piutang') ?? 0);
+        $uangMuka = (float) ($get('uang_muka') ?? 0);
+        $pajakPersentase = (float) ($get('pajak_piutang') ?? 0);
         
-        $set('total_final_rab', $totalFinal);
+        // Total yang harus dibayar = jumlah uang muka + jumlah instalasi + pembulatan
+        $totalYangHarusDibayar = $jumlahUangMuka + $jumlahInstalasi + $pembulatanPiutang;
+        
+        // Piutang NA = total yang harus dibayar dikurangi uang muka
+        $piutangNA = $totalYangHarusDibayar - $uangMuka;
+        $set('piutang_na', $piutangNA);
+        
+        // Total piutang
+        $totalPiutang = $piutangNA;
+        $set('total_piutang', $totalPiutang);
+        
+        // Hitung pajak berdasarkan persentase dari total piutang
+        $nominalPajak = 0;
+        if ($pajakPersentase > 0 && $totalPiutang > 0) {
+            $nominalPajak = ($totalPiutang * $pajakPersentase) / 100;
+        }
+        
+        // Total biaya sambungan baru = total piutang + nominal pajak
+        $totalBiayaSambunganBaru = $totalPiutang + $nominalPajak;
+        $set('total_biaya_sambungan_baru', $totalBiayaSambunganBaru);
     }
 
     public static function table(Table $table): Table
@@ -251,13 +351,20 @@ class RabResource extends Resource
                     ->searchable()
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('pelanggan.nama_pelanggan')
+                Tables\Columns\TextColumn::make('nama_pelanggan')
                     ->label('Nama Pelanggan')
                     ->searchable()
                     ->sortable(),
                     
-                Tables\Columns\TextColumn::make('tanggal_rab_dibuat')
-                    ->label('Tanggal RAB')
+                Tables\Columns\BadgeColumn::make('jenis_biaya_sambungan')
+                    ->label('Jenis Biaya')
+                    ->colors([
+                        'primary' => 'standar',
+                        'warning' => 'non_standar',
+                    ]),
+                    
+                Tables\Columns\TextColumn::make('tanggal_input')
+                    ->label('Tanggal Input')
                     ->date('d/m/Y')
                     ->sortable(),
                     
@@ -265,39 +372,27 @@ class RabResource extends Resource
                     ->label('Status RAB')
                     ->colors([
                         'secondary' => 'draft',
-                        'warning' => 'proses',
-                        'success' => 'disetujui',
-                        'danger' => 'ditolak',
+                        'warning' => 'review',
+                        'success' => 'approved',
+                        'danger' => 'rejected',
+                        'primary' => 'final',
                     ])
                     ->icons([
                         'heroicon-o-pencil' => 'draft',
-                        'heroicon-o-clock' => 'proses',
-                        'heroicon-o-check-circle' => 'disetujui',
-                        'heroicon-o-x-circle' => 'ditolak',
+                        'heroicon-o-clock' => 'review',
+                        'heroicon-o-check-circle' => 'approved',
+                        'heroicon-o-x-circle' => 'rejected',
+                        'heroicon-o-check-badge' => 'final',
                     ]),
                     
-                Tables\Columns\TextColumn::make('total_final_rab')
-                    ->label('Total RAB')
+                Tables\Columns\TextColumn::make('total_biaya_sambungan_baru')
+                    ->label('Total Biaya Sambungan')
                     ->money('IDR')
                     ->sortable(),
                     
-                Tables\Columns\BadgeColumn::make('status_pembayaran')
-                    ->label('Status Bayar')
-                    ->colors([
-                        'danger' => 'belum',
-                        'warning' => 'sebagian',
-                        'success' => 'lunas',
-                    ])
-                    ->icons([
-                        'heroicon-o-x-circle' => 'belum',
-                        'heroicon-o-clock' => 'sebagian',
-                        'heroicon-o-check-circle' => 'lunas',
-                    ]),
-                    
-                Tables\Columns\TextColumn::make('jumlah_angsuran')
-                    ->label('Angsuran')
-                    ->suffix('x')
-                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('golongan_tarif')
+                    ->label('Golongan Tarif')
+                    ->toggleable(isToggledHiddenByDefault: true),
                     
                 Tables\Columns\TextColumn::make('dibuat_oleh')
                     ->label('Dibuat Oleh')
@@ -313,20 +408,20 @@ class RabResource extends Resource
                     ->label('Status RAB')
                     ->options([
                         'draft' => 'Draft',
-                        'proses' => 'Proses',
-                        'disetujui' => 'Disetujui',
-                        'ditolak' => 'Ditolak',
+                        'review' => 'Review',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'final' => 'Final',
                     ]),
                     
-                Tables\Filters\SelectFilter::make('status_pembayaran')
-                    ->label('Status Pembayaran')
+                Tables\Filters\SelectFilter::make('jenis_biaya_sambungan')
+                    ->label('Jenis Biaya Sambungan')
                     ->options([
-                        'belum' => 'Belum Bayar',
-                        'sebagian' => 'Sebagian',
-                        'lunas' => 'Lunas',
+                        'standar' => 'Standar',
+                        'non_standar' => 'Non Standar',
                     ]),
                     
-                Tables\Filters\Filter::make('tanggal_rab')
+                Tables\Filters\Filter::make('tanggal_input')
                     ->form([
                         Forms\Components\DatePicker::make('dari_tanggal')
                             ->label('Dari Tanggal'),
@@ -337,11 +432,11 @@ class RabResource extends Resource
                         return $query
                             ->when(
                                 $data['dari_tanggal'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal_rab_dibuat', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal_input', '>=', $date),
                             )
                             ->when(
                                 $data['sampai_tanggal'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal_rab_dibuat', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal_input', '<=', $date),
                             );
                     }),
             ])

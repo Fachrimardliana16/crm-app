@@ -22,7 +22,31 @@ class Rab extends Model
 
     protected $fillable = [
         'id_pendaftaran',
-        'id_pelanggan',
+        'id_pelanggan', // nullable - will be filled after installation complete
+        // New fields
+        'jenis_biaya_sambungan',
+        // id_sub_rayon and no_langganan removed - will be assigned later
+        'golongan_tarif',
+        'tanggal_input',
+        'nama_pelanggan',
+        'alamat_pelanggan',
+        'telepon_pelanggan',
+        'kantor_cabang',
+        // Rincian Uang Muka
+        'perencanaan',
+        'jumlah_uang_muka',
+        // Biaya Instalasi
+        'pengerjaan_tanah',
+        'tenaga_kerja',
+        'pipa_accessories',
+        'jumlah_instalasi',
+        // Rincian Piutang
+        'pembulatan_piutang',
+        'piutang_na',
+        'total_piutang',
+        'pajak_piutang',
+        'total_biaya_sambungan_baru',
+        // Existing fields
         'tanggal_rab_dibuat',
         'status_rab',
         'total_biaya_konstruksi',
@@ -46,6 +70,20 @@ class Rab extends Model
 
     protected $casts = [
         'tanggal_rab_dibuat' => 'date',
+        'tanggal_input' => 'date',
+        // New decimal fields
+        'perencanaan' => 'decimal:2',
+        'jumlah_uang_muka' => 'decimal:2',
+        'pengerjaan_tanah' => 'decimal:2',
+        'tenaga_kerja' => 'decimal:2',
+        'pipa_accessories' => 'decimal:2',
+        'jumlah_instalasi' => 'decimal:2',
+        'pembulatan_piutang' => 'decimal:2',
+        'piutang_na' => 'decimal:2',
+        'total_piutang' => 'decimal:2',
+        'pajak_piutang' => 'decimal:2',
+        'total_biaya_sambungan_baru' => 'decimal:2',
+        // Existing fields
         'total_biaya_konstruksi' => 'decimal:2',
         'total_biaya_administrasi' => 'decimal:2',
         'sub_total_awal' => 'decimal:2',
@@ -61,7 +99,6 @@ class Rab extends Model
         'diperbarui_pada' => 'datetime',
     ];
 
-    // Activity logging
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -85,6 +122,8 @@ class Rab extends Model
     {
         return $this->belongsTo(Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
     }
+
+    // subRayon relationship removed - will be assigned later after installation
 
     public function tagihanRab(): HasMany
     {
