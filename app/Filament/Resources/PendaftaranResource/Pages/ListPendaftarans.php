@@ -24,7 +24,7 @@ class ListPendaftarans extends ListRecords
             Actions\CreateAction::make()
                 ->label('Tambah')
                 ->icon('heroicon-s-plus')
-                ->color('success'),
+                ->color('primary'),
         ];
     }
 
@@ -52,7 +52,7 @@ class ListPendaftarans extends ListRecords
      public  function getTabs(): array
     {
         $tabs = [
-            'all' => Tab::make('All')
+            'all' => Tab::make('Semua')
                 ->modifyQueryUsing(fn (Builder $query) => $query), // tampilkan semua
         ];
 

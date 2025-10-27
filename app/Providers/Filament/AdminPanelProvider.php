@@ -20,6 +20,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Rupadana\ApiService\ApiServicePlugin;
+use Filament\Navigation\MenuItem;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -35,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->emailVerification()
              ->sidebarCollapsibleOnDesktop()
             ->profile()
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -94,6 +96,7 @@ class AdminPanelProvider extends PanelProvider
                         permissions: ['create', 'view', 'update', 'delete'] // optional, customize the permissions (default = ['create', 'view', 'update', 'delete'])
                     ),
                 ApiServicePlugin::make(),
-            ]);
+                ]);
+
     }
 }

@@ -75,7 +75,20 @@ class PendaftaranResource extends Resource
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         self::generateNomorRegistrasi($get, $set);
-                                    }),
+                                    })
+                                    ->prefixIcon('heroicon-o-calendar')
+                                     ->suffixAction(
+                                    Forms\Components\Actions\Action::make('hitn_tanggal_daftar')
+                                            ->icon('heroicon-o-information-circle')
+                                            ->color('primary')
+                                            ->action(function () {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Petunjuk Tanggal Daftar')
+                                                    ->body('Tanggal daftar adalah tanggal saat pemohon mendaftar. Defaultnya adalah tanggal hari ini.')
+                                                ->info()
+                                                ->send();
+                                        })
+                                ),
 
                                 Forms\Components\TextInput::make('nama_pemohon')
                                     ->label('Nama Pemohon')
@@ -212,9 +225,9 @@ class PendaftaranResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('no_hp_pemohon')
                                     ->label('No. Telp')
-                                    ->tel()
                                     ->required()
-                                    ->maxLength(20),
+                                    ->maxLength(20)
+                                    ->numeric(),
                                 Forms\Components\TextInput::make('email_pemohon')
                                     ->label('Email Pemohon')
                                     ->email()
