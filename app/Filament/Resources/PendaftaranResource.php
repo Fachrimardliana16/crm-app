@@ -27,6 +27,7 @@ use Filament\Forms\Components\Select;
 use Afsakar\LeafletMapPicker\LeafletMapPicker;
 use Filament\Resources\Components\Tab;
 use Filament\Notifications\Actions\Action as NotificationAction;
+use Illuminate\Support\Facades\Storage;
 
 class PendaftaranResource extends Resource
 {
@@ -1201,7 +1202,7 @@ class PendaftaranResource extends Resource
                         ->icon('heroicon-o-funnel'), // Filter icon for visual clarity
                 ])
                 ->action(function (array $data) {
-                    $this->generateReportPendaftaran($data);
+                    static::generateReportPendaftaran($data);
                 }),
 
             Action::make('mou')
@@ -1288,7 +1289,7 @@ class PendaftaranResource extends Resource
             ->modalDescription('Apakah Anda yakin ingin menyetujui pendaftaran ini? Sistem akan otomatis membuat data pelanggan.')
             ->action(function ($record) {
                 $oldStatus = $record->status_pendaftaran;
-                
+
                 // Buat pelanggan baru dari data pendaftaran
                 $pelanggan = \App\Models\Pelanggan::create([
                     'nomor_pelanggan' => 'PLG-' . now()->format('YmdHis'),
@@ -1337,11 +1338,11 @@ class PendaftaranResource extends Resource
             ->action(function ($record) {
                 $oldStatus = $record->status_pendaftaran;
                 $record->update(['status_pendaftaran' => 'survei']);
-                
+
                 // Send notifications
                 $notificationService = app(WorkflowNotificationService::class);
                 $notificationService->pendaftaranStatusChanged($record, $oldStatus, 'survei');
-                
+
                 Notification::make()
                     ->title('Status diperbarui ke Tahap Survei')
                     ->success()
@@ -1367,45 +1368,63 @@ class PendaftaranResource extends Resource
                         ->label('Print Multiple Faktur')
                         ->icon('heroicon-o-printer')
                         ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Cetak Multiple Faktur')
+                        ->modalDescription(fn (Collection $records) =>
+                            'Akan membuka halaman dengan ' . $records->count() . ' faktur dalam satu lembar untuk dicetak.')
+                        ->modalSubmitActionLabel('Cetak Semua')
                         ->action(function (Collection $records) {
-
-                            // 1. Generate URLs
-                            $urls = $records->map(function ($record) {
-                                return route('faktur.pembayaran', ['pendaftaran' => $record->id_pendaftaran]);
-                            })->toArray();
-
-                            // 2. Encode URLS ke JSON string (hanya UNESCAPED_SLASHES)
-                            $urlsJson = json_encode($urls, JSON_UNESCAPED_SLASHES);
-
-                            // 3. Tentukan skrip JS yang akan disematkan
-                            // Kunci: Hapus deklarasi 'const urls ='
-                            $jsScript = "
-                                {
-                                    JSON.parse(" . "'" . $urlsJson . "'" . ").forEach((url, index) => {
-                                        setTimeout(() => {
-                                            window.open(url, '_blank');
-                                        }, index * 200);
-                                    });
+                            try {
+                                if ($records->isEmpty()) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title('Error')
+                                        ->body('Tidak ada data yang dipilih untuk dicetak.')
+                                        ->send();
+                                    return;
                                 }
-                            ";
-
-                            // 4. Picu notifikasi dengan tombol cetak.
-                            Notification::make()
-                                ->title('Siap Cetak Faktur')
-                                ->body('Klik tombol di bawah untuk membuka ' . count($records) . ' faktur.')
-                                ->success()
-                                ->actions([
-                                    NotificationAction::make('print_now')
-                                        ->label('CETAK SEMUA')
-                                        ->button()
-                                        ->extraAttributes(function () use ($jsScript) {
-                                            return [
-                                                'x-on:click.prevent' => $jsScript,
-                                            ];
-                                        })
-                                ])
-                                ->persistent()
-                                ->send();
+                                $validIds = [];
+                                foreach ($records as $record) {
+                                    if ($record->id_pendaftaran) {
+                                        $validIds[] = $record->id_pendaftaran;
+                                    }
+                                }
+                                if (empty($validIds)) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title('Error')
+                                        ->body('Tidak ada faktur yang valid untuk dicetak.')
+                                        ->send();
+                                    return;
+                                }
+                                $routeUrl = route('faktur.multiple-print');
+                                $csrfToken = csrf_token();
+                                $idsJson = json_encode($validIds);
+                                $jsCall = "window.printMultipleFaktur(" . json_encode($routeUrl) . ", " . json_encode($csrfToken) . ", " . $idsJson . "); return false;";
+                                Notification::make()
+                                    ->success()
+                                    ->title('Faktur Siap Dicetak')
+                                    ->body("Klik tombol di bawah untuk membuka " . count($validIds) . " faktur dalam satu halaman.")
+                                    ->actions([
+                                        NotificationAction::make('print_all')
+                                            ->label('🖨️ CETAK SEKARANG')
+                                            ->button()
+                                            ->color('success')
+                                            ->extraAttributes([
+                                                'onclick' => $jsCall,
+                                                'style' => 'cursor: pointer;'
+                                            ])
+                                    ])
+                                    ->persistent()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                \Log::error('Error in print multiple faktur: ' . $e->getMessage());
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Error')
+                                    ->body('Terjadi kesalahan saat menyiapkan pencetakan: ' . $e->getMessage())
+                                    ->send();
+                            }
                         }),
 
                     BulkAction::make('approve_and_create_customer')
@@ -1479,7 +1498,7 @@ class PendaftaranResource extends Resource
                                     ->send();
                             }
                         })
-                        ->visible(function (Collection $records = null) {
+                        ->visible(function (?Collection $records = null) {
                             if (!$records) return false;
                             return $records->some(fn ($record) => is_null($record->id_pelanggan));
                         }),
@@ -1503,5 +1522,134 @@ class PendaftaranResource extends Resource
             'view' => Pages\ViewPendaftaran::route('/{record}'),
             'edit' => Pages\EditPendaftaran::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Generate report pendaftaran berdasarkan filter yang dipilih
+     */
+    public static function generateReportPendaftaran(array $data): void
+    {
+        try {
+            // Validasi tanggal
+            if (!isset($data['start_date']) || !isset($data['end_date'])) {
+                Notification::make()
+                    ->danger()
+                    ->title('Error')
+                    ->body('Tanggal mulai dan tanggal selesai harus diisi.')
+                    ->send();
+                return;
+            }
+
+            // Build query
+            $query = Pendaftaran::query()
+                ->with([
+                    'cabang',
+                    'kelurahan.kecamatan',
+                    'tipeLayanan',
+                    'jenisDaftar',
+                    'tipePendaftaran',
+                    'pekerjaan',
+                    'pajak'
+                ])
+                ->whereBetween('tanggal_daftar', [$data['start_date'], $data['end_date']]);
+
+            // Apply filters
+            if (!empty($data['cabang_unit'])) {
+                $query->whereIn('id_cabang', $data['cabang_unit']);
+            }
+
+            if (!empty($data['kecamatan'])) {
+                $query->whereHas('kelurahan', function ($q) use ($data) {
+                    $q->whereIn('id_kecamatan', $data['kecamatan']);
+                });
+            }
+
+            if (!empty($data['kelurahan'])) {
+                $query->whereIn('id_kelurahan', $data['kelurahan']);
+            }
+
+            if (!empty($data['tipe_pelayanan'])) {
+                $query->whereIn('id_tipe_layanan', $data['tipe_pelayanan']);
+            }
+
+            if (!empty($data['jenis_daftar'])) {
+                $query->whereIn('id_jenis_daftar', $data['jenis_daftar']);
+            }
+
+            if (!empty($data['tipe_pendaftaran'])) {
+                $query->whereIn('id_tipe_pendaftaran', $data['tipe_pendaftaran']);
+            }
+
+            // Get data
+            $pendaftaranData = $query->orderBy('tanggal_daftar', 'desc')->get();
+
+            if ($pendaftaranData->isEmpty()) {
+                Notification::make()
+                    ->warning()
+                    ->title('Data Kosong')
+                    ->body('Tidak ada data pendaftaran yang sesuai dengan filter yang dipilih.')
+                    ->send();
+                return;
+            }
+
+            // Create PDF export
+            static::exportToPdf($pendaftaranData, $data);
+
+        } catch (\Exception $e) {
+            \Log::error('Error generating report: ' . $e->getMessage());
+
+            Notification::make()
+                ->danger()
+                ->title('Error')
+                ->body('Terjadi kesalahan saat membuat report: ' . $e->getMessage())
+                ->send();
+        }
+    }
+
+    /**
+     * Export data to PDF
+     */
+    private static function exportToPdf($data, array $filters): void
+    {
+        try {
+            // Create route untuk PDF report dengan parameter
+            $queryParams = http_build_query([
+                'start_date' => $filters['start_date'],
+                'end_date' => $filters['end_date'],
+                'cabang_unit' => $filters['cabang_unit'] ?? [],
+                'kecamatan' => $filters['kecamatan'] ?? [],
+                'kelurahan' => $filters['kelurahan'] ?? [],
+                'tipe_pelayanan' => $filters['tipe_pelayanan'] ?? [],
+                'jenis_daftar' => $filters['jenis_daftar'] ?? [],
+                'tipe_pendaftaran' => $filters['tipe_pendaftaran'] ?? [],
+            ]);
+
+            $pdfUrl = route('reports.pendaftaran.pdf') . '?' . $queryParams;
+
+            // Send notification dengan link ke PDF
+            Notification::make()
+                ->success()
+                ->title('Report PDF Siap')
+                ->body('Klik tombol di bawah untuk membuka laporan PDF dengan ' . $data->count() . ' data pendaftaran.')
+                ->actions([
+                    NotificationAction::make('open_pdf')
+                        ->label('📄 BUKA LAPORAN PDF')
+                        ->url($pdfUrl)
+                        ->openUrlInNewTab()
+                        ->button()
+                        ->color('success')
+                ])
+                ->persistent()
+                ->send();
+
+        } catch (\Exception $e) {
+            \Log::error('Error generating PDF report: ' . $e->getMessage());
+
+            Notification::make()
+                ->danger()
+                ->title('Error Export PDF')
+                ->body('Terjadi kesalahan saat membuat PDF: ' . $e->getMessage())
+                ->send();
+        }
     }
 }

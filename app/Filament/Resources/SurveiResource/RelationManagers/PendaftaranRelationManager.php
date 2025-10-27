@@ -52,7 +52,7 @@ class PendaftaranRelationManager extends RelationManager
                 ->whereDoesntHave('survei')
                 ->where('id_cabang', $branch->id_cabang)
                 ->count();
-                
+
             $tabs['branch_' . $branch->id_cabang] = Tab::make($branch->nama_cabang)
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('id_cabang', $branch->id_cabang))
                 ->badge($count > 0 ? $count : null);
@@ -184,6 +184,7 @@ class PendaftaranRelationManager extends RelationManager
                 // Tidak perlu create action karena ini hanya untuk view
             ])
             ->actions([
+            ActionGroup::make([
                 Tables\Actions\ViewAction::make()
                     ->icon('heroicon-o-eye')
                     ->color('info'),
@@ -196,9 +197,9 @@ class PendaftaranRelationManager extends RelationManager
                     ->modalHeading('Buat Survei dari Pendaftaran')
                     ->modalDescription('Apakah Anda yakin ingin membuat survei untuk pendaftaran ini?')
                     ->action(function ($record) {
-                        // Cek apakah sudah ada survei untuk pendaftaran ini
+                        // Cek apakah survei sudah ada
                         $existingSurvei = \App\Models\Survei::where('id_pendaftaran', $record->id_pendaftaran)->first();
-                        
+
                         if ($existingSurvei) {
                             Notification::make()
                                 ->title('Survei sudah ada!')
@@ -208,14 +209,14 @@ class PendaftaranRelationManager extends RelationManager
                             return;
                         }
 
-                        // Generate ID survei dengan UUID
-                        $surveiId = \Str::uuid();
+                        // Generate UUID untuk survei baru
+                        $surveiId = Str::uuid();
 
                         // Buat survei baru
                         $survei = \App\Models\Survei::create([
                             'id_survei' => $surveiId,
                             'id_pendaftaran' => $record->id_pendaftaran,
-                            'id_pelanggan' => null, // Akan diisi setelah pelanggan dibuat
+                            'id_pelanggan' => null,
                             'nip_surveyor' => auth()->user()->email ?? 'SYSTEM',
                             'tanggal_survei' => now(),
                             'status_survei' => 'draft',
@@ -235,13 +236,19 @@ class PendaftaranRelationManager extends RelationManager
                             ->success()
                             ->send();
 
-                        // Refresh table to remove the record from list
+                        // Refresh table agar data terbaru muncul
                         $this->dispatch('$refresh');
 
-                        // Redirect ke halaman edit survei yang baru dibuat
-                        return redirect()->route('filament.admin.resources.surveis.edit', ['record' => $survei->id_survei]);
+                        // Arahkan ke halaman edit survei yang baru dibuat
+                        return redirect()->route('filament.admin.resources.surveis.edit', [
+                            'record' => $survei->id_survei,
+                        ]);
                     }),
             ])
+            ->label('Aksi')
+            ->icon('heroicon-m-cog-6-tooth')
+            ->color('gray')
+        ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tidak ada bulk action untuk keamanan

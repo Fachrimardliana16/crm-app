@@ -23,7 +23,7 @@ class ListPendaftarans extends ListRecords
             Actions\CreateAction::make()
                 ->label('Tambah')
                 ->icon('heroicon-s-plus')
-                ->color('success'),
+                ->color('primary'),
         ];
     }
 

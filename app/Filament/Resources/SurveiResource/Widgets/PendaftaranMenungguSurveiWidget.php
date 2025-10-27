@@ -124,84 +124,86 @@ class PendaftaranMenungguSurveiWidget extends BaseWidget
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->url(fn ($record) => route('filament.admin.resources.pendaftarans.view', ['record' => $record->id_pendaftaran]))
-                    ->openUrlInNewTab(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->icon('heroicon-o-eye')
+                        ->color('info')
+                        ->url(fn ($record) => route('filament.admin.resources.pendaftarans.view', ['record' => $record->id_pendaftaran]))
+                        ->openUrlInNewTab(),
 
-                Action::make('buat_survei')
-                    ->label('Buat Survei')
-                    ->icon('heroicon-o-magnifying-glass')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Buat Survei dari Pendaftaran')
-                    ->modalDescription(function ($record) {
-                        return "Apakah Anda yakin ingin membuat survei untuk pendaftaran {$record->nomor_registrasi} atas nama {$record->nama_pemohon}?";
-                    })
-                    ->action(function ($record) {
-                        try {
-                            // Cek apakah sudah ada survei untuk pendaftaran ini
-                            $existingSurvei = \App\Models\Survei::where('id_pendaftaran', $record->id_pendaftaran)->first();
-                            
-                            if ($existingSurvei) {
-                                Notification::make()
-                                    ->title('Survei sudah ada!')
-                                    ->body("Pendaftaran {$record->nomor_registrasi} sudah memiliki survei. Anda akan diarahkan ke halaman edit survei.")
-                                    ->warning()
+                    Tables\Actions\Action::make('buat_survei')
+                        ->label('Buat Survei')
+                        ->icon('heroicon-o-magnifying-glass')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Buat Survei dari Pendaftaran')
+                        ->modalDescription(fn ($record) =>
+                            "Apakah Anda yakin ingin membuat survei untuk pendaftaran {$record->nomor_registrasi} atas nama {$record->nama_pemohon}?"
+                        )
+                        ->action(function ($record) {
+                            try {
+                                $existingSurvei = \App\Models\Survei::where('id_pendaftaran', $record->id_pendaftaran)->first();
+
+                                if ($existingSurvei) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Survei sudah ada!')
+                                        ->body("Pendaftaran {$record->nomor_registrasi} sudah memiliki survei. Anda akan diarahkan ke halaman edit survei.")
+                                        ->warning()
+                                        ->send();
+
+                                    return redirect()->route('filament.admin.resources.surveis.edit', [
+                                        'record' => $existingSurvei->id_survei,
+                                    ]);
+                                }
+
+                                $survei = \App\Models\Survei::create([
+                                    'id_survei' => \Str::uuid(),
+                                    'id_pendaftaran' => $record->id_pendaftaran,
+                                    'id_pelanggan' => null,
+                                    'nip_surveyor' => auth()->user()->email ?? 'SYSTEM',
+                                    'tanggal_survei' => now(),
+                                    'status_survei' => 'draft',
+                                    'latitude_terverifikasi' => $record->latitude_awal,
+                                    'longitude_terverifikasi' => $record->longitude_awal,
+                                    'elevasi_terverifikasi_mdpl' => $record->elevasi_awal_mdpl,
+                                    'dibuat_oleh' => auth()->user()->name,
+                                    'dibuat_pada' => now(),
+                                ]);
+
+                                $record->update(['status_pendaftaran' => 'survei']);
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Survei berhasil dibuat!')
+                                    ->body("Survei baru telah dibuat dari pendaftaran {$record->nomor_registrasi}. Anda akan diarahkan ke halaman edit survei.")
+                                    ->success()
                                     ->send();
-                                
-                                // Redirect ke halaman edit survei yang sudah ada
-                                return redirect()->route('filament.admin.resources.surveis.edit', ['record' => $existingSurvei->id_survei]);
+
+                                return redirect()->route('filament.admin.resources.surveis.edit', [
+                                    'record' => $survei->id_survei,
+                                ]);
+                            } catch (\Exception $e) {
+                                \Log::error('Error creating survei: ' . $e->getMessage(), [
+                                    'pendaftaran_id' => $record->id_pendaftaran,
+                                    'user' => auth()->user()->email ?? 'unknown',
+                                    'trace' => $e->getTraceAsString(),
+                                ]);
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Error!')
+                                    ->body('Terjadi kesalahan saat membuat survei: ' . $e->getMessage())
+                                    ->danger()
+                                    ->send();
+
+                                return null;
                             }
-
-                            // Generate ID survei dengan UUID
-                            $surveiId = \Str::uuid();
-
-                            // Buat survei baru
-                            $survei = \App\Models\Survei::create([
-                                'id_survei' => $surveiId,
-                                'id_pendaftaran' => $record->id_pendaftaran,
-                                'id_pelanggan' => null, // Akan diisi setelah pelanggan dibuat
-                                'nip_surveyor' => auth()->user()->email ?? 'SYSTEM', // Gunakan email user atau SYSTEM
-                                'tanggal_survei' => now(),
-                                'status_survei' => 'draft',
-                                'latitude_terverifikasi' => $record->latitude_awal,
-                                'longitude_terverifikasi' => $record->longitude_awal,
-                                'elevasi_terverifikasi_mdpl' => $record->elevasi_awal_mdpl,
-                                'dibuat_oleh' => auth()->user()->name,
-                                'dibuat_pada' => now(),
-                            ]);
-
-                            // Update status pendaftaran
-                            $record->update(['status_pendaftaran' => 'survei']);
-
-                            Notification::make()
-                                ->title('Survei berhasil dibuat!')
-                                ->body("Survei baru telah dibuat dari pendaftaran {$record->nomor_registrasi}. Anda akan diarahkan ke halaman edit survei.")
-                                ->success()
-                                ->send();
-
-                            // Redirect ke halaman edit survei yang baru dibuat
-                            return redirect()->route('filament.admin.resources.surveis.edit', ['record' => $survei->id_survei]);
-                            
-                        } catch (\Exception $e) {
-                            \Log::error('Error creating survei: ' . $e->getMessage(), [
-                                'pendaftaran_id' => $record->id_pendaftaran,
-                                'user' => auth()->user()->email,
-                                'trace' => $e->getTraceAsString()
-                            ]);
-                            
-                            Notification::make()
-                                ->title('Error!')
-                                ->body('Terjadi kesalahan saat membuat survei: ' . $e->getMessage())
-                                ->danger()
-                                ->send();
-                                
-                            return null;
-                        }
-                    }),
+                        }),
+                ])
+                    ->label('Aksi')
+                    ->button()
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->color('primary')
             ])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('buat_survei_bulk')
@@ -218,7 +220,7 @@ class PendaftaranMenungguSurveiWidget extends BaseWidget
                             foreach ($records as $record) {
                                 // Cek apakah sudah ada survei
                                 $existingSurvei = \App\Models\Survei::where('id_pendaftaran', $record->id_pendaftaran)->first();
-                                
+
                                 if ($existingSurvei) {
                                     $alreadyExists++;
                                     continue;

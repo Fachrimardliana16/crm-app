@@ -341,6 +341,7 @@
         @endforeach
     </div>
 
+    <script src="/print-multiple-faktur.js"></script>
     <script>
         window.addEventListener('load', function() {
             // Optional: Auto print when page loads
