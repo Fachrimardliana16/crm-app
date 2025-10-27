@@ -10,6 +10,12 @@ class EditSurvei extends EditRecord
 {
     protected static string $resource = SurveiResource::class;
 
+    // Override to hide relation managers on edit page
+    public function getRelationManagers(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -22,11 +28,17 @@ class EditSurvei extends EditRecord
                 ->color('success')
                 ->visible(fn () => $this->record->status_survei === 'draft' && !empty($this->record->rekomendasi_teknis))
                 ->action(function () {
+                    $oldStatus = $this->record->status_survei;
+                    
                     $this->record->update([
                         'status_survei' => 'disetujui',
                         'diperbarui_oleh' => auth()->id(),
                         'diperbarui_pada' => now(),
                     ]);
+
+                    // Send notification for status change
+                    $notificationService = app(\App\Services\WorkflowNotificationService::class);
+                    $notificationService->surveiStatusChanged($this->record, $oldStatus, 'disetujui');
 
                     $this->redirect($this->getResource()::getUrl('view', ['record' => $this->record]));
                 })

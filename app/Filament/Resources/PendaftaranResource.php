@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
+use App\Services\WorkflowNotificationService;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
@@ -1283,6 +1284,8 @@ class PendaftaranResource extends Resource
             ->modalHeading('Setujui Pendaftaran')
             ->modalDescription('Apakah Anda yakin ingin menyetujui pendaftaran ini? Sistem akan otomatis membuat data pelanggan.')
             ->action(function ($record) {
+                $oldStatus = $record->status_pendaftaran;
+                
                 // Buat pelanggan baru dari data pendaftaran
                 $pelanggan = \App\Models\Pelanggan::create([
                     'nomor_pelanggan' => 'PLG-' . now()->format('YmdHis'),
@@ -1311,6 +1314,10 @@ class PendaftaranResource extends Resource
                     'status_pendaftaran' => 'disetujui'
                 ]);
 
+                // Send notifications
+                $notificationService = app(WorkflowNotificationService::class);
+                $notificationService->pendaftaranStatusChanged($record, $oldStatus, 'disetujui');
+
                 Notification::make()
                     ->title('Pendaftaran Disetujui!')
                     ->body("Pelanggan baru dengan nomor {$pelanggan->nomor_pelanggan} telah dibuat.")
@@ -1325,7 +1332,13 @@ class PendaftaranResource extends Resource
             ->color('warning')
             ->visible(fn ($record) => $record->status_pendaftaran === 'disetujui')
             ->action(function ($record) {
+                $oldStatus = $record->status_pendaftaran;
                 $record->update(['status_pendaftaran' => 'survei']);
+                
+                // Send notifications
+                $notificationService = app(WorkflowNotificationService::class);
+                $notificationService->pendaftaranStatusChanged($record, $oldStatus, 'survei');
+                
                 Notification::make()
                     ->title('Status diperbarui ke Tahap Survei')
                     ->success()

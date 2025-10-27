@@ -972,11 +972,16 @@ class SurveiResource extends Resource
                         ->color('success')
                         ->visible(fn ($record) => $record->status_survei === 'draft' && !empty($record->rekomendasi_teknis))
                         ->action(function ($record) {
+                            $oldStatus = $record->status_survei;
                             $record->update([
                                 'status_survei' => 'disetujui',
                                 'diperbarui_oleh' => auth()->id(),
                                 'diperbarui_pada' => now(),
                             ]);
+                            
+                            // Send workflow notifications
+                            $notificationService = app(\App\Services\WorkflowNotificationService::class);
+                            $notificationService->surveiStatusChanged($record, $oldStatus, 'disetujui');
                             
                             \Filament\Notifications\Notification::make()
                                 ->title('Survei Disetujui')
@@ -1007,6 +1012,10 @@ class SurveiResource extends Resource
                                 'dibuat_oleh' => auth()->id(),
                                 'dibuat_pada' => now(),
                             ]);
+                            
+                            // Send workflow notifications
+                            $notificationService = app(\App\Services\WorkflowNotificationService::class);
+                            $notificationService->rabCreated($rab);
                             
                             \Filament\Notifications\Notification::make()
                                 ->title('RAB Berhasil Dibuat')
@@ -1047,11 +1056,16 @@ class SurveiResource extends Resource
                         ->color('danger')
                         ->visible(fn ($record) => $record->status_survei === 'draft')
                         ->action(function ($record) {
+                            $oldStatus = $record->status_survei;
                             $record->update([
                                 'status_survei' => 'ditolak',
                                 'diperbarui_oleh' => auth()->id(),
                                 'diperbarui_pada' => now(),
                             ]);
+                            
+                            // Send workflow notifications
+                            $notificationService = app(\App\Services\WorkflowNotificationService::class);
+                            $notificationService->surveiStatusChanged($record, $oldStatus, 'ditolak');
                             
                             \Filament\Notifications\Notification::make()
                                 ->title('Survei Ditolak')

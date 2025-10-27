@@ -25,12 +25,30 @@ class EditPendaftaran extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        // Track old status for notifications
+        $this->oldStatus = $this->record->status_pendaftaran ?? null;
+        
         // Update audit fields
         $data['diperbarui_oleh'] = auth()->user()->name ?? 'System';
         $data['diperbarui_pada'] = now();
 
         return $data;
     }
+
+    protected function afterSave(): void
+    {
+        // Send notification if status changed
+        if ($this->oldStatus && $this->oldStatus !== $this->record->status_pendaftaran) {
+            $notificationService = app(\App\Services\WorkflowNotificationService::class);
+            $notificationService->pendaftaranStatusChanged(
+                $this->record, 
+                $this->oldStatus, 
+                $this->record->status_pendaftaran
+            );
+        }
+    }
+
+    protected $oldStatus = null;
 
     protected function getRedirectUrl(): string
     {

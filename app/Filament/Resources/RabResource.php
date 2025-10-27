@@ -363,7 +363,12 @@ class RabResource extends Resource
                     ->modalHeading('Setujui RAB')
                     ->modalDescription('Apakah Anda yakin ingin menyetujui RAB ini?')
                     ->action(function (Rab $record) {
+                        $oldStatus = $record->status_rab;
                         $record->update(['status_rab' => 'disetujui']);
+                        
+                        // Send workflow notifications
+                        $notificationService = app(\App\Services\WorkflowNotificationService::class);
+                        $notificationService->rabStatusChanged($record, $oldStatus, 'disetujui');
                         
                         \Filament\Notifications\Notification::make()
                             ->title('RAB telah disetujui')
@@ -383,10 +388,15 @@ class RabResource extends Resource
                             ->rows(3),
                     ])
                     ->action(function (Rab $record, array $data) {
+                        $oldStatus = $record->status_rab;
                         $record->update([
                             'status_rab' => 'ditolak',
                             'catatan_rab' => 'DITOLAK: ' . $data['alasan_penolakan'],
                         ]);
+                        
+                        // Send workflow notifications
+                        $notificationService = app(\App\Services\WorkflowNotificationService::class);
+                        $notificationService->rabStatusChanged($record, $oldStatus, 'ditolak');
                         
                         \Filament\Notifications\Notification::make()
                             ->title('RAB telah ditolak')
