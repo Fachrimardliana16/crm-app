@@ -988,6 +988,59 @@ class SurveiResource extends Resource
                         ->modalHeading('Setujui Hasil Survei')
                         ->modalDescription('Apakah Anda yakin ingin menyetujui hasil survei ini?'),
 
+                    Tables\Actions\Action::make('buat_rab')
+                        ->label('Buat RAB')
+                        ->icon('heroicon-o-calculator')
+                        ->color('info')
+                        ->visible(function ($record) {
+                            return $record->status_survei === 'disetujui' 
+                                && $record->pendaftaran 
+                                && !$record->hasRab(); // Belum ada RAB
+                        })
+                        ->action(function ($record) {
+                            // Membuat RAB baru dari survei yang disetujui
+                            $rab = \App\Models\Rab::create([
+                                'id_pendaftaran' => $record->id_pendaftaran,
+                                'id_pelanggan' => $record->pendaftaran->id_pelanggan,
+                                'tanggal_rab_dibuat' => now(),
+                                'status_rab' => 'draft',
+                                'dibuat_oleh' => auth()->id(),
+                                'dibuat_pada' => now(),
+                            ]);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('RAB Berhasil Dibuat')
+                                ->body('RAB baru telah dibuat dan siap untuk dilengkapi')
+                                ->success()
+                                ->actions([
+                                    \Filament\Notifications\Actions\Action::make('lihat_rab')
+                                        ->label('Lihat RAB')
+                                        ->url(\App\Filament\Resources\RabResource::getUrl('edit', ['record' => $rab]))
+                                        ->button()
+                                ])
+                                ->persistent()
+                                ->send();
+                                
+                            // Redirect ke halaman edit RAB
+                            return redirect(\App\Filament\Resources\RabResource::getUrl('edit', ['record' => $rab]));
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Buat RAB Baru')
+                        ->modalDescription('RAB akan dibuat berdasarkan data survei ini. Anda akan diarahkan ke halaman edit RAB untuk melengkapi detail biaya.'),
+
+                    Tables\Actions\Action::make('lihat_rab')
+                        ->label('Lihat RAB')
+                        ->icon('heroicon-o-eye')
+                        ->color('gray')
+                        ->visible(function ($record) {
+                            return $record->status_survei === 'disetujui' 
+                                && $record->pendaftaran 
+                                && $record->hasRab(); // Sudah ada RAB
+                        })
+                        ->url(function ($record) {
+                            return \App\Filament\Resources\RabResource::getUrl('view', ['record' => $record->getRab()]);
+                        }),
+
                     Tables\Actions\Action::make('tolak')
                         ->label('Tolak')
                         ->icon('heroicon-o-x-circle')

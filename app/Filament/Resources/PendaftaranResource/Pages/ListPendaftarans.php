@@ -11,7 +11,6 @@ use Filament\Notifications\Notification;
 use Carbon\Carbon;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\View\TablesRenderHook;
-use filament\widgets\Tables\Actions\CreateAction;
 
 class ListPendaftarans extends ListRecords
 {
@@ -24,7 +23,7 @@ class ListPendaftarans extends ListRecords
             Actions\CreateAction::make()
                 ->label('Tambah')
                 ->icon('heroicon-s-plus')
-                ->color('primary'),
+                ->color('success'),
         ];
     }
 
@@ -59,7 +58,7 @@ class ListPendaftarans extends ListRecords
      public  function getTabs(): array
     {
         $tabs = [
-            'all' => Tab::make('Semua')
+            'all' => Tab::make('All')
                 ->modifyQueryUsing(fn (Builder $query) => $query), // tampilkan semua
         ];
 

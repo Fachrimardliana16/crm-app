@@ -339,4 +339,16 @@ class Survei extends Model
 
         return $rekomendasi;
     }
+
+    // Accessor untuk mengakses RAB melalui pendaftaran
+    public function getRab()
+    {
+        return $this->pendaftaran?->rab;
+    }
+    
+    // Check apakah survei ini sudah memiliki RAB
+    public function hasRab(): bool
+    {
+        return $this->pendaftaran?->rab !== null;
+    }
 }

@@ -32,32 +32,32 @@ return new class extends Migration
             $table->index(['escalated', 'escalated_at']);
         });
 
-        // // NOTIFICATIONS - Multi-channel notification system
-        // Schema::create('notifications', function (Blueprint $table) {
-        //     $table->uuid('id_notification')->primary();
-        //     $table->string('tabel_referensi')->nullable(); // pendaftaran, pengaduan, etc
-        //     $table->uuid('id_referensi')->nullable(); // ID dari tabel yang direferensi
-        //     $table->uuid('id_pelanggan')->nullable();
-        //     $table->string('type'); // sms, email, whatsapp, system
-        //     $table->string('event_trigger'); // tagihan_ready, sla_warning, etc
-        //     $table->string('recipient'); // nomor HP / email
-        //     $table->string('subject')->nullable();
-        //     $table->text('message');
-        //     $table->json('template_data')->nullable(); // Data untuk template
-        //     $table->enum('status', ['pending', 'sent', 'failed', 'delivered'])->default('pending');
-        //     $table->timestamp('sent_at')->nullable();
-        //     $table->timestamp('delivered_at')->nullable();
-        //     $table->text('error_message')->nullable();
-        //     $table->integer('retry_count')->default(0);
-        //     $table->string('external_id')->nullable(); // ID dari provider eksternal
+        // NOTIFICATIONS - Multi-channel notification system
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->uuid('id_notification')->primary();
+            $table->string('tabel_referensi')->nullable(); // pendaftaran, pengaduan, etc
+            $table->uuid('id_referensi')->nullable(); // ID dari tabel yang direferensi
+            $table->uuid('id_pelanggan')->nullable();
+            $table->string('type'); // sms, email, whatsapp, system
+            $table->string('event_trigger'); // tagihan_ready, sla_warning, etc
+            $table->string('recipient'); // nomor HP / email
+            $table->string('subject')->nullable();
+            $table->text('message');
+            $table->json('template_data')->nullable(); // Data untuk template
+            $table->enum('status', ['pending', 'sent', 'failed', 'delivered'])->default('pending');
+            $table->timestamp('sent_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
+            $table->text('error_message')->nullable();
+            $table->integer('retry_count')->default(0);
+            $table->string('external_id')->nullable(); // ID dari provider eksternal
 
-        //     $table->timestamps();
+            $table->timestamps();
 
-        //     $table->foreign('id_pelanggan')->references('id_pelanggan')->on('pelanggan')->onDelete('set null');
-        //     $table->index(['status', 'sent_at']);
-        //     $table->index(['type', 'event_trigger']);
-        //     $table->index(['id_pelanggan', 'created_at']);
-        // });
+            $table->foreign('id_pelanggan')->references('id_pelanggan')->on('pelanggan')->onDelete('set null');
+            $table->index(['status', 'sent_at']);
+            $table->index(['type', 'event_trigger']);
+            $table->index(['id_pelanggan', 'created_at']);
+        });
 
         // WORKFLOW_TRANSITIONS - Track status changes
         Schema::create('workflow_transitions', function (Blueprint $table) {

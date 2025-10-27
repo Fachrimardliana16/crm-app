@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Notifications\Notifiable;
 
 class Pendaftaran extends Model
 {
-    use HasFactory, HasUuids, Notifiable;
+    use HasFactory, HasUuids;
 
     protected $table = 'pendaftaran';
     protected $primaryKey = 'id_pendaftaran';
@@ -94,7 +93,7 @@ class Pendaftaran extends Model
     protected static function boot()
     {
         parent::boot();
-
+        
         static::creating(function ($model) {
             if (empty($model->status_pendaftaran)) {
                 $model->status_pendaftaran = 'draft';
