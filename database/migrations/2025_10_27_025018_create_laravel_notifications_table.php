@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Rename existing notifications table to avoid conflict
-        Schema::rename('notifications', 'app_notifications');
-        
-        // Create proper Laravel notifications table for Filament
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('type');
-            $table->morphs('notifiable');
-            $table->json('data');
-            $table->timestamp('read_at')->nullable();
-            $table->timestamps();
-        });
+        // // Rename existing notifications table to avoid conflict
+        // Schema::rename('notifications', 'app_notifications');
+
+        // // Create proper Laravel notifications table for Filament
+        // Schema::create('notifications', function (Blueprint $table) {
+        //     $table->uuid('id')->primary();
+        //     $table->string('type');
+        //     $table->morphs('notifiable');
+        //     $table->json('data');
+        //     $table->timestamp('read_at')->nullable();
+        //     $table->timestamps();
+        // });
     }
 
     /**
@@ -30,7 +30,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
-        Schema::rename('app_notifications', 'notifications');
+        // Schema::dropIfExists('notifications');
+        // Schema::rename('app_notifications', 'notifications');
     }
 };
