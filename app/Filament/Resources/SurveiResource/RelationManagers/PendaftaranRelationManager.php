@@ -193,9 +193,6 @@ class PendaftaranRelationManager extends RelationManager
                     ->label('Buat Survei')
                     ->icon('heroicon-o-magnifying-glass')
                     ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Buat Survei dari Pendaftaran')
-                    ->modalDescription('Apakah Anda yakin ingin membuat survei untuk pendaftaran ini?')
                     ->action(function ($record) {
                         // Cek apakah survei sudah ada
                         $existingSurvei = \App\Models\Survei::where('id_pendaftaran', $record->id_pendaftaran)->first();
@@ -208,41 +205,14 @@ class PendaftaranRelationManager extends RelationManager
                                 ->send();
                             return;
                         }
-
-                        // Generate UUID untuk survei baru
-                        $surveiId = Str::uuid();
-
-                        // Buat survei baru
-                        $survei = \App\Models\Survei::create([
-                            'id_survei' => $surveiId,
-                            'id_pendaftaran' => $record->id_pendaftaran,
-                            'id_pelanggan' => null,
-                            'nip_surveyor' => auth()->user()->email ?? 'SYSTEM',
-                            'tanggal_survei' => now(),
-                            'status_survei' => 'draft',
-                            'latitude_terverifikasi' => $record->latitude_awal,
-                            'longitude_terverifikasi' => $record->longitude_awal,
-                            'elevasi_terverifikasi_mdpl' => $record->elevasi_awal_mdpl,
-                            'dibuat_oleh' => auth()->user()->name,
-                            'dibuat_pada' => now(),
-                        ]);
-
-                        // Update status pendaftaran
-                        $record->update(['status_pendaftaran' => 'survei']);
-
-                        Notification::make()
-                            ->title('Survei berhasil dibuat!')
-                            ->body("Survei baru telah dibuat dari pendaftaran {$record->nomor_registrasi}.")
-                            ->success()
-                            ->send();
-
-                        // Refresh table agar data terbaru muncul
-                        $this->dispatch('$refresh');
-
-                        // Arahkan ke halaman edit survei yang baru dibuat
-                        return redirect()->route('filament.admin.resources.surveis.edit', [
-                            'record' => $survei->id_survei,
-                        ]);
+                      
+                        // Redirect ke halaman CREATE dengan data pendaftaran sebagai parameter
+                        return redirect()->to(
+                            \App\Filament\Resources\SurveiResource::getUrl('create', [
+                                'id_pendaftaran' => $record->id_pendaftaran
+                            ])
+                        );
+                      
                     }),
             ])
             ->label('Aksi')
