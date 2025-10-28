@@ -17,19 +17,19 @@ class ListRabs extends ListRecords
         $tabs = [
             'all' => Tab::make('Semua')
                 ->modifyQueryUsing(fn (Builder $query) => $query),
-                
+
             'draft' => Tab::make('Draft')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status_rab', 'draft'))
                 ->badge(fn () => \App\Models\Rab::where('status_rab', 'draft')->count()),
-                
+
             'proses' => Tab::make('Proses')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status_rab', 'proses'))
                 ->badge(fn () => \App\Models\Rab::where('status_rab', 'proses')->count()),
-                
+
             'disetujui' => Tab::make('Disetujui')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status_rab', 'disetujui'))
                 ->badge(fn () => \App\Models\Rab::where('status_rab', 'disetujui')->count()),
-                
+
             'ditolak' => Tab::make('Ditolak')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status_rab', 'ditolak'))
                 ->badge(fn () => \App\Models\Rab::where('status_rab', 'ditolak')->count()),
@@ -39,13 +39,13 @@ class ListRabs extends ListRecords
         $branches = \App\Models\Cabang::orderBy('nama_cabang')->get();
 
         foreach ($branches as $branch) {
-            $count = \App\Models\Rab::whereHas('pendaftaran', 
+            $count = \App\Models\Rab::whereHas('pendaftaran',
                 fn ($query) => $query->where('id_cabang', $branch->id_cabang)
             )->count();
-                
+
             if ($count > 0) {
                 $tabs['branch_' . $branch->id_cabang] = Tab::make($branch->nama_cabang)
-                    ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('pendaftaran', 
+                    ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('pendaftaran',
                         fn ($q) => $q->where('id_cabang', $branch->id_cabang)
                     ))
                     ->badge($count);
@@ -58,7 +58,19 @@ class ListRabs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+
+            Actions\Action::make('report')
+                ->label('Report')
+                ->color('danger')
+                ->modalHeading('Filter Laporan RAB')
+                ->icon('heroicon-o-document-chart-bar'),
+
+            Actions\CreateAction::make()
+                ->label('Tambah')
+                ->icon('heroicon-s-plus')
+                ->color('primary'),
+
+
         ];
     }
 }

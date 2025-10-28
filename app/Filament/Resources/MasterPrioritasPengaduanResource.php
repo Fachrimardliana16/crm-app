@@ -61,27 +61,32 @@ class MasterPrioritasPengaduanResource extends Resource
                     ->columns(2),
 
                 Forms\Components\Section::make('Metadata')
-                    ->collapsed()
-                    ->schema([
-                        Forms\Components\TextInput::make('dibuat_oleh')
-                            ->maxLength(255)
-                            ->default(auth()->user()?->name ?? 'System'),
+                        ->collapsed()
+                        ->schema([
+                            Forms\Components\TextInput::make('dibuat_oleh')
+                                ->maxLength(255)
+                                ->default(auth()->user()?->name ?? 'System')
+                                ->disabled()
+                                ->dehydrated(true),
 
-                        Forms\Components\DateTimePicker::make('dibuat_pada')
-                            ->default(now())
-                            ->disabled()
-                            ->dehydrated(true),
+                            Forms\Components\DateTimePicker::make('dibuat_pada')
+                                ->default(now())
+                                ->disabled()
+                                ->dehydrated(true),
 
-                        Forms\Components\TextInput::make('diperbarui_oleh')
-                            ->maxLength(255)
-                            ->default(auth()->user()?->name ?? 'System'),
+                            Forms\Components\TextInput::make('diperbarui_oleh')
+                                ->maxLength(255)
+                                ->default(auth()->user()?->name ?? 'System')
+                                ->disabled()
+                                ->dehydrated(true),
 
-                        Forms\Components\DateTimePicker::make('diperbarui_pada')
-                            ->default(now())
-                            ->disabled()
-                            ->dehydrated(true),
-                    ])
-                    ->columns(2),
+                            Forms\Components\DateTimePicker::make('diperbarui_pada')
+                                ->default(now())
+                                ->disabled()
+                                ->dehydrated(true),
+                        ])
+                        ->columns(2),
+
             ]);
     }
 

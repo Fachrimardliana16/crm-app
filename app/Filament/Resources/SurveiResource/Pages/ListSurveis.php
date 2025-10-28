@@ -35,7 +35,8 @@ class ListSurveis extends ListRecords
     {
          return [
             Actions\Action::make('report')
-                ->label('Report Survei')
+                ->label('Report')
+                ->icon('heroicon-o-document-chart-bar')
                 ->color('danger')
                 ->modalHeading('Filter Laporan Pendaftaran')
                 ->modalSubmitActionLabel('Buat Laporan')
@@ -71,9 +72,10 @@ class ListSurveis extends ListRecords
                 ->action(function (array $data) {
                     $this->generateReportSurvei($data);
                 }),
-            Actions\CreateAction::make()
-                ->label('Tambah Baru')
-                ->color('success'),
+           Actions\CreateAction::make()
+                ->label('Tambah')
+                ->icon('heroicon-s-plus')
+                ->color('primary'),
         ];
     }
 

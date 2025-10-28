@@ -183,8 +183,9 @@ class ListPengaduans extends ListRecords
                     $this->generateReport($data);
                 }),
             Actions\CreateAction::make()
-                ->label('Tambah Baru')
-                ->color('success'),
+                ->label('Tambah')
+                ->icon('heroicon-s-plus')
+                ->color('primary'),
         ];
     }
 }
