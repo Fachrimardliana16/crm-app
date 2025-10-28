@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 
 class PengaduanResource extends Resource
 {
@@ -27,11 +28,12 @@ class PengaduanResource extends Resource
     {
         return $form
             ->schema([
-
                 // Bagian Informasi Pelapor
                 Forms\Components\Section::make('Informasi Pengaduan')
                     ->schema([
-                        Forms\Components\TextInput::make('nomor_pengaduan')
+                        Grid::make(3)
+                            ->schema([
+                                Forms\Components\TextInput::make('nomor_pengaduan')
                             ->label('Nomor Pengaduan')
                             ->default(function () {
                                 // Generate nomor pengaduan berdasarkan tanggal hari ini dan urutan
@@ -43,10 +45,16 @@ class PengaduanResource extends Resource
                             ->disabled()
                             ->dehydrated(true),
 
-                        Forms\Components\TextInput::make('nama_pelapor')
-                            ->label('Nama Pelapor')
-                            ->placeholder('Masukkan nama pelapor')
-                            ->required(),
+                            Forms\Components\TextInput::make('nama_pelapor')
+                                ->label('Nama Pelapor')
+                                ->placeholder('Masukkan nama pelapor')
+                                ->required(),
+
+                            Forms\Components\TextInput::make('nolang')
+                            ->label('Nolang')
+                            ->hint('Masukan Nomor Langganan Jika Ada.'),
+                            ]),
+
 
                         Forms\Components\Hidden::make('tanggal_pengaduan')
                             ->default(now()),
@@ -64,14 +72,52 @@ class PengaduanResource extends Resource
                             ])
                             ->required(),
 
+                        Forms\Components\TextInput::make('alamat')
+                            ->label('Alamat')
+                            ->placeholder('Masukan Alamat lengkap')
+                            ->required(),
+
+                        Forms\Components\Select::make('kecamatan')
+                            ->label('Kecamatan')
+                             ->options([
+                                'Teknis' => 'Teknis',
+                                'Administrasi' => 'Administrasi',
+                                'Layanan' => 'Layanan',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->required(),
+
+                        Forms\Components\Select::make('kelurahan')
+                            ->label('Kelurahan')
+                             ->options([
+                                'Teknis' => 'Teknis',
+                                'Administrasi' => 'Administrasi',
+                                'Layanan' => 'Layanan',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->required(),
+
+                        Forms\Components\Select::make('cabang')
+                            ->label('Cabang/Unit')
+                             ->options([
+                                'Teknis' => 'Teknis',
+                                'Administrasi' => 'Administrasi',
+                                'Layanan' => 'Layanan',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->columnSpanFull()
+                            ->required(),
+
                         Forms\Components\Textarea::make('uraian_pengaduan')
                             ->label('Uraian Pengaduan')
                             ->rows(4)
-                            ->required(),
+                            ->required()
+                            ->columnSpanFull(),
 
                         Forms\Components\FileUpload::make('image')
                             ->label('Gambar Pendukung')
-                            ->image(),
+                            ->image()
+                            ->columnSpanFull(),
 
                         Forms\Components\Select::make('prioritas')
                             ->options([

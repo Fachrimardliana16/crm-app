@@ -31,6 +31,9 @@ class DatabaseSeeder extends Seeder
             SubRayonSeeder::class,
             DanameterSeeder::class,
             SubGolonganScoringSeeder::class, // Added - Sub Golongan Scoring data master
+            PrioritasPengaduanSeeder::class,
+            JenisPengaduanSeeder::class,
+            StatusPengaduanSeeder::class,
         ]);
 
         // User::factory(10)->create();
