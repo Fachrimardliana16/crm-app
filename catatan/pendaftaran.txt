@@ -1,0 +1,27 @@
+Hapus migration dan kolom model :
+1. cabang_pendaftaran.
+2. kelurahan_pemasangan
+3. tipe_layanan
+4. tipe_daftar
+
+
+
+coba cek kenapa kolom ini tidak masuk ke database :
+1. jumlah_pemakai
+
+ketika di edit, ada beberapa kolom yang tidak menampilakn data sebelumnya :
+1. kecamatan
+2. kelurahan, malah menampilkan id UUIDnya bukan nama_tipe_layanan
+3. map picker tidak di lokasi yang dipilih sebelumnya, malah point di map menjadi Default
+4. jumlah pemakaian SR
+5. ada toren air (tidak menampilkan file inputan)
+6. ada sumur (tidak menampilkan file inputan)
+7
+
+
+
+lanjutkan :
+1. print multiple faktur belum jadi
+2. perbaiki logika ketika jenis daftar ->nama_jenis_daftar 'standar'. maka langsung ke input default RAB.
+3. notification belum jalan. All resource
+4. sebelum memperbaiki logika pernaftaran yang terintegrasi ke RAB, maka buat dulu master RAB

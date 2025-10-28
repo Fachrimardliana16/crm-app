@@ -14,6 +14,8 @@ use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Dotswan\MapPicker\Infolists\MapEntry;
+
 
 class ViewPendaftaran extends ViewRecord
 {
@@ -150,49 +152,108 @@ class ViewPendaftaran extends ViewRecord
                     ])
                     ->collapsible(),
 
-                // Section Koordinat dan Maps
-                Section::make('Koordinat Lokasi')
-                    ->description('Posisi GPS lokasi pemasangan')
-                    ->icon('heroicon-o-globe-asia-australia')
-                    ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                TextEntry::make('latitude_awal')
-                                    ->label('Latitude')
-                                    ->badge()
-                                    ->color('success')
-                                    ->placeholder('Belum diset'),
+                    // Section Koordinat dan Maps
+                    Section::make('Koordinat Lokasi')
+                        ->description('Posisi GPS lokasi pemasangan')
+                        ->icon('heroicon-o-globe-asia-australia')
+                        ->schema([
+                            MapEntry::make('location')
+                                ->label('Lokasi Pemasangan')
+                                ->columnSpanFull()
+                                ->state(function ($record) {
+                                    $lat = $record?->latitude_awal;
+                                    $lng = $record?->longitude_awal;
 
-                                TextEntry::make('longitude_awal')
-                                    ->label('Longitude')
-                                    ->badge()
-                                    ->color('success')
-                                    ->placeholder('Belum diset'),
+                                    // Memastikan koordinat ada dan merupakan nilai numerik yang valid (bukan 0)
+                                    if (is_numeric($lat) && $lat != 0 && is_numeric($lng) && $lng != 0) {
+                                        return [
+                                            'lat' => floatval($lat),
+                                            'lng' => floatval($lng),
+                                            'geojson' => null, // GeoJSON tidak digunakan di sini
+                                        ];
+                                    }
 
-                                TextEntry::make('elevasi_awal_mdpl')
-                                    ->label('Elevasi (mdpl)')
-                                    ->numeric(decimalPlaces: 2)
-                                    ->badge()
-                                    ->color('info')
-                                    ->placeholder('Belum diset'),
+                                    // Default lokasi jika koordinat tidak valid
+                                    return [
+                                        'lat' => -7.388119, // Default Purbalingga
+                                        'lng' => 109.358398,
+                                        'geojson' => null,
+                                    ];
+                                })
+                                // Tambahkan visible() di sini agar MapEntry hanya muncul jika ada koordinat
+                                ->visible(function ($record) {
+                                    $lat = $record?->latitude_awal;
+                                    $lng = $record?->longitude_awal;
+                                    return is_numeric($lat) && $lat != 0 && is_numeric($lng) && $lng != 0;
+                                })
+                                ->defaultLocation(latitude: -7.388119, longitude: 109.358398)
+                                ->zoom(14)
+                                ->tilesUrl('https://tile.openstreetmap.de/{z}/{x}/{y}.png')
+                                ->markerColor('#3b82f6')
+                                ->extraStyles([
+                                    'min-height: 400px',
+                                    'border-radius: 8px',
+                                ])
+                                ->placeholder('Koordinat belum tersedia')
+                                ->draggable(false)
+                                ->clickable(false)
+                                ->showMarker(true)
+                                ->showFullscreenControl(true)
+                                ->showZoomControl(true),
 
-                                TextEntry::make('maps_link')
-                                    ->label('Lihat di Google Maps')
-                                    ->columnSpanFull()
-                                    ->getStateUsing(function ($record) {
-                                        if ($record->latitude_awal && $record->longitude_awal) {
-                                            return "https://www.google.com/maps?q={$record->latitude_awal},{$record->longitude_awal}";
-                                        }
-                                        return null;
-                                    })
-                                    ->url(fn ($state) => $state)
-                                    ->openUrlInNewTab()
-                                    ->color('primary')
-                                    ->icon('heroicon-o-map-pin')
-                                    ->placeholder('Koordinat belum tersedia'),
-                            ])
-                    ])
-                    ->collapsible(),
+                            TextEntry::make('maps_link')
+                                ->label('Lihat di Google Maps')
+                                ->columnSpanFull()
+                                ->getStateUsing(function ($record) {
+                                    $lat = $record?->latitude_awal;
+                                    $lng = $record?->longitude_awal;
+
+                                    // Cek ulang untuk validitas koordinat
+                                    if (is_numeric($lat) && $lat != 0 && is_numeric($lng) && $lng != 0) {
+                                        // Format URL Google Maps yang benar untuk penanda
+                                        return "https://www.google.com/maps/search/?api=1&query={$lat},{$lng}";
+                                    }
+                                    return null;
+                                })
+                                ->url(fn ($state) => $state)
+                                ->openUrlInNewTab()
+                                ->icon('heroicon-o-map-pin')
+                                ->placeholder('Koordinat belum tersedia')
+                                // Hanya tampilkan jika koordinat valid
+                                ->visible(function ($record) {
+                                    $lat = $record?->latitude_awal;
+                                    $lng = $record?->longitude_awal;
+                                    return is_numeric($lat) && $lat != 0 && is_numeric($lng) && $lng != 0;
+                                })
+                                // Gunakan TextEntry sebagai link yang memiliki properti 'url' tanpa styling berlebihan
+                                ->color('primary'),
+                                Grid::make(3)
+                                ->schema([
+                                    // 1. Latitude
+                                    TextEntry::make('latitude_awal')
+                                        ->label('Latitude')
+                                        ->badge()
+                                        ->color(fn ($state): string => !empty($state) && is_numeric($state) ? 'success' : 'danger')
+                                        ->placeholder('Belum diset'),
+
+                                    // 2. Longitude
+                                    TextEntry::make('longitude_awal')
+                                        ->label('Longitude')
+                                        ->badge()
+                                        ->color(fn ($state): string => !empty($state) && is_numeric($state) ? 'success' : 'danger')
+                                        ->placeholder('Belum diset'),
+
+                                    // 3. Elevasi
+                                    TextEntry::make('elevasi_awal_mdpl')
+                                        ->label('Elevasi (mdpl)')
+                                        ->numeric(decimalPlaces: 2)
+                                        ->badge()
+                                        ->color('info')
+                                        ->placeholder('Belum diset'),
+                                ]),
+                        ])
+                        ->collapsible(),
+
 
                 // Section Kondisi Lokasi
                 Section::make('Kondisi Lokasi')

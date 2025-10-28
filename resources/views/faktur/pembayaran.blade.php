@@ -150,8 +150,11 @@
 
             .container {
                 padding: 5px;
-                max-width: none;
+                /* Lebar faktur diperluas agar mendekati A5 */
+                max-width: 580px;
                 width: 100%;
+                /* Faktur berada di tengah lebar kertas A4 */
+                margin: 0 auto;
             }
 
             .no-print {
@@ -163,9 +166,14 @@
                 background: white !important;
             }
 
+            /* PENGATURAN CETAK A4 DI ATAS */
             @page {
-                size: A5;
-                margin: 0.5cm;
+                size: A4;
+                margin-top: 0;
+                /* Kunci: Paksa konten menempel di tepi atas kertas A4 */
+                margin-left: 0.5cm;
+                margin-right: 0.5cm;
+                margin-bottom: 0.5cm;
             }
         }
 
@@ -192,17 +200,16 @@
             <button class="print-button" onclick="window.print()">PRINT FAKTUR</button>
         </div>
 
-        <!-- KOP -->
         <div class="header">
-            <div class="company">PERUSAHAAN DAERAH AIR MINUM (PDAM)</div>
-            <h1>{{ strtoupper($pendaftaran->cabang->nama_cabang ?? 'CABANG') }}</h1>
-            <div class="company">{{ strtoupper($pendaftaran->kelurahan->kecamatan->nama_kecamatan ?? '') }}</div>
-            <div class="company">Telp: (0123) 456789</div>
+            <div class="company">PERUSAHAAN UMUM DAERAH AIR MINUM TIRTA PERWIRA</div>
+            <div class="company"> Kabupaten Purbalingga</div>
+            <p style="font-size:6px;">
+                Jl. Letjen S. Parman No.23 Purbalingga 53311 Telp. (0281) 891234 Fax. (0281) 892347
+            </p>
         </div>
 
         <div class="separator">----------------------------------------------------</div>
 
-        <!-- Info 2 Kolom -->
         <div class="info-container">
             <div class="info-left">
                 <div class="info-row">
@@ -216,7 +223,8 @@
                 </div>
                 <div class="info-row">
                     <span class="info-label">Nama</span>
-                    <span class="info-value">: {{ strtoupper(\Str::limit($pendaftaran->nama_pemohon, 15)) }}</span>
+                    {{-- DIHILANGKAN PEMOTONGAN --}}
+                    <span class="info-value">: {{ strtoupper($pendaftaran->nama_pemohon) }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">No.HP</span>
@@ -227,28 +235,31 @@
             <div class="info-right">
                 <div class="info-row">
                     <span class="info-label">Alamat</span>
-                    <span class="info-value">: {{ \Str::limit($pendaftaran->alamat_pemasangan, 20) }}</span>
+                    {{-- DIHILANGKAN PEMOTONGAN --}}
+                    <span class="info-value">: {{ $pendaftaran->alamat_pemasangan }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Kelurahan</span>
+                    {{-- DIHILANGKAN PEMOTONGAN --}}
                     <span class="info-value">:
-                        {{ \Str::limit($pendaftaran->kelurahan->nama_kelurahan ?? '-', 15) }}</span>
+                        {{ $pendaftaran->kelurahan->nama_kelurahan ?? '-' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Tipe</span>
+                    {{-- DIHILANGKAN PEMOTONGAN --}}
                     <span class="info-value">:
-                        {{ \Str::limit($pendaftaran->tipeLayanan->nama_tipe_layanan ?? '-', 15) }}</span>
+                        {{ $pendaftaran->tipeLayanan->nama_tipe_layanan ?? '-' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Cabang</span>
-                    <span class="info-value">: {{ \Str::limit($pendaftaran->cabang->nama_cabang ?? '-', 15) }}</span>
+                    {{-- DIHILANGKAN PEMOTONGAN --}}
+                    <span class="info-value">: {{ $pendaftaran->cabang->nama_cabang ?? '-' }}</span>
                 </div>
             </div>
         </div>
 
         <div class="separator">----------------------------------------------------</div>
 
-        <!-- Rincian Biaya -->
         <div class="table-container">
             <div class="table-title">RINCIAN BIAYA</div>
 
@@ -256,7 +267,8 @@
                 @if ($pendaftaran->biaya_tipe_layanan > 0)
                     <div class="table-row">
                         <div class="col-desc">
-                            {{ \Str::limit($pendaftaran->tipeLayanan->nama_tipe_layanan ?? 'Tipe Layanan', 25) }}</div>
+                            {{-- DIHILANGKAN PEMOTONGAN --}}
+                            {{ $pendaftaran->tipeLayanan->nama_tipe_layanan ?? 'Tipe Layanan' }}</div>
                         <div class="col-amount">{{ number_format($pendaftaran->biaya_tipe_layanan, 0, ',', '.') }}
                         </div>
                     </div>
@@ -265,7 +277,8 @@
                 @if ($pendaftaran->biaya_jenis_daftar > 0)
                     <div class="table-row">
                         <div class="col-desc">
-                            {{ \Str::limit($pendaftaran->jenisDaftar->nama_jenis_daftar ?? 'Jenis Daftar', 25) }}</div>
+                            {{-- DIHILANGKAN PEMOTONGAN --}}
+                            {{ $pendaftaran->jenisDaftar->nama_jenis_daftar ?? 'Jenis Daftar' }}</div>
                         <div class="col-amount">{{ number_format($pendaftaran->biaya_jenis_daftar, 0, ',', '.') }}
                         </div>
                     </div>
@@ -274,7 +287,8 @@
                 @if ($pendaftaran->biaya_tipe_pendaftaran > 0)
                     <div class="table-row">
                         <div class="col-desc">
-                            {{ \Str::limit($pendaftaran->tipePendaftaran->nama_tipe_pendaftaran ?? 'Tipe Pendaftaran', 25) }}
+                            {{-- DIHILANGKAN PEMOTONGAN --}}
+                            {{ $pendaftaran->tipePendaftaran->nama_tipe_pendaftaran ?? 'Tipe Pendaftaran' }}
                         </div>
                         <div class="col-amount">{{ number_format($pendaftaran->biaya_tipe_pendaftaran, 0, ',', '.') }}
                         </div>
@@ -305,24 +319,42 @@
 
 
 
-        <!-- Tanda Tangan -->
         <div class="footer">
             <div class="signature">
                 Pemohon<br><br><br>
-                <div class="signature-line">{{ strtoupper(\Str::limit($pendaftaran->nama_pemohon, 15)) }}</div>
+                {{-- DIHILANGKAN PEMOTONGAN --}}
+                <div class="signature-line">{{ strtoupper($pendaftaran->nama_pemohon) }}</div>
             </div>
 
             <div class="signature">
                 Petugas<br><br><br>
-                <div class="signature-line">{{ strtoupper(\Str::limit($pendaftaran->dibuat_oleh, 15)) }}</div>
+                {{-- DIHILANGKAN PEMOTONGAN --}}
+                <div class="signature-line">{{ strtoupper($pendaftaran->dibuat_oleh) }}</div>
             </div>
         </div>
     </div>
 
     <script>
         window.addEventListener('load', function() {
-            // Optional: Auto print when page loads
-            // window.print();
+            // Auto print saat halaman dimuat
+            window.print();
+        });
+    </script>
+
+    <script>
+        // Pastikan skrip ini ada di file layout utama Filament Anda (misal: app.blade.php)
+        window.addEventListener('print-multiple-faktur', event => {
+            const urls = event.detail.urls;
+
+            if (urls && urls.length > 0) {
+                urls.forEach((url, index) => {
+                    // Beri jeda 200ms untuk setiap tab untuk membantu browser memprosesnya.
+                    // Ini mengurangi risiko pemblokiran dibandingkan membuka semua sekaligus.
+                    setTimeout(() => {
+                        window.open(url, '_blank');
+                    }, index * 200);
+                });
+            }
         });
     </script>
 </body>
