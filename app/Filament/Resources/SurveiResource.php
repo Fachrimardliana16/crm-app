@@ -157,36 +157,60 @@ class SurveiResource extends Resource
                             ->live()
                             ->afterStateUpdated(function (callable $set, $state): void {
                                 if ($state && isset($state['lat']) && isset($state['lng'])) {
-                                    $set('latitude_terverifikasi', $state['lat']);
-                                    $set('longitude_terverifikasi', $state['lng']);
-                                    $set('lokasi_map', $state);
+                                    // Format latitude dan longitude dengan presisi 8 digit di belakang koma
+                                    $latitude = round((float) $state['lat'], 8);
+                                    $longitude = round((float) $state['lng'], 8);
+                                    
+                                    $set('latitude_terverifikasi', $latitude);
+                                    $set('longitude_terverifikasi', $longitude);
+                                    $set('lokasi_map', ['lat' => $latitude, 'lng' => $longitude]);
                                 }
                             })
                             ->reactive(),
 
                         Forms\Components\TextInput::make('latitude_terverifikasi')
                             ->label('Latitude')
-                            ->helperText('Koordinat latitude terverifikasi dari peta')
+                            ->helperText('Koordinat latitude terverifikasi dari peta (maksimal 8 digit di belakang koma)')
                             ->numeric()
                             ->step('0.00000001')
+                            ->inputMode('decimal')
+                            ->maxValue(90)
+                            ->minValue(-90)
                             ->live()
                             ->afterStateUpdated(function (callable $set, callable $get, $state): void {
-                                $lng = $get('longitude_terverifikasi');
-                                if ($state && $lng) {
-                                    $set('lokasi_map', ['lat' => (float) $state, 'lng' => (float) $lng]);
+                                if ($state !== null && $state !== '') {
+                                    // Format dengan presisi 8 digit di belakang koma
+                                    $formattedLat = round((float) $state, 8);
+                                    $set('latitude_terverifikasi', $formattedLat);
+                                    
+                                    $lng = $get('longitude_terverifikasi');
+                                    if ($lng !== null && $lng !== '') {
+                                        $formattedLng = round((float) $lng, 8);
+                                        $set('lokasi_map', ['lat' => $formattedLat, 'lng' => $formattedLng]);
+                                    }
                                 }
                             }),
 
                         Forms\Components\TextInput::make('longitude_terverifikasi')
                             ->label('Longitude')
-                            ->helperText('Koordinat longitude terverifikasi dari peta')
+                            ->helperText('Koordinat longitude terverifikasi dari peta (maksimal 8 digit di belakang koma)')
                             ->numeric()
                             ->step('0.00000001')
+                            ->inputMode('decimal')
+                            ->maxValue(180)
+                            ->minValue(-180)
                             ->live()
                             ->afterStateUpdated(function (callable $set, callable $get, $state): void {
-                                $lat = $get('latitude_terverifikasi');
-                                if ($state && $lat) {
-                                    $set('lokasi_map', ['lat' => (float) $lat, 'lng' => (float) $state]);
+                                if ($state !== null && $state !== '') {
+                                    // Format dengan presisi 8 digit di belakang koma
+                                    $formattedLng = round((float) $state, 8);
+                                    $set('longitude_terverifikasi', $formattedLng);
+                                    
+                                    $lat = $get('latitude_terverifikasi');
+                                    if ($lat !== null && $lat !== '') {
+                                        $formattedLat = round((float) $lat, 8);
+                                        $set('lokasi_map', ['lat' => $formattedLat, 'lng' => $formattedLng]);
+                                    }
                                 }
                             }),
 

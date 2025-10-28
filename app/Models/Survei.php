@@ -98,6 +98,17 @@ class Survei extends Model
         'diperbarui_pada' => 'datetime',
     ];
 
+    // Mutators untuk memastikan presisi koordinat sesuai dengan database
+    public function setLatitudeTerverifikasiAttribute($value)
+    {
+        $this->attributes['latitude_terverifikasi'] = $value !== null ? round((float) $value, 8) : null;
+    }
+
+    public function setLongitudeTerverifikasiAttribute($value)
+    {
+        $this->attributes['longitude_terverifikasi'] = $value !== null ? round((float) $value, 8) : null;
+    }
+
     // Activity logging temporarily disabled due to UUID compatibility issue with bigint primary keys
     // Will need to configure activity_log table to support UUID primary keys or use different logging approach
 
