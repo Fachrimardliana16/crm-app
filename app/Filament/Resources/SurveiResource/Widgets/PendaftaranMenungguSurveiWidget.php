@@ -124,12 +124,12 @@ class PendaftaranMenungguSurveiWidget extends BaseWidget
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->url(fn ($record) => route('filament.admin.resources.pendaftarans.view', ['record' => $record->id_pendaftaran]))
-                    ->openUrlInNewTab(),
-
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->icon('heroicon-o-eye')
+                        ->color('info')
+                        ->url(fn ($record) => route('filament.admin.resources.pendaftarans.view', ['record' => $record->id_pendaftaran]))
+                        ->openUrlInNewTab(),
                 Action::make('buat_survei')
                     ->label('Buat Survei')
                     ->icon('heroicon-o-magnifying-glass')
@@ -174,6 +174,7 @@ class PendaftaranMenungguSurveiWidget extends BaseWidget
                         }
                     }),
             ])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('buat_survei_bulk')
@@ -190,7 +191,7 @@ class PendaftaranMenungguSurveiWidget extends BaseWidget
                             foreach ($records as $record) {
                                 // Cek apakah sudah ada survei
                                 $existingSurvei = \App\Models\Survei::where('id_pendaftaran', $record->id_pendaftaran)->first();
-                                
+
                                 if ($existingSurvei) {
                                     $alreadyExists++;
                                     continue;

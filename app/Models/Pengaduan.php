@@ -27,6 +27,7 @@ class Pengaduan extends Model
         'kategori_pengaduan',
         'jenis_pengaduan',
         'uraian_pengaduan',
+        'image',
         'prioritas',
         'status_pengaduan',
         'tanggal_target_selesai',
