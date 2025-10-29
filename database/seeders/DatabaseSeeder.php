@@ -34,6 +34,9 @@ class DatabaseSeeder extends Seeder
             PrioritasPengaduanSeeder::class,
             JenisPengaduanSeeder::class,
             StatusPengaduanSeeder::class,
+            BagianSeeder::class,
+            SubBagianSeeder::class,
+            JabatanSeeder::class,
         ]);
 
         // User::factory(10)->create();

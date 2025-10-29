@@ -17,7 +17,7 @@ class MasterKepemilikanKendaraanResource extends Resource
 {
     protected static ?string $model = MasterKepemilikanKendaraan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $navigationGroup = 'Master Data';
 

@@ -17,7 +17,7 @@ class MasterLantaiBangunanResource extends Resource
 {
     protected static ?string $model = MasterLantaiBangunan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-square-2-stack';
 
     protected static ?string $navigationGroup = 'Master Data';
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63140e2d4c8d86ac55cc05d5edfdaef2",
+    "content-hash": "07fe31d23eb4cb3f5f59ed3e12e211cc",
     "packages": [
         {
             "name": "afsakar/filament-leaflet-map-picker",

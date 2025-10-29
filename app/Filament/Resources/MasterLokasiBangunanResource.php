@@ -17,7 +17,7 @@ class MasterLokasiBangunanResource extends Resource
 {
     protected static ?string $model = MasterLokasiBangunan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-map-pin';
 
     protected static ?string $navigationGroup = 'Master Data';
 

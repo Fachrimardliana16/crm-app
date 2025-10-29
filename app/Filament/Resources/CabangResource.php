@@ -27,7 +27,7 @@ class CabangResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Cabang/Unit';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Organisasi';
 
     protected static ?int $navigationSort = 1;
 
