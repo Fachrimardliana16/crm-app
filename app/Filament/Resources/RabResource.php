@@ -278,6 +278,178 @@ class RabResource extends Resource
                     ])
                     ->collapsible(),
                     
+                Forms\Components\Section::make('Metode Pembayaran')
+                    ->description('Pilih metode pembayaran: lunas langsung atau cicilan/angsuran')
+                    ->schema([
+                        Forms\Components\Grid::make(1)
+                            ->schema([
+                                Forms\Components\Select::make('tipe_pembayaran')
+                                    ->label('Tipe Pembayaran')
+                                    ->options([
+                                        'lunas' => 'Lunas/Cash',
+                                        'cicilan' => 'Cicilan/Angsuran',
+                                    ])
+                                    ->default('lunas')
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function (callable $get, callable $set, $state) {
+                                        if ($state === 'lunas') {
+                                            // Reset cicilan fields when lunas selected
+                                            $set('jumlah_cicilan', null);
+                                            $set('nominal_per_cicilan', null);
+                                            $set('periode_mulai_cicilan', null);
+                                        } else {
+                                            // Set default values for cicilan
+                                            if (!$get('jumlah_cicilan')) {
+                                                $set('jumlah_cicilan', 3);
+                                            }
+                                            if (!$get('periode_mulai_cicilan')) {
+                                                $set('periode_mulai_cicilan', (int) now()->format('Ym'));
+                                            }
+                                            self::calculateCicilan($get, $set);
+                                        }
+                                    })
+                                    ->columnSpanFull(),
+                            ]),
+                            
+                        Forms\Components\Grid::make(3)
+                            ->schema([
+                                Forms\Components\Select::make('jumlah_cicilan')
+                                    ->label('Jumlah Cicilan')
+                                    ->options([
+                                        3 => '3 bulan',
+                                        6 => '6 bulan',
+                                        12 => '12 bulan',
+                                        24 => '24 bulan',
+                                        36 => '36 bulan',
+                                    ])
+                                    ->default(3)
+                                    ->live()
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculateCicilan($get, $set);
+                                        // Reset custom data when jumlah changed
+                                        if ($get('mode_cicilan') === 'custom') {
+                                            self::resetCustomAngsuranData($get, $set);
+                                        }
+                                    })
+                                    ->visible(fn (callable $get) => $get('tipe_pembayaran') === 'cicilan'),
+                                    
+                                Forms\Components\Select::make('mode_cicilan')
+                                    ->label('Mode Cicilan')
+                                    ->options([
+                                        'auto' => 'Auto (Nominal Sama)',
+                                        'custom' => 'Custom (Nominal Berbeda)',
+                                    ])
+                                    ->default('auto')
+                                    ->live()
+                                    ->afterStateUpdated(function (callable $get, callable $set, $state) {
+                                        if ($state === 'custom') {
+                                            self::initCustomAngsuranData($get, $set);
+                                        } else {
+                                            $set('custom_angsuran_data', null);
+                                            self::calculateCicilan($get, $set);
+                                        }
+                                    })
+                                    ->visible(fn (callable $get) => $get('tipe_pembayaran') === 'cicilan'),
+                                    
+                                Forms\Components\TextInput::make('periode_mulai_cicilan')
+                                    ->label('Periode Mulai Cicilan')
+                                    ->helperText('Format: YYYYMM (contoh: 202410)')
+                                    ->numeric()
+                                    ->minValue(202401)
+                                    ->maxValue(203012)
+                                    ->live()
+                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                        self::calculateCicilan($get, $set);
+                                    })
+                                    ->visible(fn (callable $get) => $get('tipe_pembayaran') === 'cicilan'),
+                            ]),
+                            
+                        // Auto Cicilan Display
+                        Forms\Components\Grid::make(1)
+                            ->schema([
+                                Forms\Components\TextInput::make('nominal_per_cicilan')
+                                    ->label('Nominal Per Cicilan')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => 'bg-gray-50 font-semibold'])
+                                    ->helperText('Dihitung otomatis dari total biaya dibagi jumlah cicilan')
+                                    ->visible(fn (callable $get) => 
+                                        $get('tipe_pembayaran') === 'cicilan' && 
+                                        $get('mode_cicilan') === 'auto'
+                                    ),
+                            ]),
+                            
+                        // Custom Cicilan Input
+                        Forms\Components\Grid::make(1)
+                            ->schema([
+                                Forms\Components\Repeater::make('custom_angsuran_data')
+                                    ->label('Detail Angsuran Custom')
+                                    ->schema([
+                                        Forms\Components\Grid::make(3)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('periode')
+                                                    ->label('Periode')
+                                                    ->readOnly()
+                                                    ->extraAttributes(['class' => 'bg-gray-50']),
+                                                    
+                                                Forms\Components\TextInput::make('nominal')
+                                                    ->label('Nominal')
+                                                    ->numeric()
+                                                    ->prefix('Rp')
+                                                    ->required()
+                                                    ->live(debounce: 1000)
+                                                    ->afterStateUpdated(function (callable $get, callable $set) {
+                                                        self::validateCustomTotal($get, $set);
+                                                    }),
+                                                    
+                                                Forms\Components\TextInput::make('catatan')
+                                                    ->label('Catatan')
+                                                    ->placeholder('Catatan untuk periode ini...'),
+                                            ]),
+                                    ])
+                                    ->addable(false)
+                                    ->deletable(false)
+                                    ->reorderable(false)
+                                    ->visible(fn (callable $get) => 
+                                        $get('tipe_pembayaran') === 'cicilan' && 
+                                        $get('mode_cicilan') === 'custom'
+                                    )
+                                    ->columnSpanFull(),
+                                    
+                                Forms\Components\Placeholder::make('custom_validation_info')
+                                    ->label('Validasi Total')
+                                    ->content(function (callable $get) {
+                                        $customData = $get('custom_angsuran_data') ?? [];
+                                        $totalCustom = collect($customData)->sum('nominal');
+                                        $totalBiaya = (float) ($get('total_biaya_sambungan_baru') ?? 0);
+                                        $selisih = $totalCustom - $totalBiaya;
+                                        
+                                        if (abs($selisih) < 0.01) {
+                                            return "✅ Total Custom: Rp " . number_format($totalCustom, 0, ',', '.') . " (SESUAI)";
+                                        } else {
+                                            $status = $selisih > 0 ? 'KELEBIHAN' : 'KEKURANGAN';
+                                            return "❌ Total Custom: Rp " . number_format($totalCustom, 0, ',', '.') . 
+                                                   " | Target: Rp " . number_format($totalBiaya, 0, ',', '.') . 
+                                                   " | {$status}: Rp " . number_format(abs($selisih), 0, ',', '.');
+                                        }
+                                    })
+                                    ->visible(fn (callable $get) => 
+                                        $get('tipe_pembayaran') === 'cicilan' && 
+                                        $get('mode_cicilan') === 'custom'
+                                    ),
+                            ]),
+                            
+                        Forms\Components\Textarea::make('catatan_pembayaran')
+                            ->label('Catatan Pembayaran')
+                            ->rows(2)
+                            ->placeholder('Catatan khusus mengenai pembayaran atau cicilan...')
+                            ->visible(fn (callable $get) => $get('tipe_pembayaran') === 'cicilan')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
+                    
                 Forms\Components\Section::make('Catatan')
                     ->schema([
                         Forms\Components\Textarea::make('catatan_rab')
@@ -340,11 +512,67 @@ class RabResource extends Resource
         // Total biaya sambungan baru = total piutang + nominal pajak
         $totalBiayaSambunganBaru = $totalPiutang + $nominalPajak;
         $set('total_biaya_sambungan_baru', $totalBiayaSambunganBaru);
+        
+        // Trigger cicilan calculation if applicable
+        self::calculateCicilan($get, $set);
+    }
+
+    protected static function calculateCicilan(callable $get, callable $set): void
+    {
+        $tipePembayaran = $get('tipe_pembayaran');
+        $modeCicilan = $get('mode_cicilan');
+        
+        if ($tipePembayaran !== 'cicilan' || $modeCicilan === 'custom') {
+            return;
+        }
+        
+        $totalBiayaSambunganBaru = (float) ($get('total_biaya_sambungan_baru') ?? 0);
+        $jumlahCicilan = (int) ($get('jumlah_cicilan') ?? 1);
+        
+        if ($totalBiayaSambunganBaru > 0 && $jumlahCicilan > 0) {
+            $nominalPerCicilan = $totalBiayaSambunganBaru / $jumlahCicilan;
+            $set('nominal_per_cicilan', $nominalPerCicilan);
+        }
+    }
+
+    protected static function initCustomAngsuranData(callable $get, callable $set): void
+    {
+        $jumlahCicilan = (int) ($get('jumlah_cicilan') ?? 3);
+        $periodeStart = (int) ($get('periode_mulai_cicilan') ?? now()->format('Ym'));
+        $totalBiaya = (float) ($get('total_biaya_sambungan_baru') ?? 0);
+        $nominalDefault = $totalBiaya > 0 ? $totalBiaya / $jumlahCicilan : 0;
+        
+        $customData = [];
+        
+        for ($i = 1; $i <= $jumlahCicilan; $i++) {
+            $tanggalPeriode = \Carbon\Carbon::createFromFormat('Ym', $periodeStart)->addMonths($i - 1);
+            $periode = $tanggalPeriode->format('F Y');
+            
+            $customData[] = [
+                'periode' => "Cicilan ke-{$i} ({$periode})",
+                'nominal' => $nominalDefault,
+                'catatan' => '',
+            ];
+        }
+        
+        $set('custom_angsuran_data', $customData);
+    }
+
+    protected static function resetCustomAngsuranData(callable $get, callable $set): void
+    {
+        self::initCustomAngsuranData($get, $set);
+    }
+
+    protected static function validateCustomTotal(callable $get, callable $set): void
+    {
+        // This method will trigger the reactive validation in the Placeholder
+        // No need to do anything here since the validation is handled in the content callback
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['pendaftaran']))
             ->columns([
                 Tables\Columns\TextColumn::make('pendaftaran.nomor_registrasi')
                     ->label('No. Registrasi')
@@ -390,6 +618,68 @@ class RabResource extends Resource
                     ->money('IDR')
                     ->sortable(),
                     
+                Tables\Columns\BadgeColumn::make('tipe_pembayaran')
+                    ->label('Tipe Pembayaran')
+                    ->colors([
+                        'success' => 'lunas',
+                        'warning' => 'cicilan',
+                    ])
+                    ->icons([
+                        'heroicon-o-banknotes' => 'lunas',
+                        'heroicon-o-credit-card' => 'cicilan',
+                    ])
+                    ->formatStateUsing(function (string $state, $record): string {
+                        if ($state === 'cicilan' && $record && $record->mode_cicilan === 'custom') {
+                            return 'Cicilan Custom';
+                        }
+                        return match ($state) {
+                            'lunas' => 'Lunas',
+                            'cicilan' => 'Cicilan Auto',
+                            default => $state,
+                        };
+                    }),
+                    
+                Tables\Columns\BadgeColumn::make('mode_cicilan')
+                    ->label('Mode Cicilan')
+                    ->colors([
+                        'info' => 'auto',
+                        'warning' => 'custom',
+                    ])
+                    ->icons([
+                        'heroicon-o-calculator' => 'auto',
+                        'heroicon-o-cog-6-tooth' => 'custom',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'auto' => 'Auto',
+                        'custom' => 'Custom',
+                        default => '-',
+                    })
+                    ->visible(fn ($record) => $record && $record->tipe_pembayaran === 'cicilan')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                Tables\Columns\TextColumn::make('jumlah_cicilan')
+                    ->label('Jumlah Cicilan')
+                    ->formatStateUsing(fn ($state, $record) => 
+                        $record && $record->tipe_pembayaran === 'cicilan' 
+                            ? ($state ? $state . ' bulan' : '-') 
+                            : '-'
+                    )
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                Tables\Columns\TextColumn::make('nominal_per_cicilan')
+                    ->label('Nominal Per Cicilan')
+                    ->money('IDR')
+                    ->formatStateUsing(function ($state, $record) {
+                        if (!$record || $record->tipe_pembayaran !== 'cicilan') {
+                            return '-';
+                        }
+                        if ($record->mode_cicilan === 'custom') {
+                            return 'Bervariasi';
+                        }
+                        return 'Rp ' . number_format($state, 0, ',', '.');
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
                 Tables\Columns\TextColumn::make('golongan_tarif')
                     ->label('Golongan Tarif')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -419,6 +709,13 @@ class RabResource extends Resource
                     ->options([
                         'standar' => 'Standar',
                         'non_standar' => 'Non Standar',
+                    ]),
+                    
+                Tables\Filters\SelectFilter::make('tipe_pembayaran')
+                    ->label('Tipe Pembayaran')
+                    ->options([
+                        'lunas' => 'Lunas',
+                        'cicilan' => 'Cicilan',
                     ]),
                     
                 Tables\Filters\Filter::make('tanggal_input')
