@@ -28,6 +28,25 @@ class EditRab extends EditRecord
 
     protected function afterSave(): void
     {
+        // Generate ulang angsuran jika tipe pembayaran berubah ke cicilan
+        // atau jika ada perubahan dalam jumlah/nominal cicilan
+        if ($this->record && $this->record->tipe_pembayaran === 'cicilan') {
+            // Validate custom angsuran jika mode custom
+            if ($this->record->mode_cicilan === 'custom') {
+                $validation = $this->record->validateCustomAngsuran();
+                if (!$validation['valid']) {
+                    \Filament\Notifications\Notification::make()
+                        ->title('Peringatan: Total Custom Angsuran Tidak Sesuai')
+                        ->body("Total custom: Rp " . number_format($validation['total_custom'], 0, ',', '.') . 
+                               " | Target: Rp " . number_format($validation['total_biaya'], 0, ',', '.'))
+                        ->warning()
+                        ->send();
+                }
+            }
+            
+            $this->record->generateAngsuran();
+        }
+        
         // Send notification if status changed
         if ($this->oldStatus && $this->oldStatus !== $this->record->status_rab) {
             $notificationService = app(\App\Services\WorkflowNotificationService::class);
