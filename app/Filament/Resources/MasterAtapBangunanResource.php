@@ -17,7 +17,7 @@ class MasterAtapBangunanResource extends Resource
 {
     protected static ?string $model = MasterAtapBangunan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-map';
 
     protected static ?string $navigationGroup = 'Master Data';
 

@@ -69,23 +69,36 @@ class MasterJenisPengaduanResource extends Resource
                 Forms\Components\Section::make('Metadata')
                     ->collapsed()
                     ->schema([
-                        Forms\Components\TextInput::make('dibuat_oleh')
-                            ->label('Dibuat Oleh')
-                            ->readOnly()
-                            ->default(fn() => auth()->user()->name ?? 'SYSTEM'),
-                        Forms\Components\DateTimePicker::make('dibuat_pada')
-                            ->label('Dibuat Pada')
-                            ->default(now())
-                            ->readOnly(),
-                        Forms\Components\TextInput::make('diperbarui_oleh')
-                            ->label('Diperbarui Oleh')
-                            ->readOnly()
-                            ->dehydrated(false),
-                        Forms\Components\DateTimePicker::make('diperbarui_pada')
-                            ->label('Diperbarui Pada')
-                            ->readOnly()
-                            ->dehydrated(false),
-                    ])
+                        Forms\Components\Grid::make()
+                            ->columns(2)
+                            ->schema([
+                               Forms\Components\TextInput::make('dibuat_oleh')
+                                    ->label('Dibuat Oleh')
+                                    ->default(fn() => auth()->user()->name ?? 'SYSTEM')
+                                    ->disabled()
+                                    ->dehydrated(true),
+
+                                Forms\Components\DateTimePicker::make('dibuat_pada')
+                                    ->label('Dibuat Pada')
+                                    ->default(now())
+                                    ->disabled()
+                                    ->dehydrated(true),
+
+                                Forms\Components\TextInput::make('diperbarui_oleh')
+                                    ->label('Diperbarui Oleh')
+                                    ->default(fn() => auth()->user()->name ?? 'SYSTEM')
+                                    ->disabled()
+                                    ->dehydrated(true),
+
+                                Forms\Components\DateTimePicker::make('diperbarui_pada')
+                                    ->label('Diperbarui Pada')
+                                    ->default(now())
+                                    ->disabled()
+                                    ->dehydrated(true),
+                            ]),
+
+                        ]),
+
             ]);
     }
 
@@ -120,48 +133,51 @@ class MasterJenisPengaduanResource extends Resource
             Tables\Columns\TextColumn::make('dibuat_pada')
                 ->label('Dibuat Pada')
                 ->dateTime('d M Y H:i')
-                ->sortable(),
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
 
             Tables\Columns\TextColumn::make('diperbarui_pada')
                 ->label('Diperbarui')
                 ->dateTime('d M Y H:i')
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
-        ])->columns([
-            Tables\Columns\TextColumn::make('kode_jenis')
-                ->label('Kode')
-                ->badge()
-                ->color('info')
-                ->searchable()
-                ->sortable(),
+                    ])
+                    ->columns([
+                        Tables\Columns\TextColumn::make('kode_jenis')
+                            ->label('Kode')
+                            ->badge()
+                            ->color('info')
+                            ->searchable()
+                            ->sortable(),
 
-            Tables\Columns\TextColumn::make('nama_jenis')
-                ->label('Nama Jenis Pengaduan')
-                ->searchable()
-                ->wrap(),
+                        Tables\Columns\TextColumn::make('nama_jenis')
+                            ->label('Nama Jenis Pengaduan')
+                            ->searchable()
+                            ->wrap(),
 
-            Tables\Columns\TextColumn::make('prioritas.nama_prioritas')
-                ->label('Prioritas Otomatis')
-                ->badge()
-                ->color(fn($record) => match($record->prioritas->nama_prioritas ?? null) {
-                    'Tinggi' => 'danger',
-                    'Sedang' => 'warning',
-                    'Rendah' => 'success',
-                    default => 'gray',
-                })
-                ->sortable(),
+                        Tables\Columns\TextColumn::make('prioritas.nama_prioritas')
+                            ->label('Prioritas Otomatis')
+                            ->badge()
+                            ->color(fn($record) => match($record->prioritas->nama_prioritas ?? null) {
+                                'Tinggi' => 'danger',
+                                'Sedang' => 'warning',
+                                'Rendah' => 'success',
+                                default => 'gray',
+                            })
+                            ->sortable(),
 
-            Tables\Columns\TextColumn::make('dibuat_pada')
-                ->label('Dibuat Pada')
-                ->dateTime('d M Y H:i')
-                ->sortable(),
+                        Tables\Columns\TextColumn::make('dibuat_pada')
+                            ->label('Dibuat Pada')
+                            ->dateTime('d M Y H:i')
+                            ->sortable()
+                            ->toggleable(isToggledHiddenByDefault: true),
 
-            Tables\Columns\TextColumn::make('diperbarui_pada')
-                ->label('Diperbarui')
-                ->dateTime('d M Y H:i')
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-        ])
+                        Tables\Columns\TextColumn::make('diperbarui_pada')
+                            ->label('Diperbarui')
+                            ->dateTime('d M Y H:i')
+                            ->sortable()
+                            ->toggleable(isToggledHiddenByDefault: true),
+                    ])
            ->filters([
                 Tables\Filters\SelectFilter::make('id_prioritas_pengaduan')
                     ->label('Prioritas')

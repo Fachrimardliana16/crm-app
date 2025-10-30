@@ -19,9 +19,9 @@ class PembayaranResource extends Resource
 {
     protected static ?string $model = Pembayaran::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static ?string $navigationLabel = 'Data Pembayaran';
-    protected static ?string $modelLabel = 'Data Pembayaran';
-    protected static ?string $pluralModelLabel = 'Data Pembayaran';
+    protected static ?string $navigationLabel = 'Data Transaksi';
+    protected static ?string $modelLabel = 'Data Transaksi';
+    protected static ?string $pluralModelLabel = 'Data Transaksi';
     protected static ?string $navigationGroup = 'Transaksi';
     protected static ?int $navigationSort = 2;
 
@@ -298,8 +298,6 @@ class PembayaranResource extends Resource
     {
         return [
             'index' => Pages\ListPembayarans::route('/'),
-            'create' => Pages\CreatePembayaran::route('/create'),
-            'edit' => Pages\EditPembayaran::route('/{record}/edit'),
         ];
     }
 }

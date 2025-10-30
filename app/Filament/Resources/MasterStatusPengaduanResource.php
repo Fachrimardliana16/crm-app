@@ -48,8 +48,9 @@ class MasterStatusPengaduanResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('dibuat_oleh')
                             ->label('Dibuat Oleh')
-                            ->default(auth()->user()?->name ?? 'System')
-                            ->maxLength(255),
+                            ->default(fn() => auth()->user()->name ?? 'SYSTEM')
+                            ->disabled()
+                            ->dehydrated(true),
 
                         Forms\Components\DateTimePicker::make('dibuat_pada')
                             ->label('Dibuat Pada')
@@ -59,14 +60,16 @@ class MasterStatusPengaduanResource extends Resource
 
                         Forms\Components\TextInput::make('diperbarui_oleh')
                             ->label('Diperbarui Oleh')
-                            ->default(auth()->user()?->name ?? 'System')
-                            ->maxLength(255),
+                            ->default(fn() => auth()->user()->name ?? 'SYSTEM')
+                            ->disabled()
+                            ->dehydrated(true),
 
                         Forms\Components\DateTimePicker::make('diperbarui_pada')
                             ->label('Diperbarui Pada')
                             ->default(now())
                             ->disabled()
                             ->dehydrated(true),
+
                     ])
                     ->columns(2),
             ]);
@@ -93,12 +96,14 @@ class MasterStatusPengaduanResource extends Resource
                 Tables\Columns\TextColumn::make('dibuat_pada')
                     ->label('Dibuat Pada')
                     ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('diperbarui_pada')
                     ->label('Diperbarui Pada')
                     ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
               //

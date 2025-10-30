@@ -17,7 +17,7 @@ class MasterLuasBangunanResource extends Resource
 {
     protected static ?string $model = MasterLuasBangunan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
 
     protected static ?string $navigationGroup = 'Master Data';
 

@@ -17,7 +17,7 @@ class MasterPagarBangunanResource extends Resource
 {
     protected static ?string $model = MasterPagarBangunan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-table-cells';
 
     protected static ?string $navigationGroup = 'Master Data';
 

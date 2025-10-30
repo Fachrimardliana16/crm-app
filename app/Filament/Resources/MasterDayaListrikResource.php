@@ -17,7 +17,7 @@ class MasterDayaListrikResource extends Resource
 {
     protected static ?string $model = MasterDayaListrik::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-bolt';
 
     protected static ?string $navigationGroup = 'Master Data';
 
