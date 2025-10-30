@@ -47,7 +47,17 @@ class AngsuranResource extends Resource
                                 number_format((float) ($record->total_biaya_sambungan_baru ?? 0), 0, ',', '.') . ")"
                             )
                             ->searchable(['nama_pelanggan'])
-                            ->preload()
+                            ->getSearchResultsUsing(fn (string $search): array => 
+                                \App\Models\Rab::whereHas('pendaftaran', function($query) use ($search) {
+                                    $query->where('nomor_registrasi', 'like', "%{$search}%");
+                                })
+                                ->orWhere('nama_pelanggan', 'like', "%{$search}%")
+                                ->with('pendaftaran')
+                                ->limit(50)
+                                ->get()
+                                ->pluck('nama_pelanggan', 'id_rab')
+                                ->toArray()
+                            )
                             ->required()
                             ->disabled(fn ($context) => $context === 'edit'),
                     ])
@@ -141,7 +151,6 @@ class AngsuranResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['rab.pendaftaran']))
             ->columns([
                 Tables\Columns\TextColumn::make('rab.pendaftaran.nomor_registrasi')
                     ->label('No. Registrasi')
@@ -212,6 +221,8 @@ class AngsuranResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('periode_tagihan', 'desc')
+            ->defaultPaginationPageOption(25)
+            ->extremePaginationLinks()
             ->filters([
                 Tables\Filters\SelectFilter::make('status_bayar')
                     ->label('Status Bayar')
@@ -404,6 +415,7 @@ class AngsuranResource extends Resource
         return [
             'index' => Pages\ListAngsurans::route('/'),
             'create' => Pages\CreateAngsuran::route('/create'),
+            'view' => Pages\ViewAngsuran::route('/{record}'),
             'edit' => Pages\EditAngsuran::route('/{record}/edit'),
         ];
     }
