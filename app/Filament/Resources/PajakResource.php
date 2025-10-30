@@ -24,7 +24,7 @@ class PajakResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pajak';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Pembayaran';
 
     protected static ?int $navigationSort = 7;
 
@@ -81,16 +81,16 @@ class PajakResource extends Resource
                                     ->step(0.01)
                                     ->suffix('%')
                                     ->placeholder('11.00')
-                                    ->visible(fn (callable $get) => $get('jenis_pajak') === 'persentase')
-                                    ->required(fn (callable $get) => $get('jenis_pajak') === 'persentase'),
+                                    ->visible(fn(callable $get) => $get('jenis_pajak') === 'persentase')
+                                    ->required(fn(callable $get) => $get('jenis_pajak') === 'persentase'),
 
                                 Forms\Components\TextInput::make('nilai_tetap')
                                     ->label('Nilai Tetap')
                                     ->numeric()
                                     ->prefix('Rp')
                                     ->placeholder('50000')
-                                    ->visible(fn (callable $get) => $get('jenis_pajak') === 'nilai_tetap')
-                                    ->required(fn (callable $get) => $get('jenis_pajak') === 'nilai_tetap'),
+                                    ->visible(fn(callable $get) => $get('jenis_pajak') === 'nilai_tetap')
+                                    ->required(fn(callable $get) => $get('jenis_pajak') === 'nilai_tetap'),
                             ]),
 
                         Forms\Components\Toggle::make('status_aktif')
@@ -181,7 +181,7 @@ class PajakResource extends Resource
                         'success' => 'persentase',
                         'warning' => 'nilai_tetap',
                     ])
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'persentase' => 'Persentase',
                         'nilai_tetap' => 'Nilai Tetap',
                         default => $state,
@@ -191,7 +191,7 @@ class PajakResource extends Resource
                     ->label('Persentase')
                     ->suffix('%')
                     ->sortable()
-                    ->visible(fn () => true)
+                    ->visible(fn() => true)
                     ->getStateUsing(function ($record) {
                         return $record->jenis_pajak === 'persentase' ? $record->persentase_pajak : '-';
                     }),

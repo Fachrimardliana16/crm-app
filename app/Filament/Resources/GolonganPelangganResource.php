@@ -25,7 +25,7 @@ class GolonganPelangganResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Golongan Pelanggan';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Survei';
 
     protected static ?int $navigationSort = 3;
 

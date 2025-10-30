@@ -24,7 +24,7 @@ class TipePendaftaranResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Tipe Pendaftaran';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Pendaftaran';
 
     protected static ?int $navigationSort = 6;
 
@@ -122,7 +122,7 @@ class TipePendaftaranResource extends Resource
                     ->label('Prioritas')
                     ->sortable()
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         '1' => 'success',
                         '2' => 'warning',
                         '3' => 'danger',

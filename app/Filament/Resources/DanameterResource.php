@@ -25,7 +25,7 @@ class DanameterResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Danameter';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Pembayaran';
 
     protected static ?int $navigationSort = 5;
 

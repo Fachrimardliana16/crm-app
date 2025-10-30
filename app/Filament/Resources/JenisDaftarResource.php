@@ -24,7 +24,7 @@ class JenisDaftarResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Jenis Daftar';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Pendaftaran';
 
     protected static ?int $navigationSort = 5;
 

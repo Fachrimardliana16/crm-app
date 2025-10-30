@@ -23,7 +23,7 @@ class KasResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Pembayaran';
 
     protected static ?string $navigationLabel = 'Master Kas';
 
@@ -58,7 +58,7 @@ class KasResource extends Resource
                     ])
                     ->columns(2),
 
-                    Section::make('Informasi Tambahan')
+                Section::make('Informasi Tambahan')
                     ->schema([
                         Forms\Components\Textarea::make('alamat')
                             ->label('Alamat')

@@ -24,7 +24,7 @@ class TipeLayananResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Tipe Layanan';
 
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Master Pendaftaran';
 
     protected static ?int $navigationSort = 4;
 
