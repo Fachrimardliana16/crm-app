@@ -21,12 +21,12 @@ class ListAngsurans extends ListRecords
         ];
     }
 
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            AngsuranResource\Widgets\AngsuranStatOverview::class,
-        ];
-    }
+    // protected function getHeaderWidgets(): array
+    // {
+    //     return [
+    //         AngsuranResource\Widgets\AngsuranStatOverview::class,
+    //     ];
+    // }
 
     // Optimasi query untuk loading yang lebih cepat
     protected function getTableQuery(): Builder
