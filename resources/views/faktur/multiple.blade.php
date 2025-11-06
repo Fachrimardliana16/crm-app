@@ -14,22 +14,30 @@
 
         body {
             font-family: 'Courier New', monospace;
-            font-size: 10px;
-            line-height: 1.1;
+            font-size: 13px; /* Diperbesar untuk screen preview */
+            line-height: 1.4;
             color: #000;
-            background: white;
+            background: #f5f5f5;
+            margin: 10px;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 600px; /* Diperbesar lagi untuk preview yang lebih baik */
             margin: 0 auto;
-            padding: 8px;
+            padding: 15px; /* Diperbesar padding */
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .faktur-item {
             page-break-after: always;
-            margin-bottom: 15px;
+            margin-bottom: 30px; /* Diperbesar spacing */
+            border: 2px solid #ccc;
+            padding: 20px; /* Diperbesar padding */
+            background: white;
+            border-radius: 4px;
+            min-height: 400px; /* Minimum height untuk preview */
         }
 
         .faktur-item:last-child {
@@ -151,16 +159,151 @@
             margin-top: 8px;
         }
 
-        /* Print optimizations */
+        /* Print optimizations untuk 2 faktur vertikal - Font Lebih Besar, Gap Dikurangi */
         @media print {
             body {
-                font-size: 9px;
+                font-size: 14px; /* Diperbesar dari 12px */
+                line-height: 1.2; /* Dikurangi dari 1.3 untuk mengurangi gap */
+                margin: 0;
+                padding: 0;
             }
 
             .container {
-                padding: 5px;
+                /* Container untuk 2 faktur vertikal */
                 max-width: none;
                 width: 100%;
+                padding: 0.2cm; /* Dikurangi dari 0.3cm */
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 0.2cm; /* Dikurangi dari 0.3cm */
+            }
+
+            .faktur-item {
+                /* Setiap faktur ukuran setengah tinggi A4 */
+                width: 20.6cm;
+                height: 14.5cm;
+                max-width: 20.6cm;
+                max-height: 14.5cm;
+                padding: 0.5cm; /* Dikurangi sedikit dari 0.6cm */
+                margin: 0;
+                border: 1px solid #333;
+                page-break-inside: avoid;
+                box-sizing: border-box;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+
+            .faktur-item:nth-child(2n) {
+                page-break-after: always;
+            }
+
+            .faktur-item:last-child {
+                page-break-after: auto;
+            }
+
+            .header {
+                margin-bottom: 0.3cm; /* Dikurangi dari 0.5cm */
+            }
+
+            .header h1 {
+                font-size: 16px; /* Diperbesar dari 14px */
+                margin-bottom: 0.2cm; /* Dikurangi dari 0.3cm */
+                font-weight: bold;
+            }
+
+            .header .company {
+                font-size: 13px; /* Diperbesar dari 11px */
+                margin-bottom: 0.1cm; /* Dikurangi dari 0.2cm */
+            }
+
+            .separator {
+                margin: 0.2cm 0; /* Dikurangi dari 0.4cm */
+                font-size: 10px; /* Diperbesar dari 9px */
+            }
+
+            .info-container {
+                margin-bottom: 0.3cm; /* Dikurangi dari 0.5cm */
+                gap: 0.4cm; /* Dikurangi dari 0.5cm */
+            }
+
+            .info-left,
+            .info-right {
+                font-size: 13px; /* Diperbesar dari 11px */
+            }
+
+            .info-row {
+                margin-bottom: 0.15cm; /* Dikurangi dari 0.3cm */
+                line-height: 1.2; /* Dikurangi dari 1.4 */
+            }
+
+            .info-label {
+                width: 75px; /* Diperbesar dari 70px */
+                font-size: 13px; /* Diperbesar dari 11px */
+            }
+
+            .info-value {
+                font-size: 13px; /* Diperbesar dari 11px */
+                font-weight: bold;
+            }
+
+            .table-container {
+                margin: 0.3cm 0; /* Dikurangi dari 0.5cm */
+            }
+
+            .table-title {
+                font-size: 14px; /* Diperbesar dari 12px */
+                margin-bottom: 0.2cm; /* Dikurangi dari 0.3cm */
+                font-weight: bold;
+            }
+
+            .table-simple {
+                font-size: 13px; /* Diperbesar dari 11px */
+            }
+
+            .table-row {
+                padding: 0.1cm 0; /* Dikurangi dari 0.2cm */
+                line-height: 1.2; /* Dikurangi dari 1.4 */
+            }
+
+            .table-row.total {
+                margin-top: 0.2cm; /* Dikurangi dari 0.3cm */
+                font-weight: bold;
+                font-size: 14px; /* Diperbesar dari 12px */
+                border-top: 2px solid #000;
+            }
+
+            .col-desc {
+                flex: 1;
+                font-size: 13px; /* Diperbesar dari 11px */
+            }
+
+            .col-amount {
+                width: 100px; /* Diperbesar dari 90px */
+                text-align: right;
+                font-size: 13px; /* Diperbesar dari 11px */
+            }
+
+            .footer {
+                margin-top: 0.4cm; /* Dikurangi dari 0.6cm */
+                font-size: 12px; /* Diperbesar dari 10px */
+            }
+
+            .signature {
+                width: 130px; /* Diperbesar dari 120px */
+                text-align: center;
+            }
+
+            .signature-line {
+                margin-top: 0.8cm; /* Dikurangi dari 1cm */
+                padding-top: 0.2cm; /* Dikurangi dari 0.3cm */
+                font-size: 11px; /* Diperbesar dari 9px */
+                border-top: 1px solid #000;
+            }
+
+            .print-date {
+                font-size: 9px; /* Diperbesar dari 8px */
+                margin-top: 0.2cm; /* Dikurangi dari 0.3cm */
             }
 
             .no-print {
@@ -172,9 +315,10 @@
                 background: white !important;
             }
 
+            /* Pengaturan untuk 2 faktur vertikal dalam 1 halaman A4 */
             @page {
-                size: A5;
-                margin: 0.5cm;
+                size: A4 portrait;
+                margin: 0.2cm; /* Dikurangi dari 0.3cm untuk lebih banyak ruang */
             }
         }
 
@@ -182,15 +326,29 @@
             background: #000;
             color: white;
             border: 1px solid #000;
-            padding: 5px 10px;
-            font-size: 10px;
+            padding: 8px 15px;
+            font-size: 12px;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-family: 'Courier New', monospace;
+            border-radius: 3px;
         }
 
         .print-button:hover {
             background: #333;
+        }
+
+        /* Responsive preview untuk development */
+        @media screen and (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+            
+            .info-container {
+                flex-direction: column;
+                gap: 5px;
+            }
         }
     </style>
 </head>
@@ -210,6 +368,9 @@
                     <div class="company">{{ strtoupper($pendaftaran->kelurahan->kecamatan->nama_kecamatan ?? '') }}
                     </div>
                     <div class="company">Telp: (0123) 456789</div>
+                    <div style="font-size: 8px; font-weight: bold; margin-top: 2px; text-decoration: underline;">
+                        FAKTUR PEMBAYARAN
+                    </div>
                 </div>
 
                 <div class="separator">----------------------------------------------------</div>
@@ -335,7 +496,7 @@
                 </div>
 
                 <div class="print-date">
-                    Print: {{ now()->format('d-m-Y H:i') }}
+                    Print: {{ now()->format('d-m-Y H:i') }} WIB | Format: 2 Faktur Vertikal A4 | Item {{ $loop->iteration }}/{{ count($pendaftarans) }}
                 </div>
             </div>
         @endforeach
