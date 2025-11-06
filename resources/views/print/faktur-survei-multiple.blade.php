@@ -299,7 +299,7 @@
     <div class="page">
         <!-- Header -->
         <div class="header">
-            <h1>PERUSAHAAN DAERAH AIR MINUM (PDAM)</h1>
+            <h1>PERUSAHAAN DAERAH AIR MINUM TIRTA PERWIRA</h1>
             <h2>{{ $survei->pendaftaran->cabang->nama_cabang ?? 'PDAM' }}</h2>
             <p>{{ $survei->pendaftaran->cabang->alamat_cabang ?? '' }}</p>
             <p>Telp: {{ $survei->pendaftaran->cabang->no_telepon ?? '-' }} | Email: {{ $survei->pendaftaran->cabang->email ?? '-' }}</p>
