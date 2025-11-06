@@ -983,6 +983,20 @@ class SurveiResource extends Resource
 
                 // Action Group untuk actions lainnya
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('print_faktur')
+                        ->label('Print Faktur')
+                        ->icon('heroicon-o-printer')
+                        ->color('info')
+                        ->url(fn ($record) => route('survei.print-faktur', ['id' => $record->id_survei]))
+                        ->openUrlInNewTab(),
+
+                    Tables\Actions\Action::make('download_pdf')
+                        ->label('Download PDF')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->url(fn ($record) => route('survei.download-pdf', ['id' => $record->id_survei]))
+                        ->openUrlInNewTab(),
+
                     Tables\Actions\Action::make('input_hasil')
                         ->label('Input Hasil')
                         ->icon('heroicon-o-document-text')
@@ -1110,6 +1124,24 @@ class SurveiResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+
+                    Tables\Actions\BulkAction::make('print_multiple_faktur')
+                        ->label('Print Multiple Faktur')
+                        ->icon('heroicon-o-printer')
+                        ->color('info')
+                        ->action(function (Collection $records) {
+                            $ids = $records->pluck('id_survei')->toArray();
+                            return redirect()->route('survei.print-multiple', ['ids' => $ids]);
+                        }),
+
+                    Tables\Actions\BulkAction::make('download_multiple_pdf')
+                        ->label('Download Multiple PDF')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (Collection $records) {
+                            $ids = $records->pluck('id_survei')->toArray();
+                            return redirect()->route('survei.download-multiple-pdf', ['ids' => $ids]);
+                        }),
 
                     Tables\Actions\BulkAction::make('bulk_generate_sub_golongan')
                         ->label('Generate Sub Golongan')
