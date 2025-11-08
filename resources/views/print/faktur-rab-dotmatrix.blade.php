@@ -508,7 +508,13 @@
                         <div class="info-row">
                             <div class="info-label">Cicilan</div>
                             <div class="info-separator">:</div>
-                            <div class="info-value">{{ $rab->jumlah_cicilan ?? 0 }}x @ Rp {{ number_format($rab->nominal_per_cicilan ?? 0, 0, ',', '.') }}</div>
+                            <div class="info-value">
+                                @if($rab->mode_cicilan === 'auto')
+                                    {{ $rab->jumlah_cicilan ?? 0 }}x @ Rp {{ number_format($rab->nominal_per_cicilan ?? 0, 0, ',', '.') }}
+                                @else
+                                    {{ $rab->jumlah_cicilan ?? 0 }}x (Custom)
+                                @endif
+                            </div>
                         </div>
                         @endif
                         <div class="info-row">
