@@ -5,6 +5,7 @@ use App\Models\Pendaftaran;
 use App\Http\Controllers\FakturController;
 use App\Http\Controllers\PendaftaranReportController;
 use App\Http\Controllers\SurveiPrintController;
+use App\Http\Controllers\RabPrintController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,6 +34,32 @@ Route::post('/survei/print-multiple', [SurveiPrintController::class, 'printMulti
 
 Route::post('/survei/download-multiple-pdf', [SurveiPrintController::class, 'downloadMultiplePdf'])
     ->name('survei.download-multiple-pdf');
+
+// Route untuk print faktur RAB
+Route::get('/rab/print-faktur/{id}', [RabPrintController::class, 'printFaktur'])
+    ->name('rab.print-faktur');
+
+Route::get('/rab/download-pdf/{id}', [RabPrintController::class, 'downloadPdf'])
+    ->name('rab.download-pdf');
+
+Route::post('/rab/print-multiple', [RabPrintController::class, 'printMultiple'])
+    ->name('rab.print-multiple');
+
+Route::post('/rab/download-multiple-pdf', [RabPrintController::class, 'downloadMultiplePdf'])
+    ->name('rab.download-multiple-pdf');
+
+// Route untuk print faktur RAB - Dot Matrix
+Route::get('/rab/print-faktur-dotmatrix/{id}', [RabPrintController::class, 'printFakturDotMatrix'])
+    ->name('rab.print-faktur-dotmatrix');
+
+Route::get('/rab/download-pdf-dotmatrix/{id}', [RabPrintController::class, 'downloadPdfDotMatrix'])
+    ->name('rab.download-pdf-dotmatrix');
+
+Route::post('/rab/print-multiple-dotmatrix', [RabPrintController::class, 'printMultipleDotMatrix'])
+    ->name('rab.print-multiple-dotmatrix');
+
+Route::post('/rab/download-multiple-pdf-dotmatrix', [RabPrintController::class, 'downloadMultiplePdfDotMatrix'])
+    ->name('rab.download-multiple-pdf-dotmatrix');
 
 
 // Route untuk download MOU (Surat Pernyataan) pendaftaran

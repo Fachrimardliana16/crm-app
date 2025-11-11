@@ -745,8 +745,37 @@ class RabResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->label('Edit')
                     ->icon('heroicon-o-pencil'),
+                
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('print_faktur_laser')
+                        ->label('🖨️ Print Faktur (Laser/Inkjet)')
+                        ->icon('heroicon-o-printer')
+                        ->color('info')
+                        ->url(fn ($record) => route('rab.print-faktur', ['id' => $record->id_rab]))
+                        ->openUrlInNewTab(),
+
+                    Tables\Actions\Action::make('download_pdf_laser')
+                        ->label('📥 Download PDF (Laser/Inkjet)')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->url(fn ($record) => route('rab.download-pdf', ['id' => $record->id_rab]))
+                        ->openUrlInNewTab(),
+
+                    Tables\Actions\Action::make('print_faktur_dotmatrix')
+                        ->label('🖨️ Print Faktur (Dot Matrix)')
+                        ->icon('heroicon-o-printer')
+                        ->color('warning')
+                        ->url(fn ($record) => route('rab.print-faktur-dotmatrix', ['id' => $record->id_rab]))
+                        ->openUrlInNewTab(),
+
+                    Tables\Actions\Action::make('download_pdf_dotmatrix')
+                        ->label('📥 Download PDF (Dot Matrix)')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('warning')
+                        ->url(fn ($record) => route('rab.download-pdf-dotmatrix', ['id' => $record->id_rab]))
+                        ->openUrlInNewTab(),
                     
-                Tables\Actions\Action::make('approve')
+                    Tables\Actions\Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check')
                     ->color('success')
@@ -795,11 +824,53 @@ class RabResource extends Resource
                             ->warning()
                             ->send();
                     }),
+                ])
+                ->label('More')
+                ->icon('heroicon-m-ellipsis-horizontal')
+                ->size('sm')
+                ->button()
+                ->outlined(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),
+                    
+                    Tables\Actions\BulkAction::make('print_multiple_faktur_laser')
+                        ->label('🖨️ Print Multiple (Laser/Inkjet)')
+                        ->icon('heroicon-o-printer')
+                        ->color('info')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $ids = $records->pluck('id_rab')->toArray();
+                            return redirect()->route('rab.print-multiple', ['ids' => $ids]);
+                        }),
+
+                    Tables\Actions\BulkAction::make('download_multiple_pdf_laser')
+                        ->label('📥 Download PDF Multiple (Laser/Inkjet)')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $ids = $records->pluck('id_rab')->toArray();
+                            return redirect()->route('rab.download-multiple-pdf', ['ids' => $ids]);
+                        }),
+
+                    Tables\Actions\BulkAction::make('print_multiple_faktur_dotmatrix')
+                        ->label('🖨️ Print Multiple (Dot Matrix)')
+                        ->icon('heroicon-o-printer')
+                        ->color('warning')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $ids = $records->pluck('id_rab')->toArray();
+                            return redirect()->route('rab.print-multiple-dotmatrix', ['ids' => $ids]);
+                        }),
+
+                    Tables\Actions\BulkAction::make('download_multiple_pdf_dotmatrix')
+                        ->label('📥 Download PDF Multiple (Dot Matrix)')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('warning')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $ids = $records->pluck('id_rab')->toArray();
+                            return redirect()->route('rab.download-multiple-pdf-dotmatrix', ['ids' => $ids]);
+                        }),
                 ]),
             ])
             ->defaultSort('tanggal_rab_dibuat', 'desc');
